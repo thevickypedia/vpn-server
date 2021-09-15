@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>VPN Server &#8212; VPN Server  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to VPN Server’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to VPN Server’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">VPN Server  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">VPN Server</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="vpn-server">
+<h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
+<p>Automate on demand VPN Server creation running with OpenVPN using AWS EC2 and Python</p>
+<section id="instructions">
+<h2>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">¶</a></h2>
+<section id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/thevickypedia/openvpn.git</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">vpn.py</span></code></p></li>
+</ol>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li><p>Run the first command printed in <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code>.</p></li>
+<li><p>Enter <code class="docutils literal notranslate"><span class="pre">yes</span></code> when prompted to allow the PEM file.</p></li>
+<li><p>Accept the agreement when prompted.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Please</span> <span class="pre">enter</span> <span class="pre">'yes'</span> <span class="pre">to</span> <span class="pre">indicate</span> <span class="pre">your</span> <span class="pre">agreement</span> <span class="pre">[no]:</span> </code></p></li>
+</ul>
+</li>
+<li><p>Hit <code class="docutils literal notranslate"><span class="pre">Enter/Return</span></code> for rest of the prompts.</p></li>
+<li><p>Run the second command printed in <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code> to finish the configuration.</p></li>
+</ol>
+</section>
+</section>
+<section id="linting">
+<h2>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">PreCommit</span></code> will ensure linting, and the doc creation are run on every commit.</p>
+<p>Requirement:
+<br>
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--no-cache</span> <span class="pre">--upgrade</span> <span class="pre">sphinx</span> <span class="pre">pre-commit</span> <span class="pre">recommonmark</span></code></p>
+<p>Usage:
+<br>
+<code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code></p>
+</section>
+<section id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/thevickypedia/openvpn">Repository</a></p>
+<p><a class="reference external" href="https://thevickypedia.github.io/openvpn/">Runbook</a></p>
+</section>
+<section id="license-copyright">
+<h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this headline">¶</a></h2>
+<p>© Vignesh Sivanandha Rao</p>
+<p>Licensed under the <a class="reference external" href="LICENSE">MIT License</a></p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">VPN Server</a><ul>
+<li><a class="reference internal" href="#instructions">Instructions</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#linting">Linting</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
+<li><a class="reference internal" href="#license-copyright">License &amp; copyright</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to VPN Server’s documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/README.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to VPN Server’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">VPN Server  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">VPN Server</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Vignesh Sivanandha Rao.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

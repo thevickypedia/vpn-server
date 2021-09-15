@@ -1,5 +1,5 @@
 from json import dump
-from logging import getLogger, basicConfig, INFO
+from logging import INFO, basicConfig, getLogger
 from os import environ, path, system
 from time import sleep
 
@@ -7,12 +7,13 @@ from boto3 import client, resource
 from botocore.exceptions import ClientError
 
 
-class OpenVPN:
-    """Initiates OpenVPN object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
+class VPNServer:
+    """Initiates VPNServer object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
 
-    >>> OpenVPN
+    >>> VPNServer
 
     """
+
     def __init__(self):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module."""
         self.key_name = 'OpenVPN'
@@ -188,4 +189,4 @@ class OpenVPN:
 
 
 if __name__ == '__main__':
-    OpenVPN().configure_openvpn()
+    VPNServer().configure_openvpn()

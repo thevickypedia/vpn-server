@@ -3,7 +3,7 @@ Automate on demand VPN Server creation running with OpenVPN using AWS EC2 and Py
 
 ### Instructions
 #### Setup
-1. `git clone https://github.com/thevickypedia/vpn-server.git`
+1. `git clone https://github.com/thevickypedia/openvpn.git`
 2. `python3 -m venv venv`
 3. `source venv/bin/activate`
 4. `pip3 install -r requirements.txt`
@@ -29,9 +29,9 @@ Usage:
 `pre-commit run --all-files`
 
 ### Links
-[Repository](https://github.com/thevickypedia/vpn-server)
+[Repository](https://github.com/thevickypedia/openvpn)
 
-[Runbook](https://thevickypedia.github.io/vpn-server/)
+[Runbook](https://thevickypedia.github.io/openvpn/)
 
 ## License & copyright
 

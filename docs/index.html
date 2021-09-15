@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to VPN Server’s documentation! &#8212; VPN Server  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="VPN Server" href="README.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="README.html" title="VPN Server"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">VPN Server  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to VPN Server’s documentation!</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="welcome-to-vpn-server-s-documentation">
+<h1>Welcome to VPN Server’s documentation!<a class="headerlink" href="#welcome-to-vpn-server-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Read Me:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">VPN Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html#instructions">Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#linting">Linting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#links">Links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#license-copyright">License &amp; copyright</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="module-vpn">
+<span id="vpn-server"></span><h1>VPN Server<a class="headerlink" href="#module-vpn" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vpn.VPNServer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><a class="headerlink" href="#vpn.VPNServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiates VPNServer object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">VPNServer</span>
+</pre></div>
+</div>
+<p>Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using <code class="docutils literal notranslate"><span class="pre">boto3</span></code> module.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._create_key_pair">
+<span class="sig-name descname"><span class="pre">_create_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._create_key_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> of type <code class="docutils literal notranslate"><span class="pre">RSA</span></code> stored as a <code class="docutils literal notranslate"><span class="pre">PEM</span></code> file to use with <code class="docutils literal notranslate"><span class="pre">OpenSSH</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Flag to indicate the calling function if or not a <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> was created.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._delete_key_pair">
+<span class="sig-name descname"><span class="pre">_delete_key_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._delete_key_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key_name</strong> – Takes <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> name as argument. Defaults to the one mentioned when the object was initialized.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flag to indicate the calling function if or not the <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> was deleted.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._instance_info">
+<span class="sig-name descname"><span class="pre">_instance_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#vpn.VPNServer._instance_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a <code class="docutils literal notranslate"><span class="pre">describe_instance_status</span></code> API call to get the status of the instance that was created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instance_id</strong> – Takes the instance ID as an argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple object of Public DNS Name and Public IP Address.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer.configure_openvpn">
+<span class="sig-name descname"><span class="pre">configure_openvpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.configure_openvpn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the functions <code class="docutils literal notranslate"><span class="pre">create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> and then configures the VPN server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer.create_ec2_instance">
+<span class="sig-name descname"><span class="pre">create_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.VPNServer.create_ec2_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an EC2 instance of type <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> with the pre-configured AMI id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Instance ID.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer.terminate_ec2_instance">
+<span class="sig-name descname"><span class="pre">terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminates the requested instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instance_id</strong> – Takes instance ID as an argument.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to VPN Server’s documentation!</a></li>
+<li><a class="reference internal" href="#module-vpn">VPN Server</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="README.html"
+                        title="next chapter">VPN Server</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="README.html" title="VPN Server"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">VPN Server  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to VPN Server’s documentation!</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Vignesh Sivanandha Rao.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
