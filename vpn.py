@@ -1,4 +1,4 @@
-from json import dump
+from json import dump, load
 from logging import INFO, basicConfig, getLogger
 from os import environ, path, system
 from time import sleep
@@ -17,6 +17,7 @@ class VPNServer:
     def __init__(self):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module."""
         self.key_name = 'OpenVPN'
+        self.instance_file = 'instance_info.json'
         basicConfig(
             format='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
             datefmt='%b-%d-%Y %I:%M:%S %p', level=INFO
@@ -107,12 +108,22 @@ class VPNServer:
         else:
             self.logger.error(f'Failed to delete the key: {self.key_name}')
 
-    def terminate_ec2_instance(self, instance_id: str) -> None:
+    def terminate_ec2_instance(self, instance_id: str = None) -> None:
         """Terminates the requested instance.
 
         Args:
-            instance_id: Takes instance ID as an argument.
+            instance_id: Takes instance ID as an argument. Defaults to the instance that was created previously.
         """
+        if not instance_id:
+            if not path.exists(self.instance_file):
+                self.logger.error('Cannot terminate an instance without the Instance ID')
+                return
+
+            with open(self.instance_file, 'r') as file:
+                data = load(file)
+            instance_id = data.get('instance_id')
+            self.logger.warning(f"Instance ID wasn't provided. Recent instance, {instance_id} will be terminated.")
+
         if not self._delete_key_pair():
             return
 
@@ -130,6 +141,8 @@ class VPNServer:
                 system(f'rm {self.key_name}.pem')
             if path.exists('instance_id'):
                 system('rm instance_id')
+            if path.exists(self.instance_file):
+                system(f'rm {self.instance_file}')
         else:
             self.logger.error(f'Failed to terminate the InstanceId: {instance_id}')
 
@@ -175,7 +188,7 @@ class VPNServer:
                 'public_dns': public_dns,
                 'public_ip': public_ip
             }
-            with open('instance_info.json', 'w') as file:
+            with open(self.instance_file, 'w') as file:
                 dump(instance_info, file, indent=2)
 
             # print(f"ssh-keyscan {public_ip}")
@@ -189,4 +202,5 @@ class VPNServer:
 
 
 if __name__ == '__main__':
-    VPNServer().configure_openvpn()
+    vpn = VPNServer()
+    vpn.configure_openvpn()
