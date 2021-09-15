@@ -1,4 +1,10 @@
+# python generated
 .idea
 __pycache__
 venv
+
+# PEM file created along with the instance
 OpenVPN.pem
+
+# Instance information stored as a json file
+instance_info.json
