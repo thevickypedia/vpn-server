@@ -67,6 +67,30 @@
 </div>
 <p>Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using <code class="docutils literal notranslate"><span class="pre">boto3</span></code> module.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._add_host_entry">
+<span class="sig-name descname"><span class="pre">_add_host_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_ip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_dns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._add_host_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automation to add the the <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">ip</span></code> and digital signature to the <code class="docutils literal notranslate"><span class="pre">known_hosts</span></code> file.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>There is a waiter running for 20 seconds to honor DNS propagation time.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>public_ip</strong> – Public IP address of an instance.</p></li>
+<li><p><strong>public_dns</strong> – Public DNS name of of the instance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flag to indicate the calling function if or not the entries were added.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._create_key_pair">
 <span class="sig-name descname"><span class="pre">_create_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._create_key_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> of type <code class="docutils literal notranslate"><span class="pre">RSA</span></code> stored as a <code class="docutils literal notranslate"><span class="pre">PEM</span></code> file to use with <code class="docutils literal notranslate"><span class="pre">OpenSSH</span></code>.</p>

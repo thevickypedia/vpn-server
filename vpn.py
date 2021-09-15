@@ -1,6 +1,8 @@
 from json import dump, load
 from logging import INFO, basicConfig, getLogger
 from os import environ, path, system
+from subprocess import STDOUT, CalledProcessError, check_output
+from sys import stdout
 from time import sleep
 
 from boto3 import client, resource
@@ -178,6 +180,46 @@ class VPNServer:
             else:
                 sleep(3)
 
+    def _add_host_entry(self, public_ip: str, public_dns: str) -> bool:
+        """Automation to add the the ``host``, ``ip`` and digital signature to the ``known_hosts`` file.
+
+        See Also:
+            There is a waiter running for 20 seconds to honor DNS propagation time.
+
+        Args:
+            public_ip: Public IP address of an instance.
+            public_dns: Public DNS name of of the instance.
+
+        Returns:
+            bool:
+            Flag to indicate the calling function if or not the entries were added.
+        """
+        for i in range(20):
+            stdout.write(f'\rWaiting on DNS propagation time. Remaining: {20 - i}s')
+            sleep(1)
+        stdout.write('\r')
+
+        # todo: Replicate the following for Windows
+        try:
+            output = check_output(f"ssh-keyscan {public_ip}", shell=True, stderr=STDOUT).decode('utf-8').split('\n')
+        except CalledProcessError as error:
+            self.logger.error(f'Failed to run the command `ssh-keyscan {public_ip}` with the error:\n{error}')
+            output = ['']
+
+        if not output[0]:
+            self.logger.error('Failed to add host entry. Can be done manually by following the instructions in README.')
+            return False
+
+        for ip_entry in output:
+            if not ip_entry.startswith('#'):
+                entry = ip_entry.lstrip(f'{public_ip} ')
+                if entry.startswith('ecdsa-sha2-nistp256'):
+                    host_entry = f'{public_dns} {entry}'
+                    with open(f"{path.expanduser('~')}/.ssh/known_hosts", 'a') as file:
+                        file.write(f'{host_entry}\n{ip_entry}\n')
+                    self.logger.info('Added required entries to known hosts file.')
+                    return True
+
     def configure_openvpn(self) -> None:
         """Calls the functions ``create_ec2_instance`` and ``_instance_info`` and then configures the VPN server."""
         if (instance_id := self.create_ec2_instance()) and (instance := self._instance_info(instance_id=instance_id)):
@@ -191,7 +233,8 @@ class VPNServer:
             with open(self.instance_file, 'w') as file:
                 dump(instance_info, file, indent=2)
 
-            # print(f"ssh-keyscan {public_ip}")
+            if not self._add_host_entry(public_ip=public_ip, public_dns=public_dns):
+                print("Enter `yes` when prompted to allow the PEM file when running the following command.")
 
             self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
             system(f'chmod 400 {self.key_name}.pem')

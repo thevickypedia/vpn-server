@@ -11,11 +11,10 @@ Automate on demand VPN Server creation running with OpenVPN using AWS EC2 and Py
 
 #### Configuration
 1. Run the first command printed in `STDOUT`.
-2. Enter `yes` when prompted to allow the PEM file.
-3. Accept the agreement when prompted.
+2. Accept the agreement when prompted.
    - `Please enter 'yes' to indicate your agreement [no]: `
-4. Hit `Enter/Return` for rest of the prompts.
-5. Run the second command printed in `STDOUT` to finish the configuration.
+3. Hit `Enter/Return` for rest of the prompts.
+4. Run the second command printed in `STDOUT` to finish the configuration.
 
 ### Linting
 `PreCommit` will ensure linting, and the doc creation are run on every commit.
