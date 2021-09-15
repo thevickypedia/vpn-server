@@ -16,8 +16,17 @@ class VPNServer:
 
     """
 
-    def __init__(self):
-        """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module."""
+    def __init__(self, aws_access_key: str = None, aws_secret_key: str = None):
+        """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
+
+        Args:
+            aws_access_key: Access token for AWS account.
+            aws_secret_key: Secret ID for AWS account.
+
+        See Also:
+            - If no values are passed during object initialization, script checks for environment variables.
+            - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
+        """
         self.key_name = 'OpenVPN'
         self.instance_file = 'instance_info.json'
         basicConfig(
@@ -25,8 +34,15 @@ class VPNServer:
             datefmt='%b-%d-%Y %I:%M:%S %p', level=INFO
         )
         self.logger = getLogger(self.key_name)
-        self.ec2_client = client(service_name='ec2', region_name='us-west-2')
-        self.ec2_resource = resource(service_name='ec2', region_name='us-west-2')
+        if (access_key := environ.get('access_key', aws_access_key)) and \
+                (secret_key := environ.get('secret_key', aws_secret_key)):
+            self.ec2_client = client(service_name='ec2', region_name='us-west-2',
+                                     aws_access_key_id=access_key, aws_secret_access_key=secret_key)
+            self.ec2_resource = resource(service_name='ec2', region_name='us-west-2',
+                                         aws_access_key_id=access_key, aws_secret_access_key=secret_key)
+        else:
+            self.ec2_client = client(service_name='ec2', region_name='us-west-2')
+            self.ec2_resource = resource(service_name='ec2', region_name='us-west-2')
 
     def _create_key_pair(self) -> bool:
         """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
@@ -106,6 +122,8 @@ class VPNServer:
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info(f'{self.key_name} has been deleted from KeyPairs.')
+            if path.exists(f'{self.key_name}.pem'):
+                system(f'rm {self.key_name}.pem')
             return True
         else:
             self.logger.error(f'Failed to delete the key: {self.key_name}')
@@ -126,8 +144,7 @@ class VPNServer:
             instance_id = data.get('instance_id')
             self.logger.warning(f"Instance ID wasn't provided. Recent instance, {instance_id} will be terminated.")
 
-        if not self._delete_key_pair():
-            return
+        self._delete_key_pair()
 
         try:
             response = self.ec2_client.terminate_instances(
@@ -139,8 +156,6 @@ class VPNServer:
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info(f'InstanceId {instance_id} has been set to terminate.')
-            if path.exists(f'{self.key_name}.pem'):
-                system(f'rm {self.key_name}.pem')
             if path.exists('instance_id'):
                 system('rm instance_id')
             if path.exists(self.instance_file):
