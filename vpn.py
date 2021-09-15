@@ -1,5 +1,5 @@
 from logging import getLogger, basicConfig, INFO
-from os import environ
+from os import path, system, environ
 
 from boto3 import client
 
@@ -43,9 +43,37 @@ def create_ec2_instance():
     if ec2_response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
         instance_id = ec2_response.get('Instances')[0].get('InstanceId')
         logger.info(f'Created the EC2 instance: {instance_id}')
-        return instance_id
+        with open('instance_id', 'w') as file:
+            file.write(instance_id)
     else:
         logger.error('Failed to create an EC2 instance.')
+
+
+def _delete_key_pair(target_key: str = key_name):
+    response = ec2_client.delete_key_pair(
+        KeyName=target_key
+    )
+    if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        logger.info(f'{key_name} has been deleted from KeyPairs.')
+        return True
+    else:
+        logger.error(f'Failed to delete the key: {key_name}')
+
+
+def terminate_ec2_instance(instance_id: str):
+    if not _delete_key_pair():
+        return
+    response = ec2_client.terminate_instances(
+        InstanceIds=[instance_id]
+    )
+    if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        logger.info(f'InstanceId {instance_id} has been set to terminate.')
+        if path.exists(f'{key_name}.pem'):
+            system(f'rm {key_name}.pem')
+        if path.exists('instance_id'):
+            system('rm instance_id')
+    else:
+        logger.error(f'Failed to terminate the InstanceId: {instance_id}')
 
 
 if __name__ == '__main__':
