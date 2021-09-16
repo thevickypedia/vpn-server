@@ -36,4 +36,4 @@ Usage:
 
 &copy; Vignesh Sivanandha Rao
 
-Licensed under the [MIT License](LICENSE)
+Licensed under the [MIT License](https://github.com/thevickypedia/vpn-server/blob/main/LICENSE)

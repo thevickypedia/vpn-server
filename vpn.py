@@ -28,7 +28,7 @@ class VPNServer:
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
         self.key_name = 'OpenVPN'
-        self.instance_file = 'instance_info.json'
+        self.server_file = 'server_info.json'
         basicConfig(
             format='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
             datefmt='%b-%d-%Y %I:%M:%S %p', level=INFO
@@ -69,18 +69,125 @@ class VPNServer:
         else:
             self.logger.error(f'Unable to create a key pair: {self.key_name}')
 
-    def create_ec2_instance(self, image_id: str = environ.get('ami_id')) -> str or None:
+    def _get_vpc_id(self) -> str or None:
+        """Gets the default VPC id.
+
+        Returns:
+            str or None:
+            Default VPC id.
+        """
+        try:
+            response = self.ec2_client.describe_vpcs()
+        except ClientError as error:
+            self.logger.error(f'API call to get VPC id has failed.\n{error}')
+            return
+
+        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+            vpc_id = response.get('Vpcs', [{}])[0].get('VpcId', '')
+            self.logger.info(f'Got the default VPC: {vpc_id}')
+            return vpc_id
+        else:
+            self.logger.error('Unable to get VPC ID')
+
+    def _authorize_security_group(self, security_group_id: str) -> bool:
+        """Authorizes the security group for certain ingress list.
+
+        Args:
+            security_group_id: Takes the SecurityGroup ID as an argument.
+
+        Returns:
+            bool:
+            Flag to indicate the calling function if or not the security group was authorized.
+        """
+        try:
+            response = self.ec2_client.authorize_security_group_ingress(
+                GroupId=security_group_id,
+                IpPermissions=[
+                    {'IpProtocol': 'tcp',
+                     'FromPort': 22,
+                     'ToPort': 22,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'tcp',
+                     'FromPort': 943,
+                     'ToPort': 943,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'tcp',
+                     'FromPort': 945,
+                     'ToPort': 945,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'tcp',
+                     'FromPort': 443,
+                     'ToPort': 443,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'udp',
+                     'FromPort': 1194,
+                     'ToPort': 1194,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+                ])
+        except ClientError as error:
+            self.logger.error(f'API call to authorize the security group {security_group_id} has failed.\n{error}')
+            return False
+        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+            self.logger.info(f'Ingress Successfully Set for SecurityGroup {security_group_id}')
+            for sg_rule in response['SecurityGroupRules']:
+                log = 'Allowed protocol: ' + sg_rule['IpProtocol'] + ' '
+                if sg_rule['FromPort'] == sg_rule['ToPort']:
+                    log += 'on port: ' + str(sg_rule['ToPort']) + ' '
+                else:
+                    log += 'from port:  ' f"{sg_rule['FromPort']} to port: {sg_rule['ToPort']}" + ' '
+                self.logger.info(log + 'with CIDR ' + sg_rule['CidrIpv4'])
+            return True
+        else:
+            self.logger.info(f'Failed to set Ingress: {response}')
+
+    def _create_security_group(self) -> str or None:
+        """Calls the class method ``_get_vpc_id`` and used the VPC ID to create a ``SecurityGroup`` for the instance.
+
+        Returns:
+            str or None:
+            SecurityGroup ID
+        """
+        if not (vpc_id := self._get_vpc_id()):
+            return
+
+        try:
+            response = self.ec2_client.create_security_group(
+                GroupName='OpenVPN Access Server',
+                Description='Security Group to allow certain port ranges for VPN server.',
+                VpcId=vpc_id
+            )
+        except ClientError as error:
+            self.logger.error(f'API call to create security group has failed.\n{error}')
+            return
+
+        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+            security_group_id = response['GroupId']
+            self.logger.info(f'Security Group Created {security_group_id} in VPC {vpc_id}')
+            return security_group_id
+        else:
+            self.logger.error('Failed to created the SecurityGroup')
+
+    def _create_ec2_instance(self, image_id: str = environ.get('ami_id')) -> str or None:
         """Creates an EC2 instance of type ``t2.micro`` with the pre-configured AMI id.
 
         Returns:
             str or None:
             Instance ID.
         """
+        if not image_id:
+            self.logger.error('AMI is mandatory to spin up an EC2 instance. Received `null`')
+            return
+
         if not self._create_key_pair():
             return
 
-        if not image_id:
-            self.logger.error('AMI is mandatory to spin up an EC2 instance. Received `null`')
+        if not (security_group_id := self._create_security_group()):
+            self._delete_key_pair()
+            return
+
+        if not self._authorize_security_group(security_group_id=security_group_id):
+            self._delete_key_pair()
+            self._delete_security_group()
             return
 
         try:
@@ -89,62 +196,102 @@ class VPNServer:
                 MaxCount=1,
                 MinCount=1,
                 ImageId=image_id,
-                KeyName=self.key_name
+                KeyName=self.key_name,
+                SecurityGroupIds=[security_group_id]
             )
         except ClientError as error:
+            self._delete_key_pair()
+            self._delete_security_group()
             self.logger.error(f'API call to create instance has failed.\n{error}')
             return
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             instance_id = response.get('Instances')[0].get('InstanceId')
             self.logger.info(f'Created the EC2 instance: {instance_id}')
-            return instance_id
+            return instance_id, security_group_id
         else:
+            self._delete_key_pair()
+            self._delete_security_group()
             self.logger.error('Failed to create an EC2 instance.')
 
-    def _delete_key_pair(self, key_name: str = None) -> bool:
+    def _retrieve_server_info(self) -> dict:
+        """Retrieves the stored ``json`` file and returns the data as a ``dictionary``.
+
+        Returns:
+            dict:
+            Dictionary version of the json object that was stored during after instance creation.
+        """
+        with open(self.server_file, 'r') as file:
+            data = load(file)
+        return data
+
+    def _delete_key_pair(self, key_name: str = None):
         """Deletes the ``KeyPair``.
 
         Args:
             key_name: Takes ``KeyPair`` name as argument. Defaults to the one mentioned when the object was initialized.
-
-        Returns:
-            bool:
-            Flag to indicate the calling function if or not the ``KeyPair`` was deleted.
         """
+        if not key_name:
+            key_name = self.key_name
+            self.logger.warning(f'No `key_name` was passed. Trying to delete the default Key: {key_name}.pem')
+
         try:
             response = self.ec2_client.delete_key_pair(
-                KeyName=key_name or self.key_name
+                KeyName=key_name
             )
         except ClientError as error:
             self.logger.error(f'API call to delete the key {self.key_name} has failed.\n{error}')
-            return False
+            return
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info(f'{self.key_name} has been deleted from KeyPairs.')
             if path.exists(f'{self.key_name}.pem'):
                 system(f'rm {self.key_name}.pem')
-            return True
         else:
             self.logger.error(f'Failed to delete the key: {self.key_name}')
 
-    def terminate_ec2_instance(self, instance_id: str = None) -> None:
+    def _delete_security_group(self, security_group_id: str = None) -> None:
+        """Deletes the security group.
+
+        Args:
+            security_group_id: Takes the SecurityGroup ID as an argument.
+        """
+        if not security_group_id:
+            if not path.exists(self.server_file):
+                self.logger.error('Cannot delete a security group without the SecurityGroup ID')
+                return
+
+            data = self._retrieve_server_info()
+            security_group_id = data.get('security_group_id')
+            self.logger.warning(f"Security Group ID wasn't provided. Recent SG, {security_group_id} will be deleted.")
+
+        try:
+            response = self.ec2_client.delete_security_group(
+                GroupId=security_group_id
+            )
+        except ClientError as error:
+            self.logger.error(f'API call to delete the Security Group {security_group_id} has failed.\n{error}')
+            return
+
+        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+            self.logger.info(f'{security_group_id} has been deleted from Security Groups.')
+        else:
+            self.logger.error(f'Failed to delete the SecurityGroup: {security_group_id}')
+
+    def _terminate_ec2_instance(self, instance_id: str = None) -> None:
         """Terminates the requested instance.
 
         Args:
             instance_id: Takes instance ID as an argument. Defaults to the instance that was created previously.
         """
         if not instance_id:
-            if not path.exists(self.instance_file):
+            if not path.exists(self.server_file):
                 self.logger.error('Cannot terminate an instance without the Instance ID')
                 return
 
-            with open(self.instance_file, 'r') as file:
-                data = load(file)
+            data = self._retrieve_server_info()
             instance_id = data.get('instance_id')
             self.logger.warning(f"Instance ID wasn't provided. Recent instance, {instance_id} will be terminated.")
-
-        self._delete_key_pair()
 
         try:
             response = self.ec2_client.terminate_instances(
@@ -156,10 +303,6 @@ class VPNServer:
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info(f'InstanceId {instance_id} has been set to terminate.')
-            if path.exists('instance_id'):
-                system('rm instance_id')
-            if path.exists(self.instance_file):
-                system(f'rm {self.instance_file}')
         else:
             self.logger.error(f'Failed to terminate the InstanceId: {instance_id}')
 
@@ -235,30 +378,47 @@ class VPNServer:
                     self.logger.info('Added required entries to known hosts file.')
                     return True
 
-    def configure_openvpn(self) -> None:
-        """Calls the functions ``create_ec2_instance`` and ``_instance_info`` and then configures the VPN server."""
-        if (instance_id := self.create_ec2_instance()) and (instance := self._instance_info(instance_id=instance_id)):
+    def startup_vpn(self) -> None:
+        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server."""
+        if instance_basic := self._create_ec2_instance():
+            instance_id, security_group_id = instance_basic
+        else:
+            return
+
+        if instance := self._instance_info(instance_id=instance_id):
             public_dns, public_ip = instance
+        else:
+            return
 
-            instance_info = {
-                'instance_id': instance_id,
-                'public_dns': public_dns,
-                'public_ip': public_ip
-            }
-            with open(self.instance_file, 'w') as file:
-                dump(instance_info, file, indent=2)
+        instance_info = {
+            'instance_id': instance_id,
+            'public_dns': public_dns,
+            'public_ip': public_ip,
+            'security_group_id': security_group_id
+        }
+        with open(self.server_file, 'w') as file:
+            dump(instance_info, file, indent=2)
 
-            if not self._add_host_entry(public_ip=public_ip, public_dns=public_dns):
-                print("Enter `yes` when prompted to allow the PEM file when running the following command.")
+        if not self._add_host_entry(public_ip=public_ip, public_dns=public_dns):
+            print("Enter `yes` when prompted to allow the PEM file when running the following command.")
 
-            self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
-            system(f'chmod 400 {self.key_name}.pem')
+        self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
+        system(f'chmod 400 {self.key_name}.pem')
 
-            config_command = f'ssh -i {self.key_name}.pem root@{public_dns}'
-            print(config_command)  # base command to configure OpenVPN
-            print(config_command.replace('root@', 'openvpnas@'))  # setup OpenVPN using the user id
+        config_command = f'ssh -i {self.key_name}.pem root@{public_dns}'
+        print(config_command)  # base command to configure OpenVPN
+        print(config_command.replace('root@', 'openvpnas@'))  # setup OpenVPN using the user id
+        print('sudo passwd openvpn')
+
+    def shutdown_vpn(self) -> None:
+        """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created."""
+        self._delete_key_pair()
+        self._terminate_ec2_instance()
+        self._delete_security_group()
+        if path.exists(self.server_file):
+            system(f'rm {self.server_file}')
 
 
 if __name__ == '__main__':
     vpn = VPNServer()
-    vpn.configure_openvpn()
+    vpn.startup_vpn()
