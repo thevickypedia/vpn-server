@@ -17,7 +17,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="VPN Server" href="README.html" /> 
+    <link rel="next" title="Platform Supported" href="README.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,7 +29,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="README.html" title="VPN Server"
+          <a href="README.html" title="Platform Supported"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">VPN Server  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Welcome to VPN Server’s documentation!</a></li> 
@@ -46,9 +46,14 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Read Me:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="README.html">VPN Server</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="README.html#instructions">Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html">Platform Supported</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html#repo-stats">Repo Stats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html#deployments">Deployments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html#setup-and-configuration">Setup and Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#aws-resources-used">AWS Resources Used</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#linting">Linting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#limitations">Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#links">Links</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#license-copyright">License &amp; copyright</a></li>
 </ul>
@@ -87,7 +92,7 @@
 <dd><p>Automation to add the the <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">ip</span></code> and digital signature to the <code class="docutils literal notranslate"><span class="pre">known_hosts</span></code> file.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>There is a waiter running for 20 seconds to honor DNS propagation time.</p>
+<p>There is a waiter for 20 seconds to honor DNS propagation time.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -118,6 +123,21 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._configure_vpn">
+<span class="sig-name descname"><span class="pre">_configure_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dns_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._configure_vpn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Takes ~2 minutes as there a wait time for each <code class="docutils literal notranslate"><span class="pre">stdin</span></code> in the interactive SSH command.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dns_name</strong> – Takes the public <code class="docutils literal notranslate"><span class="pre">DNSName</span></code> as an argument to form the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> command to initiate configuration.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -166,22 +186,34 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._delete_key_pair">
-<span class="sig-name descname"><span class="pre">_delete_key_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.VPNServer._delete_key_pair" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_delete_key_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._delete_key_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes the <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>key_name</strong> – Takes <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> name as argument. Defaults to the one mentioned when the object was initialized.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flag to indicate the calling function if or not the KeyPair was deleted.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._delete_security_group">
-<span class="sig-name descname"><span class="pre">_delete_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._delete_security_group" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_delete_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._delete_security_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes the security group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>security_group_id</strong> – Takes the SecurityGroup ID as an argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flag to indicate the calling function if or not the SecurityGroup was deleted.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,11 +265,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._terminate_ec2_instance">
-<span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminates the requested instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>instance_id</strong> – Takes instance ID as an argument. Defaults to the instance that was created previously.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flag to indicate the calling function if or not the instance was terminated.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -246,14 +284,39 @@
 <dt class="sig sig-object py" id="vpn.VPNServer.shutdown_vpn">
 <span class="sig-name descname"><span class="pre">shutdown_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.shutdown_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disables VPN server by terminating the <code class="docutils literal notranslate"><span class="pre">EC2</span></code> instance, <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>, and the <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> created.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>There is a waiter for 180 seconds for the instance to terminate before deleting the security group.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer.startup_vpn">
 <span class="sig-name descname"><span class="pre">startup_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.startup_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the class methods <code class="docutils literal notranslate"><span class="pre">_create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> to configure the VPN server.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>There is a waiter for 30 seconds for the SSH origin to become active.</p>
+</div>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vpn.time_converter">
+<span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">time_converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.time_converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies seconds to appropriate days/hours/minutes/seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seconds</strong> – Takes number of seconds as argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Seconds converted to days or hours or minutes or seconds.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -282,7 +345,7 @@
 
   <h4>Next topic</h4>
   <p class="topless"><a href="README.html"
-                        title="next chapter">VPN Server</a></p>
+                        title="next chapter">Platform Supported</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -314,7 +377,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="README.html" title="VPN Server"
+          <a href="README.html" title="Platform Supported"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">VPN Server  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Welcome to VPN Server’s documentation!</a></li> 

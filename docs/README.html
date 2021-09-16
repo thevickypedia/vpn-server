@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>VPN Server &#8212; VPN Server  documentation</title>
+    <title>Platform Supported &#8212; VPN Server  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -32,7 +32,7 @@
           <a href="index.html" title="Welcome to VPN Server’s documentation!"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">VPN Server  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">VPN Server</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Platform Supported</a></li> 
       </ul>
     </div>  
 
@@ -41,34 +41,63 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="vpn-server">
+  <br><p><a class="reference external" href="https://www.python.org/downloads/release/python-385/"><img alt="Python 3.8" src="https://img.shields.io/badge/python-3.8-orange.svg" /></a>
+<a class="reference external" href="https://www.python.org/downloads/release/python-391/"><img alt="Python 3.9" src="https://img.shields.io/badge/python-3.9-blue.svg" /></a></p>
+<section id="platform-supported">
+<h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this headline">¶</a></h1>
+<p><img alt="Generic badge" src="https://img.shields.io/badge/Platform-MacOS-1f425f.svg" /></p>
+</section>
+<section id="repo-stats">
+<h1>Repo Stats<a class="headerlink" href="#repo-stats" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/thevickypedia/vpn-server" /></a>
+<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/thevickypedia/vpn-server" /></a>
+<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server" /></a>
+<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="LOC" src="https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server" /></a></p>
+</section>
+<section id="deployments">
+<h1>Deployments<a class="headerlink" href="#deployments" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/"><img alt="docs" src="https://github.com/thevickypedia/vpn-server/actions/workflows/docs.yml/badge.svg" /></a></p>
+</section>
+<section id="vpn-server">
 <h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
-<p>Automate on demand VPN Server creation running with OpenVPN using AWS EC2 and Python</p>
-<section id="instructions">
-<h2>Instructions<a class="headerlink" href="#instructions" title="Permalink to this headline">¶</a></h2>
-<section id="setup">
-<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<p>On demand VPN Server creation running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
+<p>Got 5 minutes to spare? Spin up your own VPN server on demand.</p>
+<section id="setup-and-configuration">
+<h2>Setup and Configuration<a class="headerlink" href="#setup-and-configuration" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/thevickypedia/vpn-server.git</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">vpn.py</span></code></p></li>
-</ol>
-</section>
-<section id="configuration">
-<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
-<ol class="simple">
-<li><p>Run the first command printed in <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code>.</p></li>
-<li><p>Accept the agreement when prompted.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">ami_id=ami-0e21cddg3k0c9a930</span> <span class="pre">vpn_password=awsOpenVPN2021</span></code> - Sample</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span></code></p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Please</span> <span class="pre">enter</span> <span class="pre">'yes'</span> <span class="pre">to</span> <span class="pre">indicate</span> <span class="pre">your</span> <span class="pre">agreement</span> <span class="pre">[no]:</span> </code></p></li>
+<li><p>Call the class method:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">startup_vpn</span></code> to initiate the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shutdown_vpn</span></code> to delete all resource spun up for the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
 </ul>
 </li>
-<li><p>Hit <code class="docutils literal notranslate"><span class="pre">Enter/Return</span></code> for rest of the prompts.</p></li>
-<li><p>Run the second command printed in <code class="docutils literal notranslate"><span class="pre">STDOUT</span></code> to finish the configuration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Runtime:</span> <span class="pre">~3</span> <span class="pre">minutes</span></code></p></li>
+</ul>
+</li>
 </ol>
 </section>
+<section id="aws-resources-used">
+<h2>AWS Resources Used<a class="headerlink" href="#aws-resources-used" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>EC2</p>
+<ul>
+<li><p>Instances</p></li>
+<li><p>AMI</p></li>
+<li><p>KeyPairs</p></li>
+<li><p>SecurityGroups</p></li>
+</ul>
+</li>
+<li><p>Network Interfaces</p></li>
+<li><p>VPC [Default]</p></li>
+<li><p>Subnet [Default]</p></li>
+</ul>
 </section>
 <section id="linting">
 <h2>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h2>
@@ -79,6 +108,14 @@
 <p>Usage:
 <br>
 <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code></p>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Currently, runs only on <code class="docutils literal notranslate"><span class="pre">MacOS</span></code></p></li>
+<li><p>Can be run only from a local <code class="docutils literal notranslate"><span class="pre">Macbook</span></code> or <code class="docutils literal notranslate"><span class="pre">iMac</span></code></p></li>
+<li><p>There is an over provisioned waiter time running for few AWS interactions.</p></li>
+</ul>
 </section>
 <section id="links">
 <h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
@@ -101,13 +138,14 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">VPN Server</a><ul>
-<li><a class="reference internal" href="#instructions">Instructions</a><ul>
-<li><a class="reference internal" href="#setup">Setup</a></li>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Platform Supported</a></li>
+<li><a class="reference internal" href="#repo-stats">Repo Stats</a></li>
+<li><a class="reference internal" href="#deployments">Deployments</a></li>
+<li><a class="reference internal" href="#vpn-server">VPN Server</a><ul>
+<li><a class="reference internal" href="#setup-and-configuration">Setup and Configuration</a></li>
+<li><a class="reference internal" href="#aws-resources-used">AWS Resources Used</a></li>
 <li><a class="reference internal" href="#linting">Linting</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
 <li><a class="reference internal" href="#links">Links</a></li>
 <li><a class="reference internal" href="#license-copyright">License &amp; copyright</a></li>
 </ul>
@@ -151,7 +189,7 @@
           <a href="index.html" title="Welcome to VPN Server’s documentation!"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">VPN Server  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">VPN Server</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Platform Supported</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
