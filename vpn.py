@@ -1,7 +1,7 @@
 from json import dump, load
 from logging import INFO, basicConfig, getLogger
 from os import environ, getcwd, path, system
-from subprocess import STDOUT, CalledProcessError, check_output
+from platform import system as os_name
 from sys import stdout
 from time import perf_counter, sleep
 
@@ -409,45 +409,6 @@ class VPNServer:
             else:
                 sleep(3)
 
-    def _add_host_entry(self, public_ip: str, public_dns: str) -> bool:
-        """Automation to add the the ``host``, ``ip`` and digital signature to the ``known_hosts`` file.
-
-        See Also:
-            There is a waiter for 20 seconds to honor DNS propagation time.
-
-        Args:
-            public_ip: Public IP address of an instance.
-            public_dns: Public DNS name of of the instance.
-
-        Returns:
-            bool:
-            Flag to indicate the calling function if or not the entries were added.
-        """
-        sleep(1)
-        for i in range(20):
-            stdout.write(f'\rWaiting on DNS propagation time. Remaining: {20 - i}s')
-            sleep(1)
-        stdout.write('\r')
-        try:
-            output = check_output(f"ssh-keyscan {public_ip}", shell=True, stderr=STDOUT).decode('utf-8').split('\n')
-        except CalledProcessError as error:
-            self.logger.error(f'Failed to run the command `ssh-keyscan {public_ip}` with the error:\n{error}')
-            output = ['']
-
-        if not output[0]:
-            self.logger.error('Failed to add host entry. Can be done manually by following the instructions in README.')
-            return False
-
-        for ip_entry in output:
-            if not ip_entry.startswith('#'):
-                entry = ip_entry.lstrip(f'{public_ip} ')
-                if entry.startswith('ecdsa-sha2-nistp256'):
-                    host_entry = f'{public_dns} {entry}'
-                    with open(f"{path.expanduser('~')}/.ssh/known_hosts", 'a') as file:
-                        file.write(f'{host_entry}\n{ip_entry}\n')
-                    self.logger.info('Added required entries to known hosts file.')
-                    return True
-
     def _configure_vpn(self, dns_name: str) -> None:
         """Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.
 
@@ -503,11 +464,14 @@ tell application "Terminal"
 end tell
 '
 """
-        script_status = system(script)
+        script_status = system(script) if os_name() == 'Darwin' else 256
         data = self._retrieve_server_info()
         url = f"https://{data.get('public_ip')}"
         if script_status == 256:
             write_login_details = False
+            if os_name() != 'Darwin':
+                self.logger.critical('Unsupported Operating System.')
+                self.logger.critical(f'Auto config is currently supported only on MacOS. Script was run on {os_name()}')
             self.logger.error('Failed to configure VPN server. '
                               'Run the below commands following the instructions in README.')
             self.logger.error(initial_config)
@@ -523,9 +487,9 @@ end tell
             self.logger.info('Step2: Navigate to `CONFIGURATION` -> `VPN Settings` and Scroll Down to `Routing`.')
             self.logger.info('Step3: Slide `Should client Internet traffic be routed through the VPN?` switch to `Yes`')
             self.logger.info('Step4: Click `Save Settings` (bottom of page) and `Update Running Server` (top of page)')
-        data.update({'initial_config': initial_config, 'final_config': final_config})
+        data.update({'initial_config': initial_config, 'final_config': final_config, 'SERVER': f"{url}:943/admin/"})
         if write_login_details:
-            data.update({'SERVER': f"{url}:943/admin/", 'USERNAME': 'openvpn', 'PASSWORD': vpn_password})
+            data.update({'USERNAME': 'openvpn', 'PASSWORD': vpn_password})
         with open(self.server_file, 'w') as file:
             dump(data, file, indent=2)
 

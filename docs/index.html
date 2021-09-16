@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="README.html#deployments">Deployments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="README.html#setup-and-configuration">Setup and Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#windows-operating-system">Windows Operating System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#aws-resources-used">AWS Resources Used</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#linting">Linting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#limitations">Limitations</a></li>
@@ -86,30 +87,6 @@
 <li><p>If the environment variables are <code class="docutils literal notranslate"><span class="pre">null</span></code>, gets the default credentials from <code class="docutils literal notranslate"><span class="pre">~/.aws/credentials</span></code>.</p></li>
 </ul>
 </div>
-<dl class="py method">
-<dt class="sig sig-object py" id="vpn.VPNServer._add_host_entry">
-<span class="sig-name descname"><span class="pre">_add_host_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_ip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_dns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._add_host_entry" title="Permalink to this definition">¶</a></dt>
-<dd><p>Automation to add the the <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">ip</span></code> and digital signature to the <code class="docutils literal notranslate"><span class="pre">known_hosts</span></code> file.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>There is a waiter for 20 seconds to honor DNS propagation time.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>public_ip</strong> – Public IP address of an instance.</p></li>
-<li><p><strong>public_dns</strong> – Public DNS name of of the instance.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Flag to indicate the calling function if or not the entries were added.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._authorize_security_group">
 <span class="sig-name descname"><span class="pre">_authorize_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._authorize_security_group" title="Permalink to this definition">¶</a></dt>
