@@ -16,7 +16,7 @@
 [![docs](https://github.com/thevickypedia/vpn-server/actions/workflows/docs.yml/badge.svg)](https://thevickypedia.github.io/vpn-server/)
 
 # VPN Server
-Create On demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
+Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 
 ### Setup and Configuration
 1. `git clone https://github.com/thevickypedia/vpn-server.git`
@@ -24,11 +24,10 @@ Create On demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 3. `source venv/bin/activate`
 4. `pip install -r requirements.txt`
 5. `export ami_id=ami-0e21cddg3k0c9a930 vpn_password=awsOpenVPN2021` - Sample
-6. `python vpn.py`
-   - Call the class method:
-     - `startup_vpn` to initiate the `VPN Server`
-     - `shutdown_vpn` to delete all resource spun up for the `VPN Server`
-   - `Runtime: ~3 minutes`
+6. Trigger VPN Server - Can be run only via `commandline` since, the script requires arguments as follows.
+   - `python vpn.py START` to initiate the `VPN Server`
+   - `python vpn.py STOP` to delete all resource spun up for the `VPN Server`
+7. `Runtime: ~3 minutes`
 
 ### Windows Operating System
 

@@ -60,7 +60,7 @@
 </section>
 <section id="vpn-server">
 <h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
-<p>Create On demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
+<p>Create on demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
 <section id="setup-and-configuration">
 <h2>Setup and Configuration<a class="headerlink" href="#setup-and-configuration" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
@@ -69,17 +69,13 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">ami_id=ami-0e21cddg3k0c9a930</span> <span class="pre">vpn_password=awsOpenVPN2021</span></code> - Sample</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span></code></p>
+<li><p>Trigger VPN Server - Can be run only via <code class="docutils literal notranslate"><span class="pre">commandline</span></code> since, the script requires arguments as follows.</p>
 <ul class="simple">
-<li><p>Call the class method:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">startup_vpn</span></code> to initiate the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">shutdown_vpn</span></code> to delete all resource spun up for the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span> <span class="pre">START</span></code> to initiate the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span> <span class="pre">STOP</span></code> to delete all resource spun up for the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Runtime:</span> <span class="pre">~3</span> <span class="pre">minutes</span></code></p></li>
-</ul>
-</li>
 </ol>
 </section>
 <section id="windows-operating-system">

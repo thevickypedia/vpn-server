@@ -1,12 +1,13 @@
 from json import dump, load
 from logging import INFO, basicConfig, getLogger
-from os import environ, getcwd, path, system
+from os import environ, getcwd, getpid, path, system
 from platform import system as os_name
-from sys import stdout
+from sys import argv, stdout
 from time import perf_counter, sleep
 
 from boto3 import client, resource
 from botocore.exceptions import ClientError
+from psutil import Process
 
 
 def time_converter(seconds: float) -> str:
@@ -36,7 +37,7 @@ def time_converter(seconds: float) -> str:
 
 
 class VPNServer:
-    """Initiates VPNServer object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
+    """Initiates ``VPNServer`` object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
 
     >>> VPNServer
 
@@ -50,7 +51,7 @@ class VPNServer:
             aws_secret_key: Secret ID for AWS account.
 
         See Also:
-            - If no values are passed during object initialization, script checks for environment variables.
+            - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
         # Hard-coded certificate file name, server information file name, security group name
@@ -187,7 +188,7 @@ class VPNServer:
             self.logger.info(f'Failed to set Ingress: {response}')
 
     def _create_security_group(self) -> str or None:
-        """Calls the class method ``_get_vpc_id`` and used the VPC ID to create a ``SecurityGroup`` for the instance.
+        """Calls the class method ``_get_vpc_id`` and uses the VPC ID to create a ``SecurityGroup`` for the instance.
 
         Returns:
             str or None:
@@ -225,6 +226,9 @@ class VPNServer:
 
     def _create_ec2_instance(self, image_id: str = environ.get('ami_id')) -> str or None:
         """Creates an EC2 instance of type ``t2.micro`` with the pre-configured AMI id.
+
+        Args:
+            image_id: Takes image ID as an argument. Defaults to ``ami_id`` in environment variable. Exits if `null`.
 
         Returns:
             str or None:
@@ -306,6 +310,7 @@ class VPNServer:
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info(f'{self.key_name} has been deleted from KeyPairs.')
             if path.exists(f'{self.key_name}.pem'):
+                system(f'chmod 700 {self.key_name}.pem')  # reset file permissions before deleting
                 system(f'rm {self.key_name}.pem')
             return True
         else:
@@ -413,7 +418,7 @@ class VPNServer:
         """Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.
 
         See Also:
-            Takes ~2 minutes as there a wait time for each ``stdin`` in the interactive SSH command.
+            - Takes ~2 minutes as there is a wait time for each ``stdin`` in the interactive SSH command.
 
         Args:
             dns_name: Takes the public ``DNSName`` as an argument to form the ``ssh`` command to initiate configuration.
@@ -497,7 +502,7 @@ end tell
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
 
         See Also:
-            There is a waiter for 30 seconds for the SSH origin to become active.
+            There is a wait time (30 seconds) for the SSH origin to become active.
         """
         if instance_basic := self._create_ec2_instance():
             instance_id, security_group_id = instance_basic
@@ -523,7 +528,7 @@ end tell
 
         sleep(1)
         for i in range(30):
-            stdout.write(f'\rWaiting for SSH origin to be active to ensure successful connection. Remaining: {30 - i}s')
+            stdout.write(f'\rWaiting for SSH origin to be active. Remaining: {30 - i:02}s')
             sleep(1)
         stdout.write('\r')
 
@@ -533,18 +538,34 @@ end tell
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         See Also:
-            There is a waiter for 180 seconds for the instance to terminate before deleting the security group.
+            There is a wait time (120 seconds) for the instance to terminate. This may run twice.
         """
         if self._delete_key_pair() and self._terminate_ec2_instance():
-            sleep(1)
-            for i in range(180):
-                stdout.write(f'\rWaiting for dependent objects before deleting SecurityGroup: {180 - i}s')
+            while True:
                 sleep(1)
-            stdout.write('\r')
-            if self._delete_security_group() and path.exists(self.server_file):
+                for i in range(120):
+                    stdout.write(f'\rWaiting for dependent objects to delete SecurityGroup. Remaining: {120 - i:03}s')
+                    sleep(1)
+                stdout.write('\r')
+                if self._delete_security_group():
+                    break
+            if path.exists(self.server_file):
                 system(f'rm {self.server_file}')
 
 
 if __name__ == '__main__':
-    vpn = VPNServer()
-    vpn.startup_vpn()
+    run_env = Process(getpid()).parent().name()
+    if run_env.endswith('sh'):
+        if len(argv) < 2:
+            exit("No arguments were passed. Use 'START' [OR] 'STOP' to enable or disable the VPN server.")
+        if argv[1].upper() == 'START':
+            VPNServer().startup_vpn()
+        elif argv[1].upper() == 'STOP':
+            VPNServer().shutdown_vpn()
+        else:
+            exit("The only acceptable arguments are 'START' [OR] 'STOP'")
+    else:
+        exit(f"You're running this script on {run_env}\n"
+             f"Please use a command line to trigger it, using either of the following arguments.\n"
+             f"\t1. python3 vpn.py START\n"
+             f"\t2. python3 vpn.py STOP")

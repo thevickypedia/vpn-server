@@ -67,7 +67,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.VPNServer">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aws_access_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_secret_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.VPNServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initiates VPNServer object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.</p>
+<dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">VPNServer</span></code> object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">VPNServer</span>
 </pre></div>
 </div>
@@ -83,7 +83,7 @@
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p>If no values are passed during object initialization, script checks for environment variables.</p></li>
+<li><p>If no values (for aws authentication) are passed during object initialization, script checks for env vars.</p></li>
 <li><p>If the environment variables are <code class="docutils literal notranslate"><span class="pre">null</span></code>, gets the default credentials from <code class="docutils literal notranslate"><span class="pre">~/.aws/credentials</span></code>.</p></li>
 </ul>
 </div>
@@ -110,7 +110,9 @@
 <dd><p>Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>Takes ~2 minutes as there a wait time for each <code class="docutils literal notranslate"><span class="pre">stdin</span></code> in the interactive SSH command.</p>
+<ul class="simple">
+<li><p>Takes ~2 minutes as there is a wait time for each <code class="docutils literal notranslate"><span class="pre">stdin</span></code> in the interactive SSH command.</p></li>
+</ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -124,11 +126,14 @@
 <span class="sig-name descname"><span class="pre">_create_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.VPNServer._create_ec2_instance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an EC2 instance of type <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> with the pre-configured AMI id.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Instance ID.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image_id</strong> – Takes image ID as an argument. Defaults to <code class="docutils literal notranslate"><span class="pre">ami_id</span></code> in environment variable. Exits if <cite>null</cite>.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>str or None</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Instance ID.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str or None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -150,7 +155,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._create_security_group">
 <span class="sig-name descname"><span class="pre">_create_security_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.VPNServer._create_security_group" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the class method <code class="docutils literal notranslate"><span class="pre">_get_vpc_id</span></code> and used the VPC ID to create a <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> for the instance.</p>
+<dd><p>Calls the class method <code class="docutils literal notranslate"><span class="pre">_get_vpc_id</span></code> and uses the VPC ID to create a <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> for the instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>SecurityGroup ID</p>
@@ -263,7 +268,7 @@
 <dd><p>Disables VPN server by terminating the <code class="docutils literal notranslate"><span class="pre">EC2</span></code> instance, <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>, and the <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> created.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>There is a waiter for 180 seconds for the instance to terminate before deleting the security group.</p>
+<p>There is a wait time (120 seconds) for the instance to terminate. This may run twice.</p>
 </div>
 </dd></dl>
 
@@ -273,7 +278,7 @@
 <dd><p>Calls the class methods <code class="docutils literal notranslate"><span class="pre">_create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> to configure the VPN server.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>There is a waiter for 30 seconds for the SSH origin to become active.</p>
+<p>There is a wait time (30 seconds) for the SSH origin to become active.</p>
 </div>
 </dd></dl>
 
