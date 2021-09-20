@@ -29,7 +29,7 @@ Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
    - `python vpn.py STOP` to delete all resource spun up for the `VPN Server`
 7. `Runtime: ~3 minutes`
 
-### Windows Operating System
+### Windows Operating System (Manual Configuration)
 
 Currently, the autoconfiguration works only on `MacOS`. Alternatively, do the following after the script completes:
 

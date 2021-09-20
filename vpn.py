@@ -421,11 +421,59 @@ class VPNServer:
     def _configure_vpn(self, dns_name: str) -> None:
         """Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.
 
+        Args:
+            dns_name: Takes the public ``DNSName`` as an argument to form the ``ssh`` command to initiate configuration.
+
         See Also:
             - Takes ~2 minutes as there is a wait time for each ``stdin`` in the interactive SSH command.
 
-        Args:
-            dns_name: Takes the public ``DNSName`` as an argument to form the ``ssh`` command to initiate configuration.
+        Notes: # noqa: E501
+            .. code-block:: applescript
+
+                tell application "Terminal"
+                    delay 5
+                    set currentTab to do script ("cd {getcwd()}")
+                    delay 2
+                    do script ("{initial_config}") in currentTab
+                    delay 10
+                    do script ("yes") in currentTab  # knownhosts. Are you sure you want to continue connecting (yes/no)?
+                    delay 15
+                    do script ("yes") in currentTab  # Please enter 'yes' to indicate your agreement [no]:
+                    delay 1
+                    do script ("") in currentTab  # Will this be the primary Access Server node? Default: yes
+                    delay 1
+                    do script ("") in currentTab  # Please specify the network interface and IP address to be used by the Admin Web UI: Default: all interfaces: 0.0.0.0
+                    delay 1
+                    do script ("") in currentTab  # Please specify the port number for the Admin Web UI. Default: 943
+                    delay 1
+                    do script ("") in currentTab  # Please specify the TCP port number for the OpenVPN Daemon. Default: 443
+                    delay 1
+                    do script ("yes") in currentTab  # Should client traffic be routed by default through the VPN? Default: No
+                    delay 1
+                    do script ("") in currentTab  # Should client DNS traffic be routed by default through the VPN? Default: No
+                    # If VPN clients should be able to resolve local domain names using an on-site DNS server, then the answer should be "yes". If the previous selection was "yes", all traffic will be routed over the VPN regardless what is set here.
+                    delay 1
+                    do script ("") in currentTab  # Use local authentication via internal DB? Default: yes
+                    delay 1
+                    do script ("") in currentTab  # Should private subnets be accessible to clients by default? Default: yes
+                    delay 1
+                    do script ("") in currentTab  # Do you wish to login to the Admin UI as "openvpn"? Default: yes
+                    delay 1
+                    do script ("") in currentTab  # Please specify your Activation key (or leave blank to specify later):
+                    delay 40
+                    do script ("{final_config}") in currentTab
+                    delay 20
+                    do script ("sudo passwd openvpn") in currentTab
+                    delay 3
+                    do script ("{vpn_password}") in currentTab
+                    delay 2
+                    do script ("{vpn_password}") in currentTab
+                    delay 2
+                end tell
+
+        References:
+            - `Configuration in UI <https://openvpn.net/access-server-manual/configuration-vpn-settings/>`__
+            - `Configuration in SSH session <https://www.vembu.com/blog/open-vpn-server-aws-overview/#:~:text=Now%20its%20time%20to%20configure%20your%20OpenVPN%20Access%20Server%20Instance>`__
         """
         self.logger.info('Configuring VPN server.')
         initial_config = f'ssh -i {self.key_name}.pem root@{dns_name}'
@@ -450,7 +498,7 @@ tell application "Terminal"
     delay 1
     do script ("") in currentTab
     delay 1
-    do script ("") in currentTab
+    do script ("yes") in currentTab
     delay 1
     do script ("") in currentTab
     delay 1
@@ -481,21 +529,21 @@ end tell
             if os_name() != 'Darwin':
                 self.logger.critical('Unsupported Operating System.')
                 self.logger.critical(f'Auto config is currently supported only on MacOS. Script was run on {os_name()}')
-            self.logger.error('Failed to configure VPN server. '
+            self.logger.error('Failed to configure VPN server automatically. '
                               'Run the below commands following the instructions in README.')
             self.logger.error(initial_config)
             self.logger.error(final_config)
             self.logger.error('sudo passwd openvpn')
+            self.logger.info('Step1: Now login to the server with the information above and accept the agreement.')
+            self.logger.info('Step2: Navigate to `CONFIGURATION` -> `VPN Settings` and Scroll Down to `Routing`.')
+            self.logger.info('Step3: Slide `Should client Internet traffic be routed through the VPN?` switch to `Yes`')
+            self.logger.info('Step4: Click `Save Settings` (bottom of page) and `Update Running Server` (top of page)')
         else:
             write_login_details = True
             self.logger.info('VPN server has been configured successfully.')
             self.logger.info(f"Login Info:\nSERVER: {url}:943/admin/\n"
                              "USERNAME: openvpn\n"
                              f"PASSWORD: {vpn_password}\n")
-            self.logger.info('Step1: Now login to the server with the information above and accept the agreement.')
-            self.logger.info('Step2: Navigate to `CONFIGURATION` -> `VPN Settings` and Scroll Down to `Routing`.')
-            self.logger.info('Step3: Slide `Should client Internet traffic be routed through the VPN?` switch to `Yes`')
-            self.logger.info('Step4: Click `Save Settings` (bottom of page) and `Update Running Server` (top of page)')
         data.update({'initial_config': initial_config, 'final_config': final_config, 'SERVER': f"{url}:943/admin/"})
         if write_login_details:
             data.update({'USERNAME': 'openvpn', 'PASSWORD': vpn_password})
@@ -542,13 +590,13 @@ end tell
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         See Also:
-            There is a wait time (120 seconds) for the instance to terminate. This may run twice.
+            There is a wait time (30 seconds) for the instance to terminate. This may run twice.
         """
         if self._delete_key_pair() and self._terminate_ec2_instance():
             while True:
                 sleep(1)
-                for i in range(120):
-                    stdout.write(f'\rWaiting for dependent objects to delete SecurityGroup. Remaining: {120 - i:03}s')
+                for i in range(30):
+                    stdout.write(f'\rWaiting for dependent objects to delete SecurityGroup. Remaining: {30 - i:02}s')
                     sleep(1)
                 stdout.write('\r')
                 if self._delete_security_group():
