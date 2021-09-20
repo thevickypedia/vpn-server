@@ -66,22 +66,18 @@
 <p>Environment variables are loaded from a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file using the <code class="docutils literal notranslate"><span class="pre">python_dotenv</span></code> module.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><p>Use <a class="reference external" href="https://www.cloudping.info/">cloudping.info</a> to pick the fastest (from current location) available region.</p>
-<section id="default-args">
-<h3>Default args:<a class="headerlink" href="#default-args" title="Permalink to this headline">¶</a></h3>
-<p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
+<p><strong>Default args:</strong><br></p>
 <ul class="simple">
 <li><p><strong>AMI_ID_{REGION_NAME}</strong> - AMI ID in a region. Looks for <code class="docutils literal notranslate"><span class="pre">AMI_ID_us-west-2</span></code> since <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code> is the default region.</p></li>
 </ul>
-</section>
-<section id="additional-args">
-<h3>Additional args:<a class="headerlink" href="#additional-args" title="Permalink to this headline">¶</a></h3>
+<p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
+<p><strong>Additional args:</strong><br></p>
 <ul class="simple">
 <li><p><strong>VPN_PASSWORD</strong> - Password to access VPN Server once, configuration is done. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
 <li><p><strong>REGION_NAME</strong> - Region where the VPN Server should live. Defaults to <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code></p></li>
 </ul>
 <p>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">REGION_NAME</span></code>) can be setup.</p>
 </details></section>
-</section>
 <section id="setup-and-configuration">
 <h2>Setup and Configuration<a class="headerlink" href="#setup-and-configuration" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
@@ -191,11 +187,7 @@
 <li><a class="reference internal" href="#repo-stats">Repo Stats</a></li>
 <li><a class="reference internal" href="#deployments">Deployments</a></li>
 <li><a class="reference internal" href="#vpn-server">VPN Server</a><ul>
-<li><a class="reference internal" href="#env-variables">ENV Variables:</a><ul>
-<li><a class="reference internal" href="#default-args">Default args:</a></li>
-<li><a class="reference internal" href="#additional-args">Additional args:</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#env-variables">ENV Variables:</a></li>
 <li><a class="reference internal" href="#setup-and-configuration">Setup and Configuration</a></li>
 <li><a class="reference internal" href="#windows-operating-system-manual-configuration">Windows Operating System (Manual Configuration)</a></li>
 <li><a class="reference internal" href="#aws-resources-used">AWS Resources Used</a></li>

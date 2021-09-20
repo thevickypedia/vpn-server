@@ -26,11 +26,12 @@ Environment variables are loaded from a `.env` file using the `python_dotenv` mo
 
 Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
 
-###### Default args:
-AMI IDs are got from `OpenVPN Access Server Community Images` per region.
+**Default args:**<br>
 - **AMI_ID_{REGION_NAME}** - AMI ID in a region. Looks for `AMI_ID_us-west-2` since `us-west-2` is the default region.
 
-###### Additional args:
+AMI IDs are got from `OpenVPN Access Server Community Images` per region.
+
+**Additional args:**<br>
 - **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`
 - **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
 
