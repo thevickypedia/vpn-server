@@ -431,9 +431,10 @@ class VPNServer:
 
                 tell application "Terminal"
                     delay 5
-                    set currentTab to do script ("cd {getcwd()}")
+                    set currentTab to do script ("cd {current_directory}")
+                    set current settings of currentTab to settings set "Ocean"  # To add a beautiful terminal background
                     delay 2
-                    do script ("{initial_config}") in currentTab
+                    do script ("{initial_ssh}") in currentTab  # Pops configuration questions in an interactive shell
                     delay 10
                     do script ("yes") in currentTab  # knownhosts. Are you sure you want to continue connecting (yes/no)?
                     delay 15
@@ -456,17 +457,19 @@ class VPNServer:
                     delay 1
                     do script ("") in currentTab  # Should private subnets be accessible to clients by default? Default: yes
                     delay 1
-                    do script ("") in currentTab  # Do you wish to login to the Admin UI as "openvpn"? Default: yes
+                    do script ("no") in currentTab  # Do you wish to login to the Admin UI as "openvpn"? Default: yes
+                    delay 1
+                    do script ("vpn_username") in currentTab  # Specify the username for an existing user or for the new user account:
+                    delay 1
+                    do script ("vpn_password") in currentTab  # Type the password for the 'vicky' account:
+                    delay 1
+                    do script ("vpn_password") in currentTab  # Confirm the password for the 'vicky' account:
                     delay 1
                     do script ("") in currentTab  # Please specify your Activation key (or leave blank to specify later):
                     delay 40
-                    do script ("{final_config}") in currentTab
-                    delay 20
-                    do script ("sudo passwd openvpn") in currentTab
-                    delay 3
-                    do script ("{vpn_password}") in currentTab
-                    delay 2
-                    do script ("{vpn_password}") in currentTab
+                    do script ("{final_ssh}") in currentTab  # Updates packages and installs security updates
+                    delay 25
+                    do script ("logout") in currentTab
                     delay 2
                 end tell
 
@@ -475,15 +478,18 @@ class VPNServer:
             - `Configuration in SSH session <https://www.vembu.com/blog/open-vpn-server-aws-overview/#:~:text=Now%20its%20time%20to%20configure%20your%20OpenVPN%20Access%20Server%20Instance>`__
         """
         self.logger.info('Configuring VPN server.')
-        initial_config = f'ssh -i {self.key_name}.pem root@{dns_name}'
-        final_config = initial_config.replace('root@', 'openvpnas@')
+        initial_ssh = f'ssh -i {self.key_name}.pem root@{dns_name}'
+        final_ssh = initial_ssh.replace('root@', 'openvpnas@')
+        if not (vpn_username := environ.get('VPN_USERNAME')):
+            vpn_username = environ.get('USER', 'openvpn')
         vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
         script = f"""osascript -e '
 tell application "Terminal"
     delay 5
     set currentTab to do script ("cd {getcwd()}")
+    set current settings of currentTab to settings set "Ocean"
     delay 2
-    do script ("{initial_config}") in currentTab
+    do script ("{initial_ssh}") in currentTab
     delay 10
     do script ("yes") in currentTab
     delay 15
@@ -505,20 +511,23 @@ tell application "Terminal"
     delay 1
     do script ("") in currentTab
     delay 1
-    do script ("") in currentTab
+    do script ("no") in currentTab
     delay 1
-    do script ("") in currentTab
-    delay 40
-    do script ("{final_config}") in currentTab
-    delay 20
-    do script ("sudo passwd openvpn") in currentTab
+    do script ("{vpn_username}") in currentTab
     delay 3
     do script ("{vpn_password}") in currentTab
     delay 2
     do script ("{vpn_password}") in currentTab
     delay 2
+    do script ("") in currentTab
+    delay 40
+    do script ("{final_ssh}") in currentTab
+    delay 25
+    do script ("logout") in currentTab
+    delay 2
+    do script ("exit") in currentTab
 end tell
-'
+' > /dev/null 2>&1
 """
         script_status = system(script) if os_name() == 'Darwin' else 256
         data = self._retrieve_server_info()
@@ -530,8 +539,8 @@ end tell
                 self.logger.critical(f'Auto config is currently supported only on MacOS. Script was run on {os_name()}')
             self.logger.error('Failed to configure VPN server automatically. '
                               'Run the below commands following the instructions in README.')
-            self.logger.error(initial_config)
-            self.logger.error(final_config)
+            self.logger.error(initial_ssh)
+            self.logger.error(final_ssh)
             self.logger.error('sudo passwd openvpn')
             self.logger.info('Step1: Now login to the server with the information above and accept the agreement.')
             self.logger.info('Step2: Navigate to `CONFIGURATION` -> `VPN Settings` and Scroll Down to `Routing`.')
@@ -540,12 +549,12 @@ end tell
         else:
             write_login_details = True
             self.logger.info('VPN server has been configured successfully.')
-            self.logger.info(f"Login Info:\nSERVER: {url}:943/admin/\n"
+            self.logger.info(f"Login Info:\nSERVER: {url}:943/\n"
                              "USERNAME: openvpn\n"
                              f"PASSWORD: {vpn_password}\n")
-        data.update({'initial_config': initial_config, 'final_config': final_config, 'SERVER': f"{url}:943/admin/"})
+        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:943/"})
         if write_login_details:
-            data.update({'USERNAME': 'openvpn', 'PASSWORD': vpn_password})
+            data.update({'USERNAME': vpn_username, 'PASSWORD': vpn_password})
         with open(self.server_file, 'w') as file:
             dump(data, file, indent=2)
 
@@ -577,9 +586,10 @@ end tell
         self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
         system(f'chmod 400 {self.key_name}.pem')
 
+        self.logger.info('Waiting for SSH origin to be active.')
         sleep(1)
         for i in range(30):
-            stdout.write(f'\rWaiting for SSH origin to be active. Remaining: {30 - i:02}s')
+            stdout.write(f'\rRemaining: {30 - i:02}s')
             sleep(1)
         stdout.write('\r')
 
@@ -592,10 +602,11 @@ end tell
             There is a wait time (30 seconds) for the instance to terminate. This may run twice.
         """
         if self._delete_key_pair() and self._terminate_ec2_instance():
+            self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
                 sleep(1)
                 for i in range(30):
-                    stdout.write(f'\rWaiting for dependent objects to delete SecurityGroup. Remaining: {30 - i:02}s')
+                    stdout.write(f'\rRemaining: {30 - i:02}s')
                     sleep(1)
                 stdout.write('\r')
                 if self._delete_security_group():

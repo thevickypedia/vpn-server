@@ -32,6 +32,8 @@ Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from curr
 AMI IDs are got from `OpenVPN Access Server Community Images` per region.
 
 **Additional args:**<br>
+- **VPN_USERNAME** - Username to access VPN Server once, configuration is done. If `null`, looks for the env var `USER`.
+Defaults to `openvpn`
 - **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`
 - **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
 

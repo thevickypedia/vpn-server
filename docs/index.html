@@ -124,9 +124,10 @@
 <dl>
 <dt>Notes: # noqa: E501</dt><dd><div class="highlight-applescript notranslate"><div class="highlight"><pre><span></span><span class="k">tell</span> <span class="nb">application</span> <span class="s2">&quot;Terminal&quot;</span>
     <span class="nb">delay</span> <span class="mi">5</span>
-    <span class="k">set</span> <span class="nv">currentTab</span> <span class="k">to</span> <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;cd {getcwd()}&quot;</span><span class="p">)</span>
+    <span class="k">set</span> <span class="nv">currentTab</span> <span class="k">to</span> <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;cd {current_directory}&quot;</span><span class="p">)</span>
+    <span class="k">set</span> <span class="nv">current</span> <span class="nv">settings</span> <span class="k">of</span> <span class="nv">currentTab</span> <span class="k">to</span> <span class="nv">settings</span> <span class="k">set</span> <span class="s2">&quot;Ocean&quot;</span>  <span class="c"># To add a beautiful terminal background</span>
     <span class="nb">delay</span> <span class="mi">2</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{initial_config}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{initial_ssh}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Pops configuration questions in an interactive shell</span>
     <span class="nb">delay</span> <span class="mi">10</span>
     <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># knownhosts. Are you sure you want to continue connecting (yes/no)?</span>
     <span class="nb">delay</span> <span class="mi">15</span>
@@ -149,17 +150,19 @@
     <span class="nb">delay</span> <span class="mi">1</span>
     <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Should private subnets be accessible to clients by default? Default: yes</span>
     <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Do you wish to login to the Admin UI as &quot;openvpn&quot;? Default: yes</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Do you wish to login to the Admin UI as &quot;openvpn&quot;? Default: yes</span>
+    <span class="nb">delay</span> <span class="mi">1</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_username&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Specify the username for an existing user or for the new user account:</span>
+    <span class="nb">delay</span> <span class="mi">1</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_password&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Type the password for the &#39;vicky&#39; account:</span>
+    <span class="nb">delay</span> <span class="mi">1</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_password&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Confirm the password for the &#39;vicky&#39; account:</span>
     <span class="nb">delay</span> <span class="mi">1</span>
     <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please specify your Activation key (or leave blank to specify later):</span>
     <span class="nb">delay</span> <span class="mi">40</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{final_config}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
-    <span class="nb">delay</span> <span class="mi">20</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;sudo passwd openvpn&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
-    <span class="nb">delay</span> <span class="mi">3</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{vpn_password}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
-    <span class="nb">delay</span> <span class="mi">2</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{vpn_password}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{final_ssh}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Updates packages and installs security updates</span>
+    <span class="nb">delay</span> <span class="mi">25</span>
+    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;logout&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
     <span class="nb">delay</span> <span class="mi">2</span>
 <span class="k">end</span> <span class="k">tell</span>
 </pre></div>

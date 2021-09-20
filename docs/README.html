@@ -73,6 +73,8 @@
 <p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
 <p><strong>Additional args:</strong><br></p>
 <ul class="simple">
+<li><p><strong>VPN_USERNAME</strong> - Username to access VPN Server once, configuration is done. If <code class="docutils literal notranslate"><span class="pre">null</span></code>, looks for the env var <code class="docutils literal notranslate"><span class="pre">USER</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
 <li><p><strong>VPN_PASSWORD</strong> - Password to access VPN Server once, configuration is done. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
 <li><p><strong>REGION_NAME</strong> - Region where the VPN Server should live. Defaults to <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code></p></li>
 </ul>
