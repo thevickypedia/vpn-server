@@ -23,7 +23,7 @@ Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 2. `cd vpn-server && python3 -m venv venv`
 3. `source venv/bin/activate`
 4. `pip install -r requirements.txt`
-5. `export ami_id=ami-0e21cddg3k0c9a930 vpn_password=awsOpenVPN2021` - Sample
+5. `export ami_id=ami-0e21cddg3k0c9a930 vpn_password=awsOpenVPN2021` - Sample (Also supports `.env` file)
 6. Trigger VPN Server - Can be run only via `commandline` since, the script requires arguments as follows.
    - `python vpn.py START` to initiate the `VPN Server`
    - `python vpn.py STOP` to delete all resource spun up for the `VPN Server`

@@ -7,7 +7,11 @@ from time import perf_counter, sleep
 
 from boto3 import client, resource
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
 from psutil import Process
+
+if path.isfile('.env'):
+    load_dotenv(dotenv_path='.env', verbose=True, override=True)
 
 
 def time_converter(seconds: float) -> str:

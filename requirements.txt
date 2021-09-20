@@ -1,3 +1,4 @@
 boto3
 botocore
 psutil
+python-dotenv
