@@ -78,6 +78,7 @@ class VPNServer:
                                  aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         self.ec2_resource = resource(service_name='ec2', region_name=aws_region_name,
                                      aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+        self.port = int(environ.get('PORT', 943))
 
     def __del__(self):
         """Destructor to print the run time at the end."""
@@ -153,8 +154,8 @@ class VPNServer:
                      'ToPort': 22,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
-                     'FromPort': 943,
-                     'ToPort': 943,
+                     'FromPort': self.port,
+                     'ToPort': self.port,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
                      'FromPort': 945,
@@ -499,7 +500,7 @@ tell application "Terminal"
     delay 1
     do script ("") in currentTab
     delay 1
-    do script ("") in currentTab
+    do script ("{self.port}") in currentTab
     delay 1
     do script ("") in currentTab
     delay 1
@@ -549,10 +550,10 @@ end tell
         else:
             write_login_details = True
             self.logger.info('VPN server has been configured successfully.')
-            self.logger.info(f"Login Info:\nSERVER: {url}:943/\n"
-                             "USERNAME: openvpn\n"
+            self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}/\n"
+                             f"USERNAME: {vpn_username}\n"
                              f"PASSWORD: {vpn_password}\n")
-        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:943/"})
+        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:{self.port}/"})
         if write_login_details:
             data.update({'USERNAME': vpn_username, 'PASSWORD': vpn_password})
         with open(self.server_file, 'w') as file:
