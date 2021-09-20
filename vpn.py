@@ -47,12 +47,14 @@ class VPNServer:
 
     """
 
-    def __init__(self, aws_access_key: str = None, aws_secret_key: str = None):
+    def __init__(self, aws_access_key: str = environ.get('ACCESS_KEY'), aws_secret_key: str = environ.get('SECRET_KEY'),
+                 aws_region_name: str = environ.get('REGION_NAME', 'us-west-2')):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
             aws_access_key: Access token for AWS account.
             aws_secret_key: Secret ID for AWS account.
+            aws_region_name: Region where the instance should live. Defaults to ``us-west-2``
 
         See Also:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
@@ -71,15 +73,11 @@ class VPNServer:
         self.logger = getLogger(self.key_name)
 
         # AWS client and resource setup
-        if (access_key := environ.get('access_key', aws_access_key)) and \
-                (secret_key := environ.get('secret_key', aws_secret_key)):
-            self.ec2_client = client(service_name='ec2', region_name='us-west-2',
-                                     aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-            self.ec2_resource = resource(service_name='ec2', region_name='us-west-2',
-                                         aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-        else:
-            self.ec2_client = client(service_name='ec2', region_name='us-west-2')
-            self.ec2_resource = resource(service_name='ec2', region_name='us-west-2')
+        self.region = aws_region_name
+        self.ec2_client = client(service_name='ec2', region_name=aws_region_name,
+                                 aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+        self.ec2_resource = resource(service_name='ec2', region_name=aws_region_name,
+                                     aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
 
     def __del__(self):
         """Destructor to print the run time at the end."""
@@ -228,7 +226,8 @@ class VPNServer:
         else:
             self.logger.error('Failed to created the SecurityGroup')
 
-    def _create_ec2_instance(self, image_id: str = environ.get('ami_id')) -> str or None:
+    def _create_ec2_instance(self, image_id: str = environ.get(f"AMI_ID_{environ.get('REGION_NAME', 'us-west-2')}")) \
+            -> str or None:
         """Creates an EC2 instance of type ``t2.micro`` with the pre-configured AMI id.
 
         Args:
@@ -478,7 +477,7 @@ class VPNServer:
         self.logger.info('Configuring VPN server.')
         initial_config = f'ssh -i {self.key_name}.pem root@{dns_name}'
         final_config = initial_config.replace('root@', 'openvpnas@')
-        vpn_password = environ.get('vpn_password', 'awsVPN2021')
+        vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
         script = f"""osascript -e '
 tell application "Terminal"
     delay 5

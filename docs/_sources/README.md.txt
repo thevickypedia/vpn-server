@@ -18,16 +18,34 @@
 # VPN Server
 Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 
+### ENV Variables:
+Environment variables are loaded from a `.env` file using the `python_dotenv` module.
+
+<details>
+<summary><strong>More on Environment variables</strong></summary>
+
+Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
+
+###### Default args:
+AMI IDs are got from `OpenVPN Access Server Community Images` per region.
+- **AMI_ID_{REGION_NAME}** - AMI ID in a region. Looks for `AMI_ID_us-west-2` since `us-west-2` is the default region.
+
+###### Additional args:
+- **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`
+- **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
+
+Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
+</details>
+
 ### Setup and Configuration
 1. `git clone https://github.com/thevickypedia/vpn-server.git`
 2. `cd vpn-server && python3 -m venv venv`
 3. `source venv/bin/activate`
 4. `pip install -r requirements.txt`
-5. `export ami_id=ami-0e21cddg3k0c9a930 vpn_password=awsOpenVPN2021` - Sample (Also supports `.env` file)
-6. Trigger VPN Server - Can be run only via `commandline` since, the script requires arguments as follows.
+5. Trigger VPN Server - Can be run only via `commandline` since, the script requires arguments as follows.
    - `python vpn.py START` to initiate the `VPN Server`
    - `python vpn.py STOP` to delete all resource spun up for the `VPN Server`
-7. `Runtime: ~3 minutes`
+6. `Runtime: ~3 minutes`
 
 ### Windows Operating System (Manual Configuration)
 

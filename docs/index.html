@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="README.html#repo-stats">Repo Stats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#deployments">Deployments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html#env-variables">ENV Variables:</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#setup-and-configuration">Setup and Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#windows-operating-system-manual-configuration">Windows Operating System (Manual Configuration)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#aws-resources-used">AWS Resources Used</a></li>
@@ -66,7 +67,7 @@
 <span id="vpn-server"></span><h1>VPN Server<a class="headerlink" href="#module-vpn" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.VPNServer">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aws_access_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_secret_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.VPNServer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aws_access_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_secret_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_region_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'us-west-2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.VPNServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">VPNServer</span></code> object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">VPNServer</span>
 </pre></div>
@@ -77,6 +78,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>aws_access_key</strong> – Access token for AWS account.</p></li>
 <li><p><strong>aws_secret_key</strong> – Secret ID for AWS account.</p></li>
+<li><p><strong>aws_region_name</strong> – Region where the instance should live. Defaults to <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code></p></li>
 </ul>
 </dd>
 </dl>
