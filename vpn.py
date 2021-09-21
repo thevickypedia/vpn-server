@@ -265,7 +265,7 @@ class VPNServer:
 
         if not self._authorize_security_group(security_group_id=security_group_id):
             self._delete_key_pair()
-            self._delete_security_group()
+            self._delete_security_group(security_group_id=security_group_id)
             return
 
         try:
@@ -279,7 +279,7 @@ class VPNServer:
             )
         except ClientError as error:
             self._delete_key_pair()
-            self._delete_security_group()
+            self._delete_security_group(security_group_id=security_group_id)
             self.logger.error(f'API call to create instance has failed.\n{error}')
             return
 
@@ -289,37 +289,19 @@ class VPNServer:
             return instance_id, security_group_id
         else:
             self._delete_key_pair()
-            self._delete_security_group()
+            self._delete_security_group(security_group_id=security_group_id)
             self.logger.error('Failed to create an EC2 instance.')
 
-    def _retrieve_server_info(self) -> dict:
-        """Retrieves the stored ``json`` file and returns the data as a ``dictionary``.
-
-        Returns:
-            dict:
-            Dictionary version of the json object that was stored during after instance creation.
-        """
-        with open(self.server_file, 'r') as file:
-            data = load(file)
-        return data
-
-    def _delete_key_pair(self, key_name: str = None) -> bool:
+    def _delete_key_pair(self) -> bool:
         """Deletes the ``KeyPair``.
-
-        Args:
-            key_name: Takes ``KeyPair`` name as argument. Defaults to the one mentioned when the object was initialized.
 
         Returns:
             bool:
             Flag to indicate the calling function if or not the KeyPair was deleted.
         """
-        if not key_name:
-            key_name = self.key_name
-            self.logger.warning(f'No `key_name` was passed. Trying to delete the default Key: {key_name}.pem')
-
         try:
             response = self.ec2_client.delete_key_pair(
-                KeyName=key_name
+                KeyName=self.key_name
             )
         except ClientError as error:
             self.logger.error(f'API call to delete the key {self.key_name} has failed.\n{error}')
@@ -334,7 +316,7 @@ class VPNServer:
         else:
             self.logger.error(f'Failed to delete the key: {self.key_name}')
 
-    def _delete_security_group(self, security_group_id: str = None) -> bool:
+    def _delete_security_group(self, security_group_id: str) -> bool:
         """Deletes the security group.
 
         Args:
@@ -344,15 +326,6 @@ class VPNServer:
             bool:
             Flag to indicate the calling function if or not the SecurityGroup was deleted.
         """
-        if not security_group_id:
-            if not path.exists(self.server_file):
-                self.logger.error('Cannot delete a security group without the SecurityGroup ID')
-                return False
-
-            data = self._retrieve_server_info()
-            security_group_id = data.get('security_group_id')
-            self.logger.warning(f"Security Group ID wasn't provided. Recent SG, {security_group_id} will be deleted.")
-
         try:
             response = self.ec2_client.delete_security_group(
                 GroupId=security_group_id
@@ -367,7 +340,7 @@ class VPNServer:
         else:
             self.logger.error(f'Failed to delete the SecurityGroup: {security_group_id}')
 
-    def _terminate_ec2_instance(self, instance_id: str = None) -> bool:
+    def _terminate_ec2_instance(self, instance_id: str) -> bool:
         """Terminates the requested instance.
 
         Args:
@@ -377,15 +350,6 @@ class VPNServer:
             bool:
             Flag to indicate the calling function if or not the instance was terminated.
         """
-        if not instance_id:
-            if not path.exists(self.server_file):
-                self.logger.error('Cannot terminate an instance without the Instance ID')
-                return False
-
-            data = self._retrieve_server_info()
-            instance_id = data.get('instance_id')
-            self.logger.warning(f"Instance ID wasn't provided. Recent instance, {instance_id} will be terminated.")
-
         try:
             response = self.ec2_client.terminate_instances(
                 InstanceIds=[instance_id]
@@ -413,6 +377,7 @@ class VPNServer:
         self.logger.info('Waiting for the instance to go live.')
         sleeper(sleep_time=30)
         while True:
+            sleep(3)
             try:
                 response = self.ec2_client.describe_instance_status(
                     InstanceIds=[instance_id]
@@ -422,25 +387,24 @@ class VPNServer:
                 return
 
             if response.get('ResponseMetadata').get('HTTPStatusCode') != 200:
-                sleep(3)
                 continue
             if status := response.get('InstanceStatuses'):
                 if status[0].get('InstanceState').get('Name') == 'running':
                     instance_info = self.ec2_resource.Instance(instance_id)
                     return instance_info.public_dns_name, instance_info.public_ip_address
-                else:
-                    sleep(3)
-            else:
-                sleep(3)
 
-    def _configure_vpn(self, dns_name: str) -> None:
+    def _configure_vpn(self, data: dict) -> tuple:
         """Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.
 
         Args:
-            dns_name: Takes the public ``DNSName`` as an argument to form the ``ssh`` command to initiate configuration.
+            data: A dictionary with key, value pairs with instance information in it.
 
         See Also:
             - Takes ~2 minutes as there is a wait time for each ``stdin`` in the interactive SSH command.
+
+        Returns:
+            tuple:
+            A tuple of ``vpn_username`` and ``vpn_password`` to trigger the notification.
 
         Notes: # noqa: E501
             .. code-block:: applescript
@@ -494,7 +458,7 @@ class VPNServer:
             - `Configuration in SSH session <https://www.vembu.com/blog/open-vpn-server-aws-overview/#:~:text=Now%20its%20time%20to%20configure%20your%20OpenVPN%20Access%20Server%20Instance>`__
         """
         self.logger.info('Configuring VPN server.')
-        initial_ssh = f'ssh -i {self.key_name}.pem root@{dns_name}'
+        initial_ssh = f"ssh -i {self.key_name}.pem root@{data.get('public_dns')}"
         final_ssh = initial_ssh.replace('root@', 'openvpnas@')
         if not (vpn_username := environ.get('VPN_USERNAME')):
             vpn_username = environ.get('USER', 'openvpn')
@@ -546,7 +510,6 @@ end tell
 ' > /dev/null 2>&1
 """
         script_status = system(script) if os_name() == 'Darwin' else 256
-        data = self._retrieve_server_info()
         url = f"https://{data.get('public_ip')}"
         if script_status == 256:
             write_login_details = False
@@ -565,14 +528,16 @@ end tell
         else:
             write_login_details = True
             self.logger.info('VPN server has been configured successfully.')
-            self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}/\n"
+            self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}\n"
                              f"USERNAME: {vpn_username}\n"
                              f"PASSWORD: {vpn_password}\n")
-        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:{self.port}/"})
+        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:{self.port}"})
         if write_login_details:
             data.update({'USERNAME': vpn_username, 'PASSWORD': vpn_password})
         with open(self.server_file, 'w') as file:
             dump(data, file, indent=2)
+
+        return vpn_username, vpn_password
 
     def notify(self, username: str, password: str, phone: str, login_details: str) -> None:
         """Send login details via SMS.
@@ -614,8 +579,6 @@ end tell
             'public_ip': public_ip,
             'security_group_id': security_group_id
         }
-        with open(self.server_file, 'w') as file:
-            dump(instance_info, file, indent=2)
 
         self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
         system(f'chmod 400 {self.key_name}.pem')
@@ -623,19 +586,15 @@ end tell
         self.logger.info('Waiting for SSH origin to be active.')
         sleeper(sleep_time=30)
 
-        self._configure_vpn(dns_name=public_dns)
+        vpn_user, vpn_pass = self._configure_vpn(data=instance_info)
 
-        self.logger.info('Waiting for file I/O operation to finish.')
-        sleeper(sleep_time=5)
-
-        if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass') and
-                                                        (phone := environ.get('phone'))):
-            data = self._retrieve_server_info()
+        if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass')) and \
+                (phone := environ.get('phone')):
             # noinspection PyUnboundLocalVariable
             self.notify(username=username, password=password, phone=phone,
-                        login_details=f"SERVER: {data.get('SERVER')}\n\n"
-                                      f"Username:{data.get('USERNAME')}\n"
-                                      f"Password: {data.get('PASSWORD')}")
+                        login_details=f"SERVER: {public_ip}:{self.port}\n\n"
+                                      f"Username:{vpn_user}\n"
+                                      f"Password: {vpn_pass}")
         else:
             self.logger.warning('Environment variables not configured for an SMS notification.')
 
@@ -643,16 +602,22 @@ end tell
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         See Also:
-            There is a wait time (30 seconds) for the instance to terminate. This may run twice.
+            There is a wait time (60 seconds) for the instance to terminate. This may run twice.
         """
-        if self._delete_key_pair() and self._terminate_ec2_instance():
+        if not path.exists(self.server_file):
+            self.logger.info(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+            return
+
+        with open(self.server_file, 'r') as file:
+            data = load(file)
+
+        if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
-                sleeper(sleep_time=30)
-                if self._delete_security_group():
+                sleeper(sleep_time=60)
+                if self._delete_security_group(security_group_id=data.get('security_group_id')):
                     break
-            if path.exists(self.server_file):
-                system(f'rm {self.server_file}')
+            system(f'rm {self.server_file}')
 
 
 if __name__ == '__main__':
