@@ -560,7 +560,7 @@ end tell
         with open(self.server_file, 'w') as file:
             dump(data, file, indent=2)
 
-    def send_sms(self, username: str, password: str, phone: str, login_details: str) -> None:
+    def notify(self, username: str, password: str, phone: str, login_details: str) -> None:
         """Send login details via SMS.
 
         Args:
@@ -576,6 +576,7 @@ end tell
             self.logger.info('Login details have been sent successfully.')
         else:
             self.logger.error('Unable to send login details via SMS.')
+        self.logger.error(response.get('body'))
 
     def startup_vpn(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
@@ -614,14 +615,21 @@ end tell
 
         self._configure_vpn(dns_name=public_dns)
 
+        self.logger.info('Waiting for file I/O operation to finish.')
+        sleep(1)
+        for i in range(5):
+            stdout.write(f'\rRemaining: {5 - i}s')
+            sleep(1)
+        stdout.write('\r')
+
         if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass') and
                                                         (phone := environ.get('phone'))):
             data = self._retrieve_server_info()
             # noinspection PyUnboundLocalVariable
-            self.send_sms(username=username, password=password, phone=phone,
-                          login_details=f"SERVER: {data.get('SERVER')}\n\n"
-                                        f"Username:{data.get('USERNAME')}\n"
-                                        f"Password: {data.get('PASSWORD')}")
+            self.notify(username=username, password=password, phone=phone,
+                        login_details=f"SERVER: {data.get('SERVER')}\n\n"
+                                      f"Username:{data.get('USERNAME')}\n"
+                                      f"Password: {data.get('PASSWORD')}")
         else:
             self.logger.warning('Environment variables not configured for an SMS notification.')
 
