@@ -41,6 +41,19 @@ def time_converter(seconds: float) -> str:
         return f'{seconds} seconds'
 
 
+def sleeper(sleep_time: int) -> None:
+    """Sleeps for a particular duration.
+
+    Args:
+        sleep_time: Takes the time script has to sleep, as an argument.
+    """
+    sleep(1)
+    for i in range(sleep_time):
+        stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
+        sleep(1)
+    stdout.write('\r')
+
+
 class VPNServer:
     """Initiates ``VPNServer`` object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
 
@@ -398,6 +411,7 @@ class VPNServer:
             A tuple object of Public DNS Name and Public IP Address.
         """
         self.logger.info('Waiting for the instance to go live.')
+        sleeper(sleep_time=30)
         while True:
             try:
                 response = self.ec2_client.describe_instance_status(
@@ -607,20 +621,12 @@ end tell
         system(f'chmod 400 {self.key_name}.pem')
 
         self.logger.info('Waiting for SSH origin to be active.')
-        sleep(1)
-        for i in range(30):
-            stdout.write(f'\rRemaining: {30 - i:02}s')
-            sleep(1)
-        stdout.write('\r')
+        sleeper(sleep_time=30)
 
         self._configure_vpn(dns_name=public_dns)
 
         self.logger.info('Waiting for file I/O operation to finish.')
-        sleep(1)
-        for i in range(5):
-            stdout.write(f'\rRemaining: {5 - i}s')
-            sleep(1)
-        stdout.write('\r')
+        sleeper(sleep_time=5)
 
         if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass') and
                                                         (phone := environ.get('phone'))):
@@ -642,11 +648,7 @@ end tell
         if self._delete_key_pair() and self._terminate_ec2_instance():
             self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
-                sleep(1)
-                for i in range(30):
-                    stdout.write(f'\rRemaining: {30 - i:02}s')
-                    sleep(1)
-                stdout.write('\r')
+                sleeper(sleep_time=30)
                 if self._delete_security_group():
                     break
             if path.exists(self.server_file):
