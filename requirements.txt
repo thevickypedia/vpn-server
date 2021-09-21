@@ -2,3 +2,4 @@ boto3
 botocore
 psutil
 python-dotenv
+gmail-connector

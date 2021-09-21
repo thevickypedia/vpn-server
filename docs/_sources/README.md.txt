@@ -38,6 +38,11 @@ Defaults to `openvpn`
 - **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
 - **PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 
+**To get notification of login information:**<br>
+- **gmail_user** - Username of the gmail account.
+- **gmail_pass** - Password of the gmail account.
+- **phone** - Phone number to which the notification has to be sent.
+
 Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
 </details>
 
