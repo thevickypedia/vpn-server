@@ -1,5 +1,7 @@
+import logging
+from datetime import datetime
+from importlib import reload
 from json import dump, load
-from logging import INFO, basicConfig, getLogger
 from os import environ, getcwd, getpid, path, system
 from platform import system as os_name
 from sys import argv, stdout
@@ -55,6 +57,43 @@ def sleeper(sleep_time: int) -> None:
     stdout.write('\r')
 
 
+def logging_wrapper() -> tuple:
+    """Wraps logging module to create multiple handlers for different purposes.
+
+    See Also:
+        - consoleLogger: Writes the log information only in stdout.
+        - rootLogger: Logs the entry in both stdout and log file.
+
+    Returns:
+        tuple:
+        A tuple of classes logging.Logger for file, console and root logging.
+    """
+    reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module before start
+    system('mkdir logs') if not path.isdir('logs') else None  # create logs directory if not found
+    log_formatter = logging.Formatter(
+        fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
+        datefmt='%b-%d-%Y %I:%M:%S %p'
+    )
+
+    directory = path.dirname(__file__)
+    log_file = datetime.now().strftime(path.join(directory, 'logs/vpn_server_%d_%m_%Y_%H_%M.log'))
+
+    console_logger = logging.getLogger(__file__)
+    root_logger = logging.getLogger(__file__)
+
+    file_handler = logging.FileHandler(filename=log_file)
+    file_handler.setFormatter(fmt=log_formatter)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(fmt=log_formatter)
+    console_logger.setLevel(level=logging.INFO)
+    console_logger.addHandler(hdlr=console_handler)
+
+    root_logger.addHandler(hdlr=file_handler)
+    root_logger.addHandler(hdlr=console_handler)
+    return console_logger, root_logger
+
+
 class VPNServer:
     """Initiates ``VPNServer`` object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
 
@@ -81,11 +120,11 @@ class VPNServer:
         self.security_group_name = 'OpenVPN Access Server'
 
         # Logger setup
-        basicConfig(
-            format='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
-            datefmt='%b-%d-%Y %I:%M:%S %p', level=INFO
-        )
-        self.logger = getLogger(self.key_name)
+        console_logger, root_logger = logging_wrapper()
+        if environ.get('ENV') == 'Jarvis':
+            self.logger = root_logger
+        else:
+            self.logger = console_logger
 
         # AWS client and resource setup
         self.region = aws_region_name
@@ -555,8 +594,9 @@ end tell
         self._notification_response(notify_type='SMS', response=sms_response)
 
         if recipient := environ.get('recipient'):
+            subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
             email_response = SendEmail(gmail_user=username, gmail_pass=password, recipient=recipient,
-                                       subject='VPN Server', body=login_details).send_email()
+                                       subject=subject, body=login_details).send_email()
             self._notification_response(notify_type='email', response=email_response)
 
     def _notification_response(self, notify_type: str, response: dict) -> None:

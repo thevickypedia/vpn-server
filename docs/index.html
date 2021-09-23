@@ -361,6 +361,27 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="vpn.logging_wrapper">
+<span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">logging_wrapper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#vpn.logging_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps logging module to create multiple handlers for different purposes.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p>consoleLogger: Writes the log information only in stdout.</p></li>
+<li><p>rootLogger: Logs the entry in both stdout and log file.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple of classes logging.Logger for file, console and root logging.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="vpn.sleeper">
 <span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">sleeper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.sleeper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sleeps for a particular duration.</p>
