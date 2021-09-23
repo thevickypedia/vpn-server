@@ -292,6 +292,36 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._notification_response">
+<span class="sig-name descname"><span class="pre">_notification_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notify_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._notification_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs the response after sending notifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>notify_type</strong> – Takes either <code class="docutils literal notranslate"><span class="pre">SMS</span></code> or <code class="docutils literal notranslate"><span class="pre">email</span></code> as argument.</p></li>
+<li><p><strong>response</strong> – Takes the response dictionary to log the success/failure message.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._notify">
+<span class="sig-name descname"><span class="pre">_notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phone</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">login_details</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._notify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send login details via SMS. Proceeds with Email notification if env var <code class="docutils literal notranslate"><span class="pre">recipient</span></code> is present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> – Email address of a google account.</p></li>
+<li><p><strong>password</strong> – Password to authenticate the email address.</p></li>
+<li><p><strong>phone</strong> – Phone number to which the notification has to be sent.</p></li>
+<li><p><strong>login_details</strong> – Login information that has to be sent as a message.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._terminate_ec2_instance">
 <span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminates the requested instance.</p>
@@ -304,22 +334,6 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="vpn.VPNServer.notify">
-<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phone</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">login_details</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.notify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send login details via SMS.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>username</strong> – Email address of a google account.</p></li>
-<li><p><strong>password</strong> – Password to authenticate the email address.</p></li>
-<li><p><strong>phone</strong> – Phone number to which the notification has to be sent.</p></li>
-<li><p><strong>login_details</strong> – Login information that has to be sent as a message.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>

@@ -42,6 +42,7 @@ Defaults to `openvpn`
 - **gmail_user** - Username of the gmail account.
 - **gmail_pass** - Password of the gmail account.
 - **phone** - Phone number to which the notification has to be sent.
+- **recipient** - Email address to which the notification has to be sent.
 
 Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
 </details>

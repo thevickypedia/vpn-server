@@ -8,6 +8,7 @@ from time import perf_counter, sleep
 from boto3 import client, resource
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
 from psutil import Process
 
@@ -539,8 +540,8 @@ end tell
 
         return vpn_username, vpn_password
 
-    def notify(self, username: str, password: str, phone: str, login_details: str) -> None:
-        """Send login details via SMS.
+    def _notify(self, username: str, password: str, phone: str, login_details: str) -> None:
+        """Send login details via SMS. Proceeds with Email notification if env var ``recipient`` is present.
 
         Args:
             username: Email address of a google account.
@@ -548,14 +549,29 @@ end tell
             phone: Phone number to which the notification has to be sent.
             login_details: Login information that has to be sent as a message.
         """
-        response = Messenger(gmail_user=username, gmail_pass=password, phone_number=phone, subject='VPN Server',
-                             message=login_details).send_sms()
+        sms_response = Messenger(gmail_user=username, gmail_pass=password, phone_number=phone, subject='VPN Server',
+                                 message=login_details).send_sms()
 
+        self._notification_response(notify_type='SMS', response=sms_response)
+
+        if recipient := environ.get('recipient'):
+            email_response = SendEmail(gmail_user=username, gmail_pass=password, recipient=recipient,
+                                       subject='VPN Server', body=login_details).send_email()
+            self._notification_response(notify_type='email', response=email_response)
+
+    def _notification_response(self, notify_type: str, response: dict) -> None:
+        """Logs the response after sending notifications.
+
+        Args:
+            notify_type: Takes either ``SMS`` or ``email`` as argument.
+            response: Takes the response dictionary to log the success/failure message.
+        """
         if response.get('ok'):
-            self.logger.info('Login details have been sent successfully.')
+            self.logger.info(f'Login details have been sent via {notify_type} successfully.')
+            self.logger.info(response.get('body'))
         else:
-            self.logger.error('Unable to send login details via SMS.')
-        self.logger.error(response.get('body'))
+            self.logger.error(f'Unable to send login details via {notify_type}.')
+            self.logger.error(response.get('body'))
 
     def startup_vpn(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
@@ -591,10 +607,10 @@ end tell
         if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass')) and \
                 (phone := environ.get('phone')):
             # noinspection PyUnboundLocalVariable
-            self.notify(username=username, password=password, phone=phone,
-                        login_details=f"SERVER: {public_ip}:{self.port}\n\n"
-                                      f"Username:{vpn_user}\n"
-                                      f"Password: {vpn_pass}")
+            self._notify(username=username, password=password, phone=phone,
+                         login_details=f"SERVER: {public_ip}:{self.port}\n\n"
+                                       f"Username:{vpn_user}\n"
+                                       f"Password: {vpn_pass}")
         else:
             self.logger.warning('Environment variables not configured for an SMS notification.')
 
