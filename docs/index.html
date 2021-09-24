@@ -50,7 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="README.html#repo-stats">Repo Stats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#deployments">Deployments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="README.html#env-variables">ENV Variables:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#env-variables">ENV Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#setup-and-configuration">Setup and Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#windows-operating-system-manual-configuration">Windows Operating System (Manual Configuration)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#aws-resources-used">AWS Resources Used</a></li>
@@ -322,6 +322,23 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._sleeper">
+<span class="sig-name descname"><span class="pre">_sleeper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._sleeper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sleeps for a particular duration.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p>If triggered by <code class="docutils literal notranslate"><span class="pre">Jarvis</span></code>, logs and waits else writes the remaining time in <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sleep_time</strong> – Takes the time script has to sleep, as an argument.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._terminate_ec2_instance">
 <span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminates the requested instance.</p>
@@ -367,27 +384,16 @@
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
+<li><p>fileLogger: Writes the log information only to the log file.</p></li>
 <li><p>consoleLogger: Writes the log information only in stdout.</p></li>
-<li><p>rootLogger: Logs the entry in both stdout and log file.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A tuple of classes logging.Logger for file, console and root logging.</p>
+<dd class="field-odd"><p>A tuple of classes <code class="docutils literal notranslate"><span class="pre">logging.Logger</span></code> for file and console logging.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="vpn.sleeper">
-<span class="sig-prename descclassname"><span class="pre">vpn.</span></span><span class="sig-name descname"><span class="pre">sleeper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.sleeper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sleeps for a particular duration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sleep_time</strong> – Takes the time script has to sleep, as an argument.</p>
 </dd>
 </dl>
 </dd></dl>

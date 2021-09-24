@@ -44,29 +44,16 @@ def time_converter(seconds: float) -> str:
         return f'{seconds} seconds'
 
 
-def sleeper(sleep_time: int) -> None:
-    """Sleeps for a particular duration.
-
-    Args:
-        sleep_time: Takes the time script has to sleep, as an argument.
-    """
-    sleep(1)
-    for i in range(sleep_time):
-        stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
-        sleep(1)
-    stdout.write('\r')
-
-
 def logging_wrapper() -> tuple:
     """Wraps logging module to create multiple handlers for different purposes.
 
     See Also:
+        - fileLogger: Writes the log information only to the log file.
         - consoleLogger: Writes the log information only in stdout.
-        - rootLogger: Logs the entry in both stdout and log file.
 
     Returns:
         tuple:
-        A tuple of classes logging.Logger for file, console and root logging.
+        A tuple of classes ``logging.Logger`` for file and console logging.
     """
     reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module before start
     system('mkdir logs') if not path.isdir('logs') else None  # create logs directory if not found
@@ -78,20 +65,20 @@ def logging_wrapper() -> tuple:
     directory = path.dirname(__file__)
     log_file = datetime.now().strftime(path.join(directory, 'logs/vpn_server_%d_%m_%Y_%H_%M.log'))
 
-    console_logger = logging.getLogger(__file__)
-    root_logger = logging.getLogger(__file__)
+    file_logger = logging.getLogger('FILE')
+    console_logger = logging.getLogger('CONSOLE')
 
     file_handler = logging.FileHandler(filename=log_file)
     file_handler.setFormatter(fmt=log_formatter)
+    file_logger.setLevel(level=logging.INFO)
+    file_logger.addHandler(hdlr=file_handler)
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(fmt=log_formatter)
     console_logger.setLevel(level=logging.INFO)
     console_logger.addHandler(hdlr=console_handler)
 
-    root_logger.addHandler(hdlr=file_handler)
-    root_logger.addHandler(hdlr=console_handler)
-    return console_logger, root_logger
+    return file_logger, console_logger
 
 
 class VPNServer:
@@ -120,9 +107,9 @@ class VPNServer:
         self.security_group_name = 'OpenVPN Access Server'
 
         # Logger setup
-        console_logger, root_logger = logging_wrapper()
+        file_logger, console_logger = logging_wrapper()
         if environ.get('ENV') == 'Jarvis':
-            self.logger = root_logger
+            self.logger = file_logger
         else:
             self.logger = console_logger
 
@@ -137,6 +124,26 @@ class VPNServer:
     def __del__(self):
         """Destructor to print the run time at the end."""
         self.logger.info(f'Total runtime: {time_converter(perf_counter())}')
+
+    def _sleeper(self, sleep_time: int) -> None:
+        """Sleeps for a particular duration.
+
+        See Also:
+            - If triggered by ``Jarvis``, logs and waits else writes the remaining time in ``stdout``.
+
+        Args:
+            sleep_time: Takes the time script has to sleep, as an argument.
+        """
+        if environ.get('ENV') == 'Jarvis':
+            self.logger.info(f'Waiting for {sleep_time} seconds.')
+            sleep(sleep_time + 2)
+            return
+
+        sleep(1)
+        for i in range(sleep_time):
+            stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
+            sleep(1)
+        stdout.write('\r')
 
     def _create_key_pair(self) -> bool:
         """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
@@ -415,7 +422,7 @@ class VPNServer:
             A tuple object of Public DNS Name and Public IP Address.
         """
         self.logger.info('Waiting for the instance to go live.')
-        sleeper(sleep_time=30)
+        self._sleeper(sleep_time=30)
         while True:
             sleep(3)
             try:
@@ -570,7 +577,7 @@ end tell
             self.logger.info('VPN server has been configured successfully.')
             self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}\n"
                              f"USERNAME: {vpn_username}\n"
-                             f"PASSWORD: {vpn_password}\n")
+                             f"PASSWORD: {vpn_password}")
         data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:{self.port}"})
         if write_login_details:
             data.update({'USERNAME': vpn_username, 'PASSWORD': vpn_password})
@@ -640,7 +647,7 @@ end tell
         system(f'chmod 400 {self.key_name}.pem')
 
         self.logger.info('Waiting for SSH origin to be active.')
-        sleeper(sleep_time=30)
+        self._sleeper(sleep_time=30)
 
         vpn_user, vpn_pass = self._configure_vpn(data=instance_info)
 
@@ -670,7 +677,7 @@ end tell
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
-                sleeper(sleep_time=60)
+                self._sleeper(sleep_time=60)
                 if self._delete_security_group(security_group_id=data.get('security_group_id')):
                     break
             system(f'rm {self.server_file}')

@@ -18,7 +18,7 @@
 # VPN Server
 Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 
-### ENV Variables:
+### ENV Variables
 Environment variables are loaded from a `.env` file using the `python_dotenv` module.
 
 <details>
