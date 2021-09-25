@@ -113,6 +113,12 @@ class VPNServer:
         else:
             self.logger = console_logger
 
+        # Notification information
+        self.gmail_user = environ.get('gmail_user')
+        self.gmail_pass = environ.get('gmail_pass')
+        self.recipient = environ.get('recipient')
+        self.phone = environ.get('phone')
+
         # AWS client and resource setup
         self.region = aws_region_name
         self.ec2_client = client(service_name='ec2', region_name=aws_region_name,
@@ -586,23 +592,23 @@ end tell
 
         return vpn_username, vpn_password
 
-    def _notify(self, username: str, password: str, phone: str, login_details: str) -> None:
-        """Send login details via SMS. Proceeds with Email notification if env var ``recipient`` is present.
+    def _notify(self, login_details: str) -> None:
+        """Send login details via SMS and Email if the following env vars are present.
+
+        ``gmail_user``, ``gmail_pass`` and ``phone [or] recipient``
 
         Args:
-            username: Email address of a google account.
-            password: Password to authenticate the email address.
-            phone: Phone number to which the notification has to be sent.
-            login_details: Login information that has to be sent as a message.
+            login_details: Login information that has to be sent as a message/email.
         """
-        sms_response = Messenger(gmail_user=username, gmail_pass=password, phone_number=phone, subject='VPN Server',
-                                 message=login_details).send_sms()
+        subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
+        if self.phone:
+            sms_response = Messenger(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, phone_number=self.phone,
+                                     subject=subject, message=login_details).send_sms()
 
-        self._notification_response(notify_type='SMS', response=sms_response)
+            self._notification_response(notify_type='SMS', response=sms_response)
 
-        if recipient := environ.get('recipient'):
-            subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
-            email_response = SendEmail(gmail_user=username, gmail_pass=password, recipient=recipient,
+        if self.recipient:
+            email_response = SendEmail(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, recipient=self.recipient,
                                        subject=subject, body=login_details).send_email()
             self._notification_response(notify_type='email', response=email_response)
 
@@ -651,15 +657,12 @@ end tell
 
         vpn_user, vpn_pass = self._configure_vpn(data=instance_info)
 
-        if (username := environ.get('gmail_user')) and (password := environ.get('gmail_pass')) and \
-                (phone := environ.get('phone')):
-            # noinspection PyUnboundLocalVariable
-            self._notify(username=username, password=password, phone=phone,
-                         login_details=f"SERVER: {public_ip}:{self.port}\n\n"
+        if self.gmail_user and self.gmail_pass:
+            self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
                                        f"Username:{vpn_user}\n"
                                        f"Password: {vpn_pass}")
         else:
-            self.logger.warning('Environment variables not configured for an SMS notification.')
+            self.logger.warning('Environment variables not configured for a notification.')
 
     def shutdown_vpn(self) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
