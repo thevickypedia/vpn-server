@@ -13,6 +13,11 @@ from dotenv import load_dotenv
 from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
 from psutil import Process
+from requests import ConnectionError, get
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
+
+disable_warnings(InsecureRequestWarning)
 
 if path.isfile('.env'):
     load_dotenv(dotenv_path='.env', verbose=True, override=True)
@@ -385,6 +390,8 @@ class VPNServer:
             )
         except ClientError as error:
             self.logger.error(f'API call to delete the Security Group {security_group_id} has failed.\n{error}')
+            if '(InvalidGroup.NotFound)' in str(error):
+                return True
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
@@ -626,12 +633,58 @@ end tell
             self.logger.error(f'Unable to send login details via {notify_type}.')
             self.logger.error(response.get('body'))
 
+    def _tester(self, data: dict) -> bool:
+        """Tests whether the existing server is connectable.
+
+        This is called when a start up request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
+
+        Args:
+            data: Takes the ``server_info.json`` (loaded as ``dict``) as an argument.
+
+        Returns:
+            bool:
+            - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
+            - ``False`` is the connection fails or unable to ``ssh`` to the origin.
+        """
+        ssh_checker = f"echo logout | ssh -i {self.key_name}.pem openvpnas@{data.get('public_dns')} -q > /dev/null 2>&1"
+        try:
+            url_check = get(url=data.get('SERVER'), verify=False)
+        except ConnectionError:
+            self.logger.warning(f"Found an existing VPN Server running at {data.get('SERVER')}")
+            self.logger.error('However, the server does not respond. Creating a new one.')
+            return False
+        if url_check.ok and system(ssh_checker) == 0:
+            return True
+
     def startup_vpn(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
 
         See Also:
-            There is a wait time (30 seconds) for the SSH origin to become active.
+            - Checks if ``server_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
+            - If present, checks the connection to the existing origin and tears down the instance if connection fails.
+            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``server_info.json``
+            - If another request is sent to start the vpn, creates a new instance regardless of existing info.
+            - There is a wait time (20 seconds) for the SSH origin to become active.
         """
+        if path.isfile(self.server_file) and path.isfile(f'{self.key_name}.pem'):
+            self.logger.warning(f'Received request to start VPN Server, '
+                                f'but {self.server_file} and {self.key_name}.pem')
+            with open(self.server_file) as file:
+                data = load(file)
+            if self._tester(data=data):
+                if data.get('RETRY'):
+                    self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
+                else:
+                    data.update({'RETRY': True})
+                    self._notify(login_details=f"SERVER: {data.get('SERVER')}\n\n"
+                                               f"Username: {data.get('USERNAME')}\n"
+                                               f"Password: {data.get('PASSWORD')}")
+                    with open(self.server_file, 'w') as file:
+                        dump(data, file, indent=2)
+                    return
+            else:
+                self.shutdown_vpn()
+
         if instance_basic := self._create_ec2_instance():
             instance_id, security_group_id = instance_basic
         else:
@@ -653,16 +706,13 @@ end tell
         system(f'chmod 400 {self.key_name}.pem')
 
         self.logger.info('Waiting for SSH origin to be active.')
-        self._sleeper(sleep_time=30)
+        self._sleeper(sleep_time=20)
 
         vpn_user, vpn_pass = self._configure_vpn(data=instance_info)
 
-        if self.gmail_user and self.gmail_pass:
-            self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
-                                       f"Username:{vpn_user}\n"
-                                       f"Password: {vpn_pass}")
-        else:
-            self.logger.warning('Environment variables not configured for a notification.')
+        self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
+                                   f"Username: {vpn_user}\n"
+                                   f"Password: {vpn_pass}")
 
     def shutdown_vpn(self) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
@@ -680,9 +730,10 @@ end tell
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
-                self._sleeper(sleep_time=60)
                 if self._delete_security_group(security_group_id=data.get('security_group_id')):
                     break
+                else:
+                    self._sleeper(sleep_time=60)
             system(f'rm {self.server_file}')
 
 

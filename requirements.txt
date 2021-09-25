@@ -1,5 +1,7 @@
 boto3
 botocore
 psutil
+urllib3
+requests
 python-dotenv
 gmail-connector

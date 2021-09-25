@@ -352,6 +352,28 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="vpn.VPNServer._tester">
+<span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether the existing server is connectable.</p>
+<p>This is called when a start up request is made but <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> are present already.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Takes the <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> (loaded as <code class="docutils literal notranslate"><span class="pre">dict</span></code>) as an argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the existing connection is reachable and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to the origin succeeds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code> is the connection fails or unable to <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to the origin.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer.shutdown_vpn">
 <span class="sig-name descname"><span class="pre">shutdown_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.shutdown_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disables VPN server by terminating the <code class="docutils literal notranslate"><span class="pre">EC2</span></code> instance, <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>, and the <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> created.</p>
@@ -367,7 +389,13 @@
 <dd><p>Calls the class methods <code class="docutils literal notranslate"><span class="pre">_create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> to configure the VPN server.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>There is a wait time (30 seconds) for the SSH origin to become active.</p>
+<ul class="simple">
+<li><p>Checks if <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> files are present, before spinning up a new instance.</p></li>
+<li><p>If present, checks the connection to the existing origin and tears down the instance if connection fails.</p></li>
+<li><p>If connects, notifies user with details and adds key-value pair <code class="docutils literal notranslate"><span class="pre">Retry:</span> <span class="pre">True</span></code> to <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code></p></li>
+<li><p>If another request is sent to start the vpn, creates a new instance regardless of existing info.</p></li>
+<li><p>There is a wait time (20 seconds) for the SSH origin to become active.</p></li>
+</ul>
 </div>
 </dd></dl>
 
