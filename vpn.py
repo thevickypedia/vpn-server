@@ -17,7 +17,7 @@ from requests import ConnectionError, get
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-disable_warnings(InsecureRequestWarning)
+disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
 if path.isfile('.env'):
     load_dotenv(dotenv_path='.env', verbose=True, override=True)
@@ -613,11 +613,15 @@ end tell
                                      subject=subject, message=login_details).send_sms()
 
             self._notification_response(notify_type='SMS', response=sms_response)
+        else:
+            self.logger.warning('ENV vars are not configured for an SMS notification.')
 
         if self.recipient:
             email_response = SendEmail(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, recipient=self.recipient,
                                        subject=subject, body=login_details).send_email()
             self._notification_response(notify_type='email', response=email_response)
+        else:
+            self.logger.warning('ENV vars are not configured for an email notification.')
 
     def _notification_response(self, notify_type: str, response: dict) -> None:
         """Logs the response after sending notifications.
@@ -676,7 +680,7 @@ end tell
                     self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
                 else:
                     data.update({'RETRY': True})
-                    self._notify(login_details=f"SERVER: {data.get('SERVER')}\n\n"
+                    self._notify(login_details=f"CURRENTLY SERVING: {data.get('SERVER').lstrip('https://')}\n\n"
                                                f"Username: {data.get('USERNAME')}\n"
                                                f"Password: {data.get('PASSWORD')}")
                     with open(self.server_file, 'w') as file:
