@@ -4,4 +4,4 @@ psutil
 urllib3
 requests
 python-dotenv
-gmail-connector
+gmail-connector>=0.4.4

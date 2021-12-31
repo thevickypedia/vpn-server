@@ -10,6 +10,7 @@ from time import perf_counter, sleep
 from boto3 import client, resource
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+from gmailconnector.responder import Response
 from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
 from psutil import Process
@@ -161,7 +162,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function if or not a ``KeyPair`` was created.
+            Flag to indicate the calling function whether a ``KeyPair`` was created.
         """
         try:
             response = self.ec2_client.create_key_pair(
@@ -215,7 +216,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function if or not the security group was authorized.
+            Flag to indicate the calling function whether the security group was authorized.
         """
         try:
             response = self.ec2_client.authorize_security_group_ingress(
@@ -355,7 +356,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function if or not the KeyPair was deleted.
+            Flag to indicate the calling function whether the KeyPair was deleted.
         """
         try:
             response = self.ec2_client.delete_key_pair(
@@ -382,7 +383,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function if or not the SecurityGroup was deleted.
+            Flag to indicate the calling function whether the SecurityGroup was deleted.
         """
         try:
             response = self.ec2_client.delete_security_group(
@@ -408,7 +409,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function if or not the instance was terminated.
+            Flag to indicate the calling function whether the instance was terminated.
         """
         try:
             response = self.ec2_client.terminate_instances(
@@ -609,7 +610,7 @@ end tell
         """
         subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
         if self.phone:
-            sms_response = Messenger(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, phone_number=self.phone,
+            sms_response = Messenger(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, phone=self.phone,
                                      subject=subject, message=login_details).send_sms()
 
             self._notification_response(notify_type='SMS', response=sms_response)
@@ -623,19 +624,19 @@ end tell
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
-    def _notification_response(self, notify_type: str, response: dict) -> None:
+    def _notification_response(self, notify_type: str, response: Response) -> None:
         """Logs the response after sending notifications.
 
         Args:
             notify_type: Takes either ``SMS`` or ``email`` as argument.
             response: Takes the response dictionary to log the success/failure message.
         """
-        if response.get('ok'):
+        if response.ok:
             self.logger.info(f'Login details have been sent via {notify_type} successfully.')
-            self.logger.info(response.get('body'))
+            self.logger.info(response.body)
         else:
             self.logger.error(f'Unable to send login details via {notify_type}.')
-            self.logger.error(response.get('body'))
+            self.logger.error(response.json())
 
     def _tester(self, data: dict) -> bool:
         """Tests whether the existing server is connectable.
