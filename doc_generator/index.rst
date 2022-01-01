@@ -20,6 +20,13 @@ VPN Server
    :private-members:
    :undoc-members:
 
+VPN Server - Configuration
+==========================
+
+.. automodule:: configure
+   :members:
+   :private-members:
+   :undoc-members:
 
 Indices and tables
 ==================

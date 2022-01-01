@@ -52,10 +52,8 @@
 <li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="README.html#env-variables">ENV Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#setup-and-configuration">Setup and Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#windows-operating-system-manual-configuration">Windows Operating System (Manual Configuration)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#aws-resources-used">AWS Resources Used</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#linting">Linting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#limitations">Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#links">Links</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#license-copyright">License &amp; copyright</a></li>
 </ul>
@@ -109,79 +107,18 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._configure_vpn">
 <span class="sig-name descname"><span class="pre">_configure_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#vpn.VPNServer._configure_vpn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.</p>
+<dd><p>Frames a dictionary of anticipated prompts and responses to initiate interactive SSH commands.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> – A dictionary with key, value pairs with instance information in it.</p>
 </dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<ul class="simple">
-<li><p>Takes ~2 minutes as there is a wait time for each <code class="docutils literal notranslate"><span class="pre">stdin</span></code> in the interactive SSH command.</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A tuple of <code class="docutils literal notranslate"><span class="pre">vpn_username</span></code> and <code class="docutils literal notranslate"><span class="pre">vpn_password</span></code> to trigger the notification.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple of <code class="docutils literal notranslate"><span class="pre">vpn_username</span></code> and <code class="docutils literal notranslate"><span class="pre">vpn_password</span></code> to trigger the notification.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>tuple</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
-<dl>
-<dt>Notes: # noqa: E501</dt><dd><div class="highlight-applescript notranslate"><div class="highlight"><pre><span></span><span class="k">tell</span> <span class="nb">application</span> <span class="s2">&quot;Terminal&quot;</span>
-    <span class="nb">delay</span> <span class="mi">5</span>
-    <span class="k">set</span> <span class="nv">currentTab</span> <span class="k">to</span> <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;cd {current_directory}&quot;</span><span class="p">)</span>
-    <span class="k">set</span> <span class="nv">current</span> <span class="nv">settings</span> <span class="k">of</span> <span class="nv">currentTab</span> <span class="k">to</span> <span class="nv">settings</span> <span class="k">set</span> <span class="s2">&quot;Ocean&quot;</span>  <span class="c"># To add a beautiful terminal background</span>
-    <span class="nb">delay</span> <span class="mi">2</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{initial_ssh}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Pops configuration questions in an interactive shell</span>
-    <span class="nb">delay</span> <span class="mi">10</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># knownhosts. Are you sure you want to continue connecting (yes/no)?</span>
-    <span class="nb">delay</span> <span class="mi">15</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please enter &#39;yes&#39; to indicate your agreement [no]:</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Will this be the primary Access Server node? Default: yes</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please specify the network interface and IP address to be used by the Admin Web UI: Default: all interfaces: 0.0.0.0</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please specify the port number for the Admin Web UI. Default: 943</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please specify the TCP port number for the OpenVPN Daemon. Default: 443</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Should client traffic be routed by default through the VPN? Default: No</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Should client DNS traffic be routed by default through the VPN? Default: No</span>
-    <span class="c"># If VPN clients should be able to resolve local domain names using an on-site DNS server, then the answer should be &quot;yes&quot;. If the previous selection was &quot;yes&quot;, all traffic will be routed over the VPN regardless what is set here.</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Use local authentication via internal DB? Default: yes</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Should private subnets be accessible to clients by default? Default: yes</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Do you wish to login to the Admin UI as &quot;openvpn&quot;? Default: yes</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_username&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Specify the username for an existing user or for the new user account:</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_password&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Type the password for the &#39;vicky&#39; account:</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;vpn_password&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Confirm the password for the &#39;vicky&#39; account:</span>
-    <span class="nb">delay</span> <span class="mi">1</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Please specify your Activation key (or leave blank to specify later):</span>
-    <span class="nb">delay</span> <span class="mi">40</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;{final_ssh}&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>  <span class="c"># Updates packages and installs security updates</span>
-    <span class="nb">delay</span> <span class="mi">25</span>
-    <span class="nv">do</span> <span class="nv">script</span> <span class="p">(</span><span class="s2">&quot;logout&quot;</span><span class="p">)</span> <span class="k">in</span> <span class="nv">currentTab</span>
-    <span class="nb">delay</span> <span class="mi">2</span>
-<span class="k">end</span> <span class="k">tell</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://openvpn.net/access-server-manual/configuration-vpn-settings/">Configuration in UI</a></p></li>
-<li><p><a class="reference external" href="https://www.vembu.com/blog/open-vpn-server-aws-overview/#:~:text=Now%20its%20time%20to%20configure%20your%20OpenVPN%20Access%20Server%20Instance">Configuration in SSH session</a></p></li>
-</ul>
 </dd></dl>
 
 <dl class="py method">
@@ -355,10 +292,10 @@
 <dt class="sig sig-object py" id="vpn.VPNServer._tester">
 <span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests whether the existing server is connectable.</p>
-<p>This is called when a start up request is made but <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> are present already.</p>
+<p>This is called when a startup request is made but <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> are present already.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> – Takes the <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> (loaded as <code class="docutils literal notranslate"><span class="pre">dict</span></code>) as an argument.</p>
+<dd class="field-odd"><p><strong>data</strong> – Takes the instance information in a dictionary format as an argument.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
@@ -375,8 +312,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer.shutdown_vpn">
-<span class="sig-name descname"><span class="pre">shutdown_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.shutdown_vpn" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">shutdown_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.shutdown_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disables VPN server by terminating the <code class="docutils literal notranslate"><span class="pre">EC2</span></code> instance, <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code>, and the <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>partial</strong> – Flag to indicate whether the <code class="docutils literal notranslate"><span class="pre">SecurityGroup</span></code> has to be removed.</p>
+</dd>
+</dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p>There is a wait time (60 seconds) for the instance to terminate. This may run twice.</p>
@@ -385,7 +327,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer.startup_vpn">
-<span class="sig-name descname"><span class="pre">startup_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.startup_vpn" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">startup_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.startup_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the class methods <code class="docutils literal notranslate"><span class="pre">_create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> to configure the VPN server.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -440,6 +382,27 @@
 </dd></dl>
 
 </section>
+<section id="module-configure">
+<span id="vpn-server-configuration"></span><h1>VPN Server - Configuration<a class="headerlink" href="#module-configure" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="configure.interactive_ssh">
+<span class="sig-prename descclassname"><span class="pre">configure.</span></span><span class="sig-name descname"><span class="pre">interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pem_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts_and_response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#configure.interactive_ssh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs interactive ssh commands to configure the VPN server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hostname</strong> – Hostname of the server.</p></li>
+<li><p><strong>username</strong> – Username to log in to the server.</p></li>
+<li><p><strong>pem_file</strong> – PEM filename to authenticate the login.</p></li>
+<li><p><strong>prompts_and_response</strong> – Prompts and their responses.</p></li>
+<li><p><strong>logger</strong> – Logging module.</p></li>
+<li><p><strong>display</strong> – Boolean flag whether to display interaction data on screen.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -460,6 +423,7 @@
   <ul>
 <li><a class="reference internal" href="#">Welcome to VPN Server’s documentation!</a></li>
 <li><a class="reference internal" href="#module-vpn">VPN Server</a></li>
+<li><a class="reference internal" href="#module-configure">VPN Server - Configuration</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

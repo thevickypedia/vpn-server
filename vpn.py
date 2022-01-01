@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 from importlib import reload
 from json import dump, load
-from os import environ, getcwd, getpid, path, system
-from platform import system as os_name
+from os import environ, getpid, path, system
 from sys import argv, stdout
 from time import perf_counter, sleep
 
+import requests
 from boto3 import client, resource
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
@@ -14,9 +14,10 @@ from gmailconnector.responder import Response
 from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
 from psutil import Process
-from requests import ConnectionError, get
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
+
+from configure import DATETIME_FORMAT, interactive_ssh
 
 disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
@@ -65,7 +66,7 @@ def logging_wrapper() -> tuple:
     system('mkdir logs') if not path.isdir('logs') else None  # create logs directory if not found
     log_formatter = logging.Formatter(
         fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
-        datefmt='%b-%d-%Y %I:%M:%S %p'
+        datefmt=DATETIME_FORMAT
     )
 
     directory = path.dirname(__file__)
@@ -180,10 +181,9 @@ class VPNServer:
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
-            self.logger.info(f'Successfully created a key pair named: {self.key_name}')
             with open(f'{self.key_name}.pem', 'w') as file:
                 file.write(response.get('KeyMaterial'))
-            self.logger.info(f'Stored the certificate as {self.key_name}.pem')
+            self.logger.info(f'Created a key pair named: {self.key_name} and stored as {self.key_name}.pem')
             return True
         else:
             self.logger.error(f'Unable to create a key pair: {self.key_name}')
@@ -436,7 +436,7 @@ class VPNServer:
             A tuple object of Public DNS Name and Public IP Address.
         """
         self.logger.info('Waiting for the instance to go live.')
-        self._sleeper(sleep_time=30)
+        self._sleeper(sleep_time=15)
         while True:
             sleep(3)
             try:
@@ -452,151 +452,162 @@ class VPNServer:
             if status := response.get('InstanceStatuses'):
                 if status[0].get('InstanceState').get('Name') == 'running':
                     instance_info = self.ec2_resource.Instance(instance_id)
-                    return instance_info.public_dns_name, instance_info.public_ip_address
+                    return (instance_info.public_dns_name,
+                            instance_info.public_ip_address,
+                            instance_info.private_ip_address)
+
+    def _notification_response(self, notify_type: str, response: Response) -> None:
+        """Logs the response after sending notifications.
+
+        Args:
+            notify_type: Takes either ``SMS`` or ``email`` as argument.
+            response: Takes the response dictionary to log the success/failure message.
+        """
+        if response.ok:
+            self.logger.info(f'Login details have been sent via {notify_type} successfully.')
+            self.logger.info(response.body)
+        else:
+            self.logger.error(f'Unable to send login details via {notify_type}.')
+            self.logger.error(response.json())
+
+    def _tester(self, data: dict) -> bool:
+        """Tests whether the existing server is connectable.
+
+        This is called when a startup request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
+
+        Args:
+            data: Takes the instance information in a dictionary format as an argument.
+
+        Returns:
+            bool:
+            - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
+            - ``False`` is the connection fails or unable to ``ssh`` to the origin.
+        """
+        try:
+            url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.port}", verify=False)
+        except requests.ConnectionError:
+            return False
+        if url_check.ok and interactive_ssh(hostname=data.get('public_dns'), username='openvpnas',
+                                            pem_file=f'{self.key_name}.pem', logger=self.logger,
+                                            display=True):
+            return True
+
+    def startup_vpn(self, reconfig: bool = False) -> None:
+        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
+
+        See Also:
+            - Checks if ``server_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
+            - If present, checks the connection to the existing origin and tears down the instance if connection fails.
+            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``server_info.json``
+            - If another request is sent to start the vpn, creates a new instance regardless of existing info.
+            - There is a wait time (20 seconds) for the SSH origin to become active.
+        """
+        if path.isfile(self.server_file) and path.isfile(f'{self.key_name}.pem'):
+            with open(self.server_file) as file:
+                data = load(file)
+            self.logger.warning(f"Found an existing VPN Server running at {data.get('SERVER')}")
+            if reconfig:
+                self._configure_vpn(data=data)
+                return
+            if self._tester(data=data):
+                if data.get('RETRY'):
+                    self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
+                else:
+                    data.update({'RETRY': True})
+                    self._notify(login_details=f"CURRENTLY SERVING: {data.get('SERVER').lstrip('https://')}\n\n"
+                                               f"Username: {data.get('USERNAME')}\n"
+                                               f"Password: {data.get('PASSWORD')}")
+                    with open(self.server_file, 'w') as file:
+                        dump(data, file, indent=2)
+                    return
+            else:
+                self.logger.error('Existing server is not responding. Creating a new one.')
+                self.shutdown_vpn(partial=True)
+
+        if reconfig:
+            self.logger.error(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+
+        if not (instance_basic := self._create_ec2_instance()):
+            return
+        instance_id, security_group_id = instance_basic
+
+        if not (instance := self._instance_info(instance_id=instance_id)):
+            return
+        public_dns, public_ip, private_ip = instance
+
+        instance_info = {
+            'instance_id': instance_id,
+            'public_dns': public_dns,
+            'public_ip': public_ip,
+            'private_ip': private_ip,
+            'security_group_id': security_group_id
+        }
+
+        with open(self.server_file, 'w') as file:
+            dump(instance_info, file, indent=2)
+
+        self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
+        system(f'chmod 400 {self.key_name}.pem')
+
+        self.logger.info('Waiting for SSH origin to be active.')
+        self._sleeper(sleep_time=20)
+
+        vpn_username, vpn_password = self._configure_vpn(data=instance_info)
+
+        if not self._tester(data=instance_info):
+            self.logger.error('Something went wrong with configuration. Please check the logs for more information.')
+            return
+
+        self.logger.info('VPN server has been configured successfully.')
+        url = f"https://{instance_info.get('public_ip')}"
+        self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}\n"
+                         f"USERNAME: {vpn_username}\n"
+                         f"PASSWORD: {vpn_password}")
+        instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
+
+        with open(self.server_file, 'w') as file:
+            dump(instance_info, file, indent=2)
+
+        self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
+                                   f"Username: {vpn_username}\n"
+                                   f"Password: {vpn_password}")
 
     def _configure_vpn(self, data: dict) -> tuple:
-        """Configure the VPN server automatically by running a couple of SSH commands and finally a password reset.
+        """Frames a dictionary of anticipated prompts and responses to initiate interactive SSH commands.
 
         Args:
             data: A dictionary with key, value pairs with instance information in it.
 
-        See Also:
-            - Takes ~2 minutes as there is a wait time for each ``stdin`` in the interactive SSH command.
-
         Returns:
             tuple:
             A tuple of ``vpn_username`` and ``vpn_password`` to trigger the notification.
-
-        Notes: # noqa: E501
-            .. code-block:: applescript
-
-                tell application "Terminal"
-                    delay 5
-                    set currentTab to do script ("cd {current_directory}")
-                    set current settings of currentTab to settings set "Ocean"  # To add a beautiful terminal background
-                    delay 2
-                    do script ("{initial_ssh}") in currentTab  # Pops configuration questions in an interactive shell
-                    delay 10
-                    do script ("yes") in currentTab  # knownhosts. Are you sure you want to continue connecting (yes/no)?
-                    delay 15
-                    do script ("yes") in currentTab  # Please enter 'yes' to indicate your agreement [no]:
-                    delay 1
-                    do script ("") in currentTab  # Will this be the primary Access Server node? Default: yes
-                    delay 1
-                    do script ("") in currentTab  # Please specify the network interface and IP address to be used by the Admin Web UI: Default: all interfaces: 0.0.0.0
-                    delay 1
-                    do script ("") in currentTab  # Please specify the port number for the Admin Web UI. Default: 943
-                    delay 1
-                    do script ("") in currentTab  # Please specify the TCP port number for the OpenVPN Daemon. Default: 443
-                    delay 1
-                    do script ("yes") in currentTab  # Should client traffic be routed by default through the VPN? Default: No
-                    delay 1
-                    do script ("") in currentTab  # Should client DNS traffic be routed by default through the VPN? Default: No
-                    # If VPN clients should be able to resolve local domain names using an on-site DNS server, then the answer should be "yes". If the previous selection was "yes", all traffic will be routed over the VPN regardless what is set here.
-                    delay 1
-                    do script ("") in currentTab  # Use local authentication via internal DB? Default: yes
-                    delay 1
-                    do script ("") in currentTab  # Should private subnets be accessible to clients by default? Default: yes
-                    delay 1
-                    do script ("no") in currentTab  # Do you wish to login to the Admin UI as "openvpn"? Default: yes
-                    delay 1
-                    do script ("vpn_username") in currentTab  # Specify the username for an existing user or for the new user account:
-                    delay 1
-                    do script ("vpn_password") in currentTab  # Type the password for the 'vicky' account:
-                    delay 1
-                    do script ("vpn_password") in currentTab  # Confirm the password for the 'vicky' account:
-                    delay 1
-                    do script ("") in currentTab  # Please specify your Activation key (or leave blank to specify later):
-                    delay 40
-                    do script ("{final_ssh}") in currentTab  # Updates packages and installs security updates
-                    delay 25
-                    do script ("logout") in currentTab
-                    delay 2
-                end tell
-
-        References:
-            - `Configuration in UI <https://openvpn.net/access-server-manual/configuration-vpn-settings/>`__
-            - `Configuration in SSH session <https://www.vembu.com/blog/open-vpn-server-aws-overview/#:~:text=Now%20its%20time%20to%20configure%20your%20OpenVPN%20Access%20Server%20Instance>`__
         """
         self.logger.info('Configuring VPN server.')
-        initial_ssh = f"ssh -i {self.key_name}.pem root@{data.get('public_dns')}"
-        final_ssh = initial_ssh.replace('root@', 'openvpnas@')
         if not (vpn_username := environ.get('VPN_USERNAME')):
             vpn_username = environ.get('USER', 'openvpn')
         vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
-        script = f"""osascript -e '
-tell application "Terminal"
-    delay 5
-    set currentTab to do script ("cd {getcwd()}")
-    set current settings of currentTab to settings set "Ocean"
-    delay 2
-    do script ("{initial_ssh}") in currentTab
-    delay 10
-    do script ("yes") in currentTab
-    delay 15
-    do script ("yes") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("{self.port}") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("yes") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("") in currentTab
-    delay 1
-    do script ("no") in currentTab
-    delay 1
-    do script ("{vpn_username}") in currentTab
-    delay 3
-    do script ("{vpn_password}") in currentTab
-    delay 2
-    do script ("{vpn_password}") in currentTab
-    delay 2
-    do script ("") in currentTab
-    delay 40
-    do script ("{final_ssh}") in currentTab
-    delay 25
-    do script ("logout") in currentTab
-    delay 2
-    do script ("exit") in currentTab
-end tell
-' > /dev/null 2>&1
-"""
-        script_status = system(script) if os_name() == 'Darwin' else 256
-        url = f"https://{data.get('public_ip')}"
-        if script_status == 256:
-            write_login_details = False
-            if os_name() != 'Darwin':
-                self.logger.critical('Unsupported Operating System.')
-                self.logger.critical(f'Auto config is currently supported only on MacOS. Script was run on {os_name()}')
-            self.logger.error('Failed to configure VPN server automatically. '
-                              'Run the below commands following the instructions in README.')
-            self.logger.error(initial_ssh)
-            self.logger.error(final_ssh)
-            self.logger.error('sudo passwd openvpn')
-            self.logger.info('Step1: Now login to the server with the information above and accept the agreement.')
-            self.logger.info('Step2: Navigate to `CONFIGURATION` -> `VPN Settings` and Scroll Down to `Routing`.')
-            self.logger.info('Step3: Slide `Should client Internet traffic be routed through the VPN?` switch to `Yes`')
-            self.logger.info('Step4: Click `Save Settings` (bottom of page) and `Update Running Server` (top of page)')
-        else:
-            write_login_details = True
-            self.logger.info('VPN server has been configured successfully.')
-            self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}\n"
-                             f"USERNAME: {vpn_username}\n"
-                             f"PASSWORD: {vpn_password}")
-        data.update({'initial_ssh': initial_ssh, 'final_ssh': final_ssh, 'SERVER': f"{url}:{self.port}"})
-        if write_login_details:
-            data.update({'USERNAME': vpn_username, 'PASSWORD': vpn_password})
-        with open(self.server_file, 'w') as file:
-            dump(data, file, indent=2)
+
+        configuration = {
+            "> Press ENTER for default [yes]: ": "yes",
+            "> Press Enter for default [1]: ": "1",
+            "Please specify the port number for the Admin Web UI.": str(self.port),
+            "Please specify the TCP port number for the OpenVPN Daemon.": "443",
+            "Should client traffic be routed by default through the VPN?": "yes",
+            "Should client DNS traffic be routed by default through the VPN?": "no",
+            "Use local authentication via internal DB?": "yes",
+            "Should private subnets be accessible to clients by default?": "yes",
+            "Do you wish to login to the Admin UI as 'openvpn'?": "no",
+            "Specify the username for an existing user or for the new user account:": vpn_username,
+            f"Type the password for the '{vpn_username}' account:": vpn_password,
+            f"Confirm the password for the '{vpn_username}' account:": vpn_password,
+            "Please specify your Activation key (or leave blank to specify later):": "\n"
+        }
+
+        interactive_ssh(hostname=data.get('public_dns'),
+                        username='root',
+                        pem_file=f'{self.key_name}.pem',
+                        logger=self.logger,
+                        prompts_and_response=configuration)
 
         return vpn_username, vpn_password
 
@@ -624,115 +635,26 @@ end tell
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
-    def _notification_response(self, notify_type: str, response: Response) -> None:
-        """Logs the response after sending notifications.
-
-        Args:
-            notify_type: Takes either ``SMS`` or ``email`` as argument.
-            response: Takes the response dictionary to log the success/failure message.
-        """
-        if response.ok:
-            self.logger.info(f'Login details have been sent via {notify_type} successfully.')
-            self.logger.info(response.body)
-        else:
-            self.logger.error(f'Unable to send login details via {notify_type}.')
-            self.logger.error(response.json())
-
-    def _tester(self, data: dict) -> bool:
-        """Tests whether the existing server is connectable.
-
-        This is called when a start up request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
-
-        Args:
-            data: Takes the ``server_info.json`` (loaded as ``dict``) as an argument.
-
-        Returns:
-            bool:
-            - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
-            - ``False`` is the connection fails or unable to ``ssh`` to the origin.
-        """
-        ssh_checker = f"echo logout | ssh -i {self.key_name}.pem openvpnas@{data.get('public_dns')} -q > /dev/null 2>&1"
-        try:
-            url_check = get(url=data.get('SERVER'), verify=False)
-        except ConnectionError:
-            self.logger.warning(f"Found an existing VPN Server running at {data.get('SERVER')}")
-            self.logger.error('However, the server does not respond. Creating a new one.')
-            return False
-        if url_check.ok and system(ssh_checker) == 0:
-            return True
-
-    def startup_vpn(self) -> None:
-        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
-
-        See Also:
-            - Checks if ``server_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
-            - If present, checks the connection to the existing origin and tears down the instance if connection fails.
-            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``server_info.json``
-            - If another request is sent to start the vpn, creates a new instance regardless of existing info.
-            - There is a wait time (20 seconds) for the SSH origin to become active.
-        """
-        if path.isfile(self.server_file) and path.isfile(f'{self.key_name}.pem'):
-            self.logger.warning(f'Received request to start VPN Server, '
-                                f'but {self.server_file} and {self.key_name}.pem')
-            with open(self.server_file) as file:
-                data = load(file)
-            if self._tester(data=data):
-                if data.get('RETRY'):
-                    self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
-                else:
-                    data.update({'RETRY': True})
-                    self._notify(login_details=f"CURRENTLY SERVING: {data.get('SERVER').lstrip('https://')}\n\n"
-                                               f"Username: {data.get('USERNAME')}\n"
-                                               f"Password: {data.get('PASSWORD')}")
-                    with open(self.server_file, 'w') as file:
-                        dump(data, file, indent=2)
-                    return
-            else:
-                self.shutdown_vpn()
-
-        if instance_basic := self._create_ec2_instance():
-            instance_id, security_group_id = instance_basic
-        else:
-            return
-
-        if instance := self._instance_info(instance_id=instance_id):
-            public_dns, public_ip = instance
-        else:
-            return
-
-        instance_info = {
-            'instance_id': instance_id,
-            'public_dns': public_dns,
-            'public_ip': public_ip,
-            'security_group_id': security_group_id
-        }
-
-        self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
-        system(f'chmod 400 {self.key_name}.pem')
-
-        self.logger.info('Waiting for SSH origin to be active.')
-        self._sleeper(sleep_time=20)
-
-        vpn_user, vpn_pass = self._configure_vpn(data=instance_info)
-
-        self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
-                                   f"Username: {vpn_user}\n"
-                                   f"Password: {vpn_pass}")
-
-    def shutdown_vpn(self) -> None:
+    def shutdown_vpn(self, partial: bool = False) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
+
+        Args:
+            partial: Flag to indicate whether the ``SecurityGroup`` has to be removed.
 
         See Also:
             There is a wait time (60 seconds) for the instance to terminate. This may run twice.
         """
         if not path.exists(self.server_file):
-            self.logger.info(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+            self.logger.error(f'Input file: {self.server_file} is missing. CANNOT proceed.')
             return
 
         with open(self.server_file, 'r') as file:
             data = load(file)
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
+            if partial:
+                system(f'rm {self.server_file}')
+                return
             self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
             while True:
                 if self._delete_security_group(security_group_id=data.get('security_group_id')):
@@ -746,15 +668,27 @@ if __name__ == '__main__':
     run_env = Process(getpid()).parent().name()
     if run_env.endswith('sh'):
         if len(argv) < 2:
-            exit("No arguments were passed. Use 'START' [OR] 'STOP' to enable or disable the VPN server.")
+            exit("No arguments were passed. Use 'START', 'STOP' [OR] 'CONFIG' to enable or disable the VPN server.")
         if argv[1].upper() == 'START':
-            VPNServer().startup_vpn()
+            try:
+                VPNServer().startup_vpn()
+            except KeyboardInterrupt:
+                exit("Interrupted during start up!! If VPN wasn't fully configured, please stop and start once again.")
         elif argv[1].upper() == 'STOP':
-            VPNServer().shutdown_vpn()
+            try:
+                VPNServer().shutdown_vpn()
+            except KeyboardInterrupt:
+                exit("Interrupted during shut down!! If resources weren't fully cleaned up, please stop once again.")
+        elif argv[1].upper() == 'CONFIG':
+            try:
+                VPNServer().startup_vpn(reconfig=True)
+            except KeyboardInterrupt:
+                exit("Interrupted during re-configuration!! Run config once again.")
         else:
-            exit("The only acceptable arguments are 'START' [OR] 'STOP'")
+            exit("The only acceptable arguments are 'START', 'STOP' [OR] 'CONFIG'")
     else:
         exit(f"You're running this script on {run_env}\n"
-             f"Please use a command line to trigger it, using either of the following arguments.\n"
-             f"\t1. python3 vpn.py START\n"
-             f"\t2. python3 vpn.py STOP")
+             "Please use a command line to trigger it, using either of the following arguments.\n"
+             "\t1. python3 vpn.py START\n"
+             "\t2. python3 vpn.py STOP\n"
+             "\t3. python3 vpn.py CONFIG")

@@ -1,7 +1,9 @@
-boto3
-botocore
-psutil
-urllib3
-requests
-python-dotenv
-gmail-connector>=0.4.4
+boto3==1.20.26
+botocore==1.23.26
+psutil==5.9.0
+urllib3==1.26.7
+requests==2.26.0
+python-dotenv==0.19.2
+paramiko-expect==0.3.2
+paramiko==2.9.1
+gmail-connector>=0.4.5
