@@ -391,18 +391,15 @@ class VPNServer:
                             instance_info.public_ip_address,
                             instance_info.private_ip_address)
 
-    def _notification_response(self, notify_type: str, response: Response) -> None:
+    def _notification_response(self, response: Response) -> None:
         """Logs the response after sending notifications.
 
         Args:
-            notify_type: Takes either ``SMS`` or ``email`` as argument.
             response: Takes the response dictionary to log the success/failure message.
         """
         if response.ok:
-            self.logger.info(f'Login details have been sent via {notify_type} successfully.')
             self.logger.info(response.body)
         else:
-            self.logger.error(f'Unable to send login details via {notify_type}.')
             self.logger.error(response.json())
 
     def _tester(self, data: dict) -> bool:
@@ -418,10 +415,12 @@ class VPNServer:
             - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
             - ``False`` is the connection fails or unable to ``ssh`` to the origin.
         """
+        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.port}")
         try:
             url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.port}", verify=False)
         except requests.ConnectionError:
             return False
+        self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         if url_check.ok and interactive_ssh(hostname=data.get('public_dns'), username='openvpnas',
                                             pem_file=f'{self.key_name}.pem', logger=self.logger,
                                             display=True):
@@ -524,6 +523,7 @@ class VPNServer:
         vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
 
         configuration = {
+            "> Please enter 'yes' to indicate your agreement [no]: ": "yes",
             "> Press ENTER for default [yes]: ": "yes",
             "> Press Enter for default [1]: ": "1",
             "Please specify the port number for the Admin Web UI.": str(self.port),
@@ -560,14 +560,14 @@ class VPNServer:
             sms_response = Messenger(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, phone=self.phone,
                                      subject=subject, message=login_details).send_sms()
 
-            self._notification_response(notify_type='SMS', response=sms_response)
+            self._notification_response(response=sms_response)
         else:
             self.logger.warning('ENV vars are not configured for an SMS notification.')
 
         if self.recipient:
             email_response = SendEmail(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, recipient=self.recipient,
                                        subject=subject, body=login_details).send_email()
-            self._notification_response(notify_type='email', response=email_response)
+            self._notification_response(response=email_response)
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
 

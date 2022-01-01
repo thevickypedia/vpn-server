@@ -100,9 +100,8 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
         interact = SSHClientInteraction(client=ssh_client, timeout=5)
         sys.stdout = open(devnull, 'w')
     else:
-        interact = SSHClientInteraction(client=ssh_client, timeout=20, display=True)
+        interact = SSHClientInteraction(client=ssh_client, timeout=30, display=True)
     if prompts_and_response:
-        interact.send(send_string='yes')
         for prompt, response in prompts_and_response.items():
             logger.info(f"Expecting {prompt}")
             interact.expect(re_strings=prompt, timeout=2)
