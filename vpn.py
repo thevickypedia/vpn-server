@@ -1,6 +1,4 @@
-import logging
 from datetime import datetime
-from importlib import reload
 from json import dump, load
 from os import environ, getpid, path, system
 from sys import argv, stdout
@@ -17,75 +15,12 @@ from psutil import Process
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from configure import DATETIME_FORMAT, interactive_ssh
+from helper import interactive_ssh, logging_wrapper, time_converter
 
 disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
 if path.isfile('.env'):
     load_dotenv(dotenv_path='.env', verbose=True, override=True)
-
-
-def time_converter(seconds: float) -> str:
-    """Modifies seconds to appropriate days/hours/minutes/seconds.
-
-    Args:
-        seconds: Takes number of seconds as argument.
-
-    Returns:
-        str:
-        Seconds converted to days or hours or minutes or seconds.
-    """
-    days = round(seconds // 86400)
-    seconds = round(seconds % (24 * 3600))
-    hours = round(seconds // 3600)
-    seconds %= 3600
-    minutes = round(seconds // 60)
-    seconds %= 60
-    if days:
-        return f'{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds'
-    elif hours:
-        return f'{hours} hours, {minutes} minutes, and {seconds} seconds'
-    elif minutes:
-        return f'{minutes} minutes, and {seconds} seconds'
-    elif seconds:
-        return f'{seconds} seconds'
-
-
-def logging_wrapper() -> tuple:
-    """Wraps logging module to create multiple handlers for different purposes.
-
-    See Also:
-        - fileLogger: Writes the log information only to the log file.
-        - consoleLogger: Writes the log information only in stdout.
-
-    Returns:
-        tuple:
-        A tuple of classes ``logging.Logger`` for file and console logging.
-    """
-    reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module before start
-    system('mkdir logs') if not path.isdir('logs') else None  # create logs directory if not found
-    log_formatter = logging.Formatter(
-        fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
-        datefmt=DATETIME_FORMAT
-    )
-
-    directory = path.dirname(__file__)
-    log_file = datetime.now().strftime(path.join(directory, 'logs/vpn_server_%d_%m_%Y_%H_%M.log'))
-
-    file_logger = logging.getLogger('FILE')
-    console_logger = logging.getLogger('CONSOLE')
-
-    file_handler = logging.FileHandler(filename=log_file)
-    file_handler.setFormatter(fmt=log_formatter)
-    file_logger.setLevel(level=logging.INFO)
-    file_logger.addHandler(hdlr=file_handler)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(fmt=log_formatter)
-    console_logger.setLevel(level=logging.INFO)
-    console_logger.addHandler(hdlr=console_handler)
-
-    return file_logger, console_logger
 
 
 class VPNServer:
@@ -526,6 +461,7 @@ class VPNServer:
 
         if reconfig:
             self.logger.error(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+            return
 
         if not (instance_basic := self._create_ec2_instance()):
             return

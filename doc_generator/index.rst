@@ -20,10 +20,10 @@ VPN Server
    :private-members:
    :undoc-members:
 
-VPN Server - Configuration
-==========================
+VPN Server - Helper Functions
+=============================
 
-.. automodule:: configure
+.. automodule:: helper
    :members:
    :private-members:
    :undoc-members:
