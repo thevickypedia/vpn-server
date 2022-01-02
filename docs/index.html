@@ -230,14 +230,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._notification_response">
-<span class="sig-name descname"><span class="pre">_notification_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notify_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gmailconnector.responder.Response</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._notification_response" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_notification_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gmailconnector.responder.Response</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer._notification_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs the response after sending notifications.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>notify_type</strong> – Takes either <code class="docutils literal notranslate"><span class="pre">SMS</span></code> or <code class="docutils literal notranslate"><span class="pre">email</span></code> as argument.</p></li>
-<li><p><strong>response</strong> – Takes the response dictionary to log the success/failure message.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>response</strong> – Takes the response dictionary to log the success/failure message.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,21 +288,30 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer._tester">
 <span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests whether the existing server is connectable.</p>
-<p>This is called when a startup request is made but <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> are present already.</p>
+<dd><p>Tests <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections on the existing server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> – Takes the instance information in a dictionary format as an argument.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p>Called when a startup request is made but <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code> and <code class="docutils literal notranslate"><span class="pre">OpenVPN.pem</span></code> are present already.</p></li>
+<li><p>Called when a manual test request is made.</p></li>
+<li><p>Testing SSH connection will also run updates on the VM.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the existing connection is reachable and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to the origin succeeds.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code> is the connection fails or unable to <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to the origin.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code> if the connection fails or unable to <code class="docutils literal notranslate"><span class="pre">ssh</span></code> to the origin.</p></li>
 </ul>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -321,14 +327,22 @@
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>There is a wait time (60 seconds) for the instance to terminate. This may run twice.</p>
+<p>There is a wait time (60 seconds) for the instance to terminate.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.VPNServer.startup_vpn">
-<span class="sig-name descname"><span class="pre">startup_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.startup_vpn" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">startup_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.VPNServer.startup_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the class methods <code class="docutils literal notranslate"><span class="pre">_create_ec2_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">_instance_info</span></code> to configure the VPN server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reconfig</strong> – Runs the configuration on an existing VPN server.</p></li>
+<li><p><strong>test</strong> – Tests the <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections to an existing VPN server.</p></li>
+</ul>
+</dd>
+</dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
@@ -336,7 +350,6 @@
 <li><p>If present, checks the connection to the existing origin and tears down the instance if connection fails.</p></li>
 <li><p>If connects, notifies user with details and adds key-value pair <code class="docutils literal notranslate"><span class="pre">Retry:</span> <span class="pre">True</span></code> to <code class="docutils literal notranslate"><span class="pre">server_info.json</span></code></p></li>
 <li><p>If another request is sent to start the vpn, creates a new instance regardless of existing info.</p></li>
-<li><p>There is a wait time (20 seconds) for the SSH origin to become active.</p></li>
 </ul>
 </div>
 </dd></dl>
@@ -348,7 +361,7 @@
 <span id="vpn-server-helper-functions"></span><h1>VPN Server - Helper Functions<a class="headerlink" href="#module-helper" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="helper.interactive_ssh">
-<span class="sig-prename descclassname"><span class="pre">helper.</span></span><span class="sig-name descname"><span class="pre">interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pem_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts_and_response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#helper.interactive_ssh" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">helper.</span></span><span class="sig-name descname"><span class="pre">interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pem_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts_and_response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#helper.interactive_ssh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs interactive ssh commands to configure the VPN server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -359,6 +372,7 @@
 <li><p><strong>prompts_and_response</strong> – Prompts and their responses.</p></li>
 <li><p><strong>logger</strong> – Logging module.</p></li>
 <li><p><strong>display</strong> – Boolean flag whether to display interaction data on screen.</p></li>
+<li><p><strong>timeout</strong> – Default session timeout.</p></li>
 </ul>
 </dd>
 </dl>

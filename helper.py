@@ -77,7 +77,7 @@ def logging_wrapper() -> tuple:
 
 
 def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging.Logger,
-                    prompts_and_response: dict = None, display: bool = False) -> bool:
+                    prompts_and_response: dict = None, display: bool = True, timeout: int = 30) -> bool:
     """Runs interactive ssh commands to configure the VPN server.
 
     Args:
@@ -87,6 +87,7 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
         prompts_and_response: Prompts and their responses.
         logger: Logging module.
         display: Boolean flag whether to display interaction data on screen.
+        timeout: Default session timeout.
     """
     pem_key = RSAKey.from_private_key_file(filename=pem_file)
     ssh_client = SSHClient()
@@ -96,23 +97,21 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
     except (BadHostKeyException, AuthenticationException, SSHException, socket.error) as conn_error:
         logger.error(conn_error)
         return False
-    if display:
-        interact = SSHClientInteraction(client=ssh_client, timeout=5)
-        sys.stdout = open(devnull, 'w')
-    else:
-        interact = SSHClientInteraction(client=ssh_client, timeout=30, display=True)
+    interact = SSHClientInteraction(client=ssh_client, timeout=timeout, display=display)
+    sys.stdout = open(devnull, 'w')
     if prompts_and_response:
         for prompt, response in prompts_and_response.items():
             logger.info(f"Expecting {prompt}")
             interact.expect(re_strings=prompt, timeout=2)
-            logger.info(f"Sending {response}")
+            if 'password' in prompt or 'Admin Web UI' in prompt:  # Hides password and port number from the logs
+                secured = ''.join(['*' for _ in range(len(response))])
+                logger.info(f"Sending {secured}")
+            else:
+                logger.info(f"Sending {response}")
             interact.send(send_string=response)
     else:
         interact.send(send_string='logout')
-    if display:
-        interact.expect(timeout=1)
-        sys.stdout = sys.__stdout__
-    else:
-        interact.expect()
+    sys.stdout = sys.__stdout__
+    interact.expect(timeout=timeout)  # Expect comes after releasing print, so the final stages of config gets printed
     ssh_client.close()
     return True

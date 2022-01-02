@@ -43,11 +43,6 @@ class VPNServer:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
-        # Hard-coded certificate file name, server information file name, security group name
-        self.key_name = 'OpenVPN'
-        self.server_file = 'server_info.json'
-        self.security_group_name = 'OpenVPN Access Server'
-
         # Logger setup
         file_logger, console_logger = logging_wrapper()
         if environ.get('ENV') == 'Jarvis':
@@ -102,13 +97,13 @@ class VPNServer:
         """
         try:
             response = self.ec2_client.create_key_pair(
-                KeyName=self.key_name,
+                KeyName='OpenVPN',
                 KeyType='rsa'
             )
         except ClientError as error:
             error = str(error)
-            if '(InvalidKeyPair.Duplicate)' in error and self.key_name in error:
-                self.logger.warning(f'Found an existing KeyPair named: {self.key_name}. Re-creating it.')
+            if '(InvalidKeyPair.Duplicate)' in error and 'OpenVPN' in error:
+                self.logger.warning('Found an existing KeyPair named: OpenVPN. Re-creating it.')
                 self._delete_key_pair()
                 self._create_key_pair()
                 return True
@@ -116,12 +111,12 @@ class VPNServer:
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
-            with open(f'{self.key_name}.pem', 'w') as file:
+            with open('OpenVPN.pem', 'w') as file:
                 file.write(response.get('KeyMaterial'))
-            self.logger.info(f'Created a key pair named: {self.key_name} and stored as {self.key_name}.pem')
+            self.logger.info('Created a key pair named: OpenVPN and stored as OpenVPN.pem')
             return True
         else:
-            self.logger.error(f'Unable to create a key pair: {self.key_name}')
+            self.logger.error('Unable to create a key pair: OpenVPN')
 
     def _get_vpc_id(self) -> str or None:
         """Gets the default VPC id.
@@ -210,17 +205,17 @@ class VPNServer:
 
         try:
             response = self.ec2_client.create_security_group(
-                GroupName=self.security_group_name,
+                GroupName='OpenVPN Access Server',
                 Description='Security Group to allow certain port ranges for VPN server.',
                 VpcId=vpc_id
             )
         except ClientError as error:
             error = str(error)
-            if '(InvalidGroup.Duplicate)' in error and self.security_group_name in error:
-                self.logger.warning(f'Found an existing SecurityGroup named: {self.security_group_name}. Reusing it.')
+            if '(InvalidGroup.Duplicate)' in error and 'OpenVPN Access Server' in error:
+                self.logger.warning('Found an existing SecurityGroup named: OpenVPN Access Server. Reusing it.')
                 response = self.ec2_client.describe_security_groups(
                     Filters=[
-                        dict(Name='group-name', Values=[self.security_group_name])
+                        dict(Name='group-name', Values=['OpenVPN Access Server'])
                     ]
                 )
                 group_id = response['SecurityGroups'][0]['GroupId']
@@ -268,7 +263,7 @@ class VPNServer:
                 MaxCount=1,
                 MinCount=1,
                 ImageId=image_id,
-                KeyName=self.key_name,
+                KeyName='OpenVPN',
                 SecurityGroupIds=[security_group_id]
             )
         except ClientError as error:
@@ -295,20 +290,20 @@ class VPNServer:
         """
         try:
             response = self.ec2_client.delete_key_pair(
-                KeyName=self.key_name
+                KeyName='OpenVPN'
             )
         except ClientError as error:
-            self.logger.error(f'API call to delete the key {self.key_name} has failed.\n{error}')
+            self.logger.error(f'API call to delete the key OpenVPN has failed.\n{error}')
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
-            self.logger.info(f'{self.key_name} has been deleted from KeyPairs.')
-            if path.exists(f'{self.key_name}.pem'):
-                system(f'chmod 700 {self.key_name}.pem')  # reset file permissions before deleting
-                system(f'rm {self.key_name}.pem')
+            self.logger.info('OpenVPN has been deleted from KeyPairs.')
+            if path.exists('OpenVPN.pem'):
+                system('chmod 700 OpenVPN.pem')  # reset file permissions before deleting
+                system('rm OpenVPN.pem')
             return True
         else:
-            self.logger.error(f'Failed to delete the key: {self.key_name}')
+            self.logger.error('Failed to delete the key: OpenVPN')
 
     def _delete_security_group(self, security_group_id: str) -> bool:
         """Deletes the security group.
@@ -403,17 +398,20 @@ class VPNServer:
             self.logger.error(response.json())
 
     def _tester(self, data: dict) -> bool:
-        """Tests whether the existing server is connectable.
-
-        This is called when a startup request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
+        """Tests ``GET`` and ``SSH`` connections on the existing server.
 
         Args:
             data: Takes the instance information in a dictionary format as an argument.
 
+        See Also:
+            - Called when a startup request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
+            - Called when a manual test request is made.
+            - Testing SSH connection will also run updates on the VM.
+
         Returns:
             bool:
             - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
-            - ``False`` is the connection fails or unable to ``ssh`` to the origin.
+            - ``False`` if the connection fails or unable to ``ssh`` to the origin.
         """
         self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.port}")
         try:
@@ -422,45 +420,62 @@ class VPNServer:
             return False
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         if url_check.ok and interactive_ssh(hostname=data.get('public_dns'), username='openvpnas',
-                                            pem_file=f'{self.key_name}.pem', logger=self.logger,
-                                            display=True):
+                                            pem_file='OpenVPN.pem', logger=self.logger,
+                                            display=False, timeout=5):
+            self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.port} and "
+                             f"SSH to {data.get('public_dns')} was successful.")
             return True
 
-    def startup_vpn(self, reconfig: bool = False) -> None:
+    def startup_vpn(self, reconfig: bool = False, test: bool = False) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
+
+        Args:
+            reconfig: Runs the configuration on an existing VPN server.
+            test: Tests the ``GET`` and ``SSH`` connections to an existing VPN server.
 
         See Also:
             - Checks if ``server_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
             - If present, checks the connection to the existing origin and tears down the instance if connection fails.
             - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``server_info.json``
             - If another request is sent to start the vpn, creates a new instance regardless of existing info.
-            - There is a wait time (20 seconds) for the SSH origin to become active.
         """
-        if path.isfile(self.server_file) and path.isfile(f'{self.key_name}.pem'):
-            with open(self.server_file) as file:
-                data = load(file)
-            self.logger.warning(f"Found an existing VPN Server running at {data.get('SERVER')}")
+        if path.isfile('server_info.json') and path.isfile('OpenVPN.pem'):
+            with open('server_info.json') as file:
+                data_exist = load(file)
+
             if reconfig:
-                self._configure_vpn(data=data)
+                self._configure_vpn(data=data_exist)
+                if not self._tester(data=data_exist):
+                    self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
                 return
-            if self._tester(data=data):
-                if data.get('RETRY'):
+
+            if test:
+                self._tester(data=data_exist)
+                return
+
+            self.logger.warning(f"Found an existing VPN Server running at {data_exist.get('SERVER')}")
+            if self._tester(data=data_exist):
+                if data_exist.get('RETRY'):
                     self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
                 else:
-                    data.update({'RETRY': True})
-                    self._notify(login_details=f"CURRENTLY SERVING: {data.get('SERVER').lstrip('https://')}\n\n"
-                                               f"Username: {data.get('USERNAME')}\n"
-                                               f"Password: {data.get('PASSWORD')}")
-                    with open(self.server_file, 'w') as file:
-                        dump(data, file, indent=2)
+                    data_exist.update({'RETRY': True})
+                    self._notify(login_details=f"CURRENTLY SERVING: {data_exist.get('SERVER').lstrip('https://')}\n\n"
+                                               f"Username: {data_exist.get('USERNAME')}\n"
+                                               f"Password: {data_exist.get('PASSWORD')}")
+                    with open('server_info.json', 'w') as file:
+                        dump(data_exist, file, indent=2)
                     return
             else:
                 self.logger.error('Existing server is not responding. Creating a new one.')
                 self.shutdown_vpn(partial=True)
 
-        if reconfig:
-            self.logger.error(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+        if reconfig or test:
+            self.logger.error('Input file: server_info.json is missing. CANNOT proceed.')
             return
+
+        if not all([self.gmail_user, self.gmail_pass, self.phone, self.recipient]):
+            self.logger.warning('Env vars for notifications are missing! '
+                                'Credentials will be stored in server_info.json file.')
 
         if not (instance_basic := self._create_ec2_instance()):
             return
@@ -478,19 +493,19 @@ class VPNServer:
             'security_group_id': security_group_id
         }
 
-        with open(self.server_file, 'w') as file:
+        with open('server_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
-        self.logger.info(f'Restricting wide open permissions to {self.key_name}.pem')
-        system(f'chmod 400 {self.key_name}.pem')
+        self.logger.info('Restricting wide open permissions to OpenVPN.pem')
+        system('chmod 400 OpenVPN.pem')
 
         self.logger.info('Waiting for SSH origin to be active.')
-        self._sleeper(sleep_time=20)
+        self._sleeper(sleep_time=15)
 
         vpn_username, vpn_password = self._configure_vpn(data=instance_info)
 
         if not self._tester(data=instance_info):
-            self.logger.error('Something went wrong with configuration. Please check the logs for more information.')
+            self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
             return
 
         self.logger.info('VPN server has been configured successfully.')
@@ -500,7 +515,7 @@ class VPNServer:
                          f"PASSWORD: {vpn_password}")
         instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
 
-        with open(self.server_file, 'w') as file:
+        with open('server_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
         self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
@@ -541,7 +556,7 @@ class VPNServer:
 
         interactive_ssh(hostname=data.get('public_dns'),
                         username='root',
-                        pem_file=f'{self.key_name}.pem',
+                        pem_file='OpenVPN.pem',
                         logger=self.logger,
                         prompts_and_response=configuration)
 
@@ -578,33 +593,34 @@ class VPNServer:
             partial: Flag to indicate whether the ``SecurityGroup`` has to be removed.
 
         See Also:
-            There is a wait time (60 seconds) for the instance to terminate. This may run twice.
+            There is a wait time (60 seconds) for the instance to terminate.
         """
-        if not path.exists(self.server_file):
-            self.logger.error(f'Input file: {self.server_file} is missing. CANNOT proceed.')
+        if not path.exists('server_info.json'):
+            self.logger.error('Input file: server_info.json is missing. CANNOT proceed.')
             return
 
-        with open(self.server_file, 'r') as file:
+        with open('server_info.json', 'r') as file:
             data = load(file)
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             if partial:
-                system(f'rm {self.server_file}')
+                system('rm server_info.json')
                 return
-            self.logger.info('Waiting for dependent objects to delete SecurityGroup.')
+            self.logger.info('Waiting for dependents to release before deleting SecurityGroup.')
+            self._sleeper(sleep_time=90)
             while True:
                 if self._delete_security_group(security_group_id=data.get('security_group_id')):
                     break
                 else:
-                    self._sleeper(sleep_time=60)
-            system(f'rm {self.server_file}')
+                    self._sleeper(sleep_time=20)
+            system('rm server_info.json')
 
 
 if __name__ == '__main__':
     run_env = Process(getpid()).parent().name()
     if run_env.endswith('sh'):
         if len(argv) < 2:
-            exit("No arguments were passed. Use 'START', 'STOP' [OR] 'CONFIG' to enable or disable the VPN server.")
+            exit("No arguments were passed. Use 'START' [OR] 'STOP' to enable or disable the VPN server.")
         if argv[1].upper() == 'START':
             try:
                 VPNServer().startup_vpn()
@@ -614,17 +630,22 @@ if __name__ == '__main__':
             try:
                 VPNServer().shutdown_vpn()
             except KeyboardInterrupt:
+                if not path.isfile('OpenVPN.pem'):
+                    system('rm server_info.json')
                 exit("Interrupted during shut down!! If resources weren't fully cleaned up, please stop once again.")
         elif argv[1].upper() == 'CONFIG':
             try:
                 VPNServer().startup_vpn(reconfig=True)
             except KeyboardInterrupt:
                 exit("Interrupted during re-configuration!! Run config once again.")
+        elif argv[1].upper() == 'TEST':
+            VPNServer().startup_vpn(test=True)
         else:
-            exit("The only acceptable arguments are 'START', 'STOP' [OR] 'CONFIG'")
+            exit("The only acceptable arguments are 'START', 'STOP', 'CONFIG' [OR] 'TEST'")
     else:
         exit(f"You're running this script on {run_env}\n"
              "Please use a command line to trigger it, using either of the following arguments.\n"
              "\t1. python3 vpn.py START\n"
              "\t2. python3 vpn.py STOP\n"
-             "\t3. python3 vpn.py CONFIG")
+             "\t3. python3 vpn.py CONFIG\n"
+             "\t3. python3 vpn.py TEST")
