@@ -62,7 +62,7 @@ class VPNServer:
                                  aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         self.ec2_resource = resource(service_name='ec2', region_name=aws_region_name,
                                      aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        self.port = int(environ.get('PORT', 943))
+        self.port = int(environ.get('VPN_PORT', 943))
 
     def __del__(self):
         """Destructor to print the run time at the end."""
@@ -418,6 +418,7 @@ class VPNServer:
             url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.port}", verify=False)
         except requests.ConnectionError:
             return False
+
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         if url_check.ok and interactive_ssh(hostname=data.get('public_dns'), username='openvpnas',
                                             pem_file='OpenVPN.pem', logger=self.logger,
@@ -508,13 +509,9 @@ class VPNServer:
             self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
             return
 
-        self.logger.info('VPN server has been configured successfully.')
+        self.logger.info('VPN server has been configured successfully. Details have been stored in server_info.json.')
         url = f"https://{instance_info.get('public_ip')}"
-        self.logger.info(f"Login Info:\nSERVER: {url}:{self.port}\n"
-                         f"USERNAME: {vpn_username}\n"
-                         f"PASSWORD: {vpn_password}")
         instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
-
         with open('server_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
@@ -541,16 +538,16 @@ class VPNServer:
             "> Please enter 'yes' to indicate your agreement [no]: ": "yes",
             "> Press ENTER for default [yes]: ": "yes",
             "> Press Enter for default [1]: ": "1",
-            "Please specify the port number for the Admin Web UI.": str(self.port),
+            "Please specify the port number for the Admin Web UI.": [str(self.port)],
             "Please specify the TCP port number for the OpenVPN Daemon.": "443",
             "Should client traffic be routed by default through the VPN?": "yes",
             "Should client DNS traffic be routed by default through the VPN?": "no",
             "Use local authentication via internal DB?": "yes",
             "Should private subnets be accessible to clients by default?": "yes",
             "Do you wish to login to the Admin UI as 'openvpn'?": "no",
-            "Specify the username for an existing user or for the new user account:": vpn_username,
-            f"Type the password for the '{vpn_username}' account:": vpn_password,
-            f"Confirm the password for the '{vpn_username}' account:": vpn_password,
+            "Specify the username for an existing user or for the new user account:": [vpn_username],
+            f"Type the password for the '{vpn_username}' account:": [vpn_password],
+            f"Confirm the password for the '{vpn_username}' account:": [vpn_password],
             "Please specify your Activation key (or leave blank to specify later):": "\n"
         }
 

@@ -35,8 +35,8 @@ AMI IDs are got from `OpenVPN Access Server Community Images` per region.
 - **VPN_USERNAME** - Username to access VPN Server once, configuration is done. If `null`, looks for the env var `USER`.
 Defaults to `openvpn`
 - **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`
+- **VPN_PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 - **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
-- **PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 
 **To get notification of login information:**<br>
 - **gmail_user** - Username of the gmail account.

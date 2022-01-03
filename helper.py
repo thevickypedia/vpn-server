@@ -103,9 +103,9 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
         for prompt, response in prompts_and_response.items():
             logger.info(f"Expecting {prompt}")
             interact.expect(re_strings=prompt, timeout=2)
-            if 'password' in prompt or 'Admin Web UI' in prompt:  # Hides password and port number from the logs
-                secured = ''.join(['*' for _ in range(len(response))])
-                logger.info(f"Sending {secured}")
+            if isinstance(response, list):
+                response = response[0]
+                logger.info(f"Sending {''.join(['*' for _ in range(len(response))])}")
             else:
                 logger.info(f"Sending {response}")
             interact.send(send_string=response)
