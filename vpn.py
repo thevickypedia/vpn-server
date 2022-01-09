@@ -144,6 +144,15 @@ class VPNServer:
         Args:
             security_group_id: Takes the SecurityGroup ID as an argument.
 
+        See Also:
+            `Firewall configuration ports to be open: <https://tinyurl.com/ycxam2sr>`__
+
+            - TCP 22 — SSH access.
+            - TCP 443 — Web interface access and OpenVPN TCP connections.
+            - TCP 943 — Web interface access (This can be dynamic, but the same should be used to configure the VPN.)
+            - TCP 945 — Cluster control channel.
+            - UDP 1194 — OpenVPN UDP connections.
+
         Returns:
             bool:
             Flag to indicate the calling function whether the security group was authorized.
@@ -157,16 +166,16 @@ class VPNServer:
                      'ToPort': 22,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
+                     'FromPort': 443,
+                     'ToPort': 443,
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'tcp',
                      'FromPort': self.port,
                      'ToPort': self.port,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
                      'FromPort': 945,
                      'ToPort': 945,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'tcp',
-                     'FromPort': 443,
-                     'ToPort': 443,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'udp',
                      'FromPort': 1194,

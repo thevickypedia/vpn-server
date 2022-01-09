@@ -95,11 +95,24 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>security_group_id</strong> – Takes the SecurityGroup ID as an argument.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Flag to indicate the calling function whether the security group was authorized.</p>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://tinyurl.com/ycxam2sr">Firewall configuration ports to be open:</a></p>
+<ul class="simple">
+<li><p>TCP 22 — SSH access.</p></li>
+<li><p>TCP 443 — Web interface access and OpenVPN TCP connections.</p></li>
+<li><p>TCP 943 — Web interface access (This can be dynamic, but the same should be used to configure the VPN.)</p></li>
+<li><p>TCP 945 — Cluster control channel.</p></li>
+<li><p>UDP 1194 — OpenVPN UDP connections.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Flag to indicate the calling function whether the security group was authorized.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
