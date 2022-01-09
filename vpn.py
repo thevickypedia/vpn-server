@@ -1,6 +1,6 @@
 from datetime import datetime
 from json import dump, load
-from os import environ, getpid, path, system
+from os import chmod, environ, getpid, path, remove
 from sys import argv, stdout
 from time import perf_counter, sleep
 
@@ -31,24 +31,27 @@ class VPNServer:
     """
 
     def __init__(self, aws_access_key: str = environ.get('ACCESS_KEY'), aws_secret_key: str = environ.get('SECRET_KEY'),
-                 aws_region_name: str = environ.get('REGION_NAME', 'us-west-2')):
+                 aws_region_name: str = environ.get('REGION_NAME', 'us-west-2'), log: str = 'CONSOLE'):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
             aws_access_key: Access token for AWS account.
             aws_secret_key: Secret ID for AWS account.
             aws_region_name: Region where the instance should live. Defaults to ``us-west-2``
+            log: Determines whether to print the log in a console or send it to a file.
 
         See Also:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
         # Logger setup
-        file_logger, console_logger = logging_wrapper()
-        if environ.get('ENV') == 'Jarvis':
+        file_logger, console_logger, hybrid_logger = logging_wrapper()
+        if log.upper() == 'CONSOLE':
+            self.logger = console_logger
+        elif log.upper() == 'FILE':
             self.logger = file_logger
         else:
-            self.logger = console_logger
+            self.logger = hybrid_logger
 
         # Notification information
         self.gmail_user = environ.get('gmail_user')
@@ -71,15 +74,12 @@ class VPNServer:
     def _sleeper(self, sleep_time: int) -> None:
         """Sleeps for a particular duration.
 
-        See Also:
-            - If triggered by ``Jarvis``, logs and waits else writes the remaining time in ``stdout``.
-
         Args:
             sleep_time: Takes the time script has to sleep, as an argument.
         """
-        if environ.get('ENV') == 'Jarvis':
+        if str(self.logger) == '<Logger FILE (INFO)>':
             self.logger.info(f'Waiting for {sleep_time} seconds.')
-            sleep(sleep_time + 2)
+            sleep(sleep_time)
             return
 
         sleep(1)
@@ -241,7 +241,7 @@ class VPNServer:
 
     def _create_ec2_instance(self, image_id: str = environ.get(f"AMI_ID_{environ.get('REGION_NAME', 'us-west-2')}")) \
             -> str or None:
-        """Creates an EC2 instance of type ``t2.micro`` with the pre-configured AMI id.
+        """Creates an EC2 instance of type ``t2.nano`` with the pre-configured AMI id.
 
         Args:
             image_id: Takes image ID as an argument. Defaults to ``ami_id`` in environment variable. Exits if `null`.
@@ -268,7 +268,7 @@ class VPNServer:
 
         try:
             response = self.ec2_client.run_instances(
-                InstanceType="t2.micro",
+                InstanceType="t2.nano",
                 MaxCount=1,
                 MinCount=1,
                 ImageId=image_id,
@@ -308,8 +308,8 @@ class VPNServer:
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info('OpenVPN has been deleted from KeyPairs.')
             if path.exists('OpenVPN.pem'):
-                system('chmod 700 OpenVPN.pem')  # reset file permissions before deleting
-                system('rm OpenVPN.pem')
+                chmod('OpenVPN.pem', int('700', base=8) or 0o700)  # reset file permissions before deleting
+                remove('OpenVPN.pem')
             return True
         else:
             self.logger.error('Failed to delete the key: OpenVPN')
@@ -413,7 +413,7 @@ class VPNServer:
             data: Takes the instance information in a dictionary format as an argument.
 
         See Also:
-            - Called when a startup request is made but ``server_info.json`` and ``OpenVPN.pem`` are present already.
+            - Called when a startup request is made but ``vpn_info.json`` and ``OpenVPN.pem`` are present already.
             - Called when a manual test request is made.
             - Testing SSH connection will also run updates on the VM.
 
@@ -444,13 +444,13 @@ class VPNServer:
             test: Tests the ``GET`` and ``SSH`` connections to an existing VPN server.
 
         See Also:
-            - Checks if ``server_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
+            - Checks if ``vpn_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
             - If present, checks the connection to the existing origin and tears down the instance if connection fails.
-            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``server_info.json``
+            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``vpn_info.json``
             - If another request is sent to start the vpn, creates a new instance regardless of existing info.
         """
-        if path.isfile('server_info.json') and path.isfile('OpenVPN.pem'):
-            with open('server_info.json') as file:
+        if path.isfile('vpn_info.json') and path.isfile('OpenVPN.pem'):
+            with open('vpn_info.json') as file:
                 data_exist = load(file)
 
             if reconfig:
@@ -472,7 +472,7 @@ class VPNServer:
                     self._notify(login_details=f"CURRENTLY SERVING: {data_exist.get('SERVER').lstrip('https://')}\n\n"
                                                f"Username: {data_exist.get('USERNAME')}\n"
                                                f"Password: {data_exist.get('PASSWORD')}")
-                    with open('server_info.json', 'w') as file:
+                    with open('vpn_info.json', 'w') as file:
                         dump(data_exist, file, indent=2)
                     return
             else:
@@ -480,12 +480,12 @@ class VPNServer:
                 self.shutdown_vpn(partial=True)
 
         if reconfig or test:
-            self.logger.error('Input file: server_info.json is missing. CANNOT proceed.')
+            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
             return
 
         if not all([self.gmail_user, self.gmail_pass, self.phone, self.recipient]):
             self.logger.warning('Env vars for notifications are missing! '
-                                'Credentials will be stored in server_info.json file.')
+                                'Credentials will be stored in vpn_info.json file.')
 
         if not (instance_basic := self._create_ec2_instance()):
             return
@@ -503,11 +503,11 @@ class VPNServer:
             'security_group_id': security_group_id
         }
 
-        with open('server_info.json', 'w') as file:
+        with open('vpn_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
         self.logger.info('Restricting wide open permissions to OpenVPN.pem')
-        system('chmod 400 OpenVPN.pem')
+        chmod('OpenVPN.pem', int('400', base=8) or 0o400)
 
         self.logger.info('Waiting for SSH origin to be active.')
         self._sleeper(sleep_time=15)
@@ -518,10 +518,10 @@ class VPNServer:
             self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
             return
 
-        self.logger.info('VPN server has been configured successfully. Details have been stored in server_info.json.')
+        self.logger.info('VPN server has been configured successfully. Details have been stored in vpn_info.json.')
         url = f"https://{instance_info.get('public_ip')}"
         instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
-        with open('server_info.json', 'w') as file:
+        with open('vpn_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
         self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
@@ -601,16 +601,16 @@ class VPNServer:
         See Also:
             There is a wait time (60 seconds) for the instance to terminate.
         """
-        if not path.exists('server_info.json'):
-            self.logger.error('Input file: server_info.json is missing. CANNOT proceed.')
+        if not path.exists('vpn_info.json'):
+            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
             return
 
-        with open('server_info.json', 'r') as file:
+        with open('vpn_info.json', 'r') as file:
             data = load(file)
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             if partial:
-                system('rm server_info.json')
+                remove('vpn_info.json')
                 return
             self.logger.info('Waiting for dependents to release before deleting SecurityGroup.')
             self._sleeper(sleep_time=90)
@@ -619,7 +619,7 @@ class VPNServer:
                     break
                 else:
                     self._sleeper(sleep_time=20)
-            system('rm server_info.json')
+            remove('vpn_info.json')
 
 
 if __name__ == '__main__':
@@ -637,7 +637,7 @@ if __name__ == '__main__':
                 VPNServer().shutdown_vpn()
             except KeyboardInterrupt:
                 if not path.isfile('OpenVPN.pem'):
-                    system('rm server_info.json')
+                    remove('vpn_info.json')
                 exit("Interrupted during shut down!! If resources weren't fully cleaned up, please stop once again.")
         elif argv[1].upper() == 'CONFIG':
             try:

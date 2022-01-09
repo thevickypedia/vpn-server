@@ -62,6 +62,7 @@ def logging_wrapper() -> tuple:
 
     file_logger = logging.getLogger('FILE')
     console_logger = logging.getLogger('CONSOLE')
+    hybrid_logger = logging.getLogger('HYBRID')
 
     file_handler = logging.FileHandler(filename=log_file)
     file_handler.setFormatter(fmt=log_formatter)
@@ -73,7 +74,10 @@ def logging_wrapper() -> tuple:
     console_logger.setLevel(level=logging.INFO)
     console_logger.addHandler(hdlr=console_handler)
 
-    return file_logger, console_logger
+    hybrid_logger.addHandler(hdlr=file_handler)
+    hybrid_logger.addHandler(hdlr=console_handler)
+    hybrid_logger.setLevel(level=logging.INFO)
+    return file_logger, console_logger, hybrid_logger
 
 
 def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging.Logger,
