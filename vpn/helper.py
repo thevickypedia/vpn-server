@@ -3,7 +3,7 @@ import socket
 import sys
 from datetime import datetime
 from importlib import reload
-from os import devnull, path, system
+from os import devnull, path, getcwd, makedirs
 
 from paramiko import (AuthenticationException, AutoAddPolicy,
                       BadHostKeyException, RSAKey, SSHClient)
@@ -11,6 +11,7 @@ from paramiko.ssh_exception import SSHException
 from paramiko_expect import SSHClientInteraction
 
 DATETIME_FORMAT = '%b-%d-%Y %I:%M:%S %p'
+CURRENT_DIR = getcwd() + path.sep
 
 
 def time_converter(seconds: float) -> str:
@@ -51,14 +52,13 @@ def logging_wrapper() -> tuple:
         A tuple of classes ``logging.Logger`` for file and console logging.
     """
     reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module before start
-    system('mkdir logs') if not path.isdir('logs') else None  # create logs directory if not found
+    makedirs(f'{CURRENT_DIR}logs') if not path.isdir(f'{CURRENT_DIR}logs') else None  # create logs dir if not found
     log_formatter = logging.Formatter(
         fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
         datefmt=DATETIME_FORMAT
     )
 
-    directory = path.dirname(__file__)
-    log_file = datetime.now().strftime(path.join(directory, 'logs/vpn_server_%d_%m_%Y_%H_%M.log'))
+    log_file = datetime.now().strftime(f'{CURRENT_DIR}logs{path.sep}vpn_server_%d_%m_%Y_%H_%M.log')
 
     file_logger = logging.getLogger('FILE')
     console_logger = logging.getLogger('CONSOLE')

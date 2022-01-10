@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import dump, load
-from os import chmod, environ, getpid, path, remove
-from sys import argv, stdout
+from os import chmod, environ, path, remove
+from sys import stdout
 from time import perf_counter, sleep
 
 import requests
@@ -11,11 +11,10 @@ from dotenv import load_dotenv
 from gmailconnector.responder import Response
 from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
-from psutil import Process
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from helper import interactive_ssh, logging_wrapper, time_converter
+from vpn.helper import interactive_ssh, logging_wrapper, time_converter, CURRENT_DIR
 
 disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
@@ -111,7 +110,7 @@ class VPNServer:
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
-            with open('OpenVPN.pem', 'w') as file:
+            with open(f'{CURRENT_DIR}OpenVPN.pem', 'w') as file:
                 file.write(response.get('KeyMaterial'))
             self.logger.info('Created a key pair named: OpenVPN and stored as OpenVPN.pem')
             return True
@@ -436,12 +435,28 @@ class VPNServer:
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
 
-    def startup_vpn(self, reconfig: bool = False, test: bool = False) -> None:
-        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
+    def reconfigure_vpn(self):
+        """Runs the configuration on an existing VPN server."""
+        if path.isfile(f'{CURRENT_DIR}vpn_info.json') and path.isfile(f'{CURRENT_DIR}OpenVPN.pem'):
+            with open(f'{CURRENT_DIR}vpn_info.json') as file:
+                data_exist = load(file)
+            self._configure_vpn(data=data_exist)
+            if not self._tester(data=data_exist):
+                self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
+        else:
+            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
 
-        Args:
-            reconfig: Runs the configuration on an existing VPN server.
-            test: Tests the ``GET`` and ``SSH`` connections to an existing VPN server.
+    def test_vpn(self):
+        """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
+        if path.isfile(f'{CURRENT_DIR}vpn_info.json') and path.isfile(f'{CURRENT_DIR}OpenVPN.pem'):
+            with open(f'{CURRENT_DIR}vpn_info.json') as file:
+                data_exist = load(file)
+            self._tester(data=data_exist)
+        else:
+            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
+
+    def create_vpn_server(self) -> None:
+        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
 
         See Also:
             - Checks if ``vpn_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
@@ -449,19 +464,9 @@ class VPNServer:
             - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``vpn_info.json``
             - If another request is sent to start the vpn, creates a new instance regardless of existing info.
         """
-        if path.isfile('vpn_info.json') and path.isfile('OpenVPN.pem'):
-            with open('vpn_info.json') as file:
+        if path.isfile(f'{CURRENT_DIR}vpn_info.json') and path.isfile(f'{CURRENT_DIR}OpenVPN.pem'):
+            with open(f'{CURRENT_DIR}vpn_info.json') as file:
                 data_exist = load(file)
-
-            if reconfig:
-                self._configure_vpn(data=data_exist)
-                if not self._tester(data=data_exist):
-                    self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
-                return
-
-            if test:
-                self._tester(data=data_exist)
-                return
 
             self.logger.warning(f"Found an existing VPN Server running at {data_exist.get('SERVER')}")
             if self._tester(data=data_exist):
@@ -472,16 +477,12 @@ class VPNServer:
                     self._notify(login_details=f"CURRENTLY SERVING: {data_exist.get('SERVER').lstrip('https://')}\n\n"
                                                f"Username: {data_exist.get('USERNAME')}\n"
                                                f"Password: {data_exist.get('PASSWORD')}")
-                    with open('vpn_info.json', 'w') as file:
+                    with open(f'{CURRENT_DIR}vpn_info.json', 'w') as file:
                         dump(data_exist, file, indent=2)
                     return
             else:
                 self.logger.error('Existing server is not responding. Creating a new one.')
-                self.shutdown_vpn(partial=True)
-
-        if reconfig or test:
-            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
-            return
+                self.delete_vpn_server(partial=True)
 
         if not all([self.gmail_user, self.gmail_pass, self.phone, self.recipient]):
             self.logger.warning('Env vars for notifications are missing! '
@@ -503,7 +504,7 @@ class VPNServer:
             'security_group_id': security_group_id
         }
 
-        with open('vpn_info.json', 'w') as file:
+        with open(f'{CURRENT_DIR}vpn_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
         self.logger.info('Restricting wide open permissions to OpenVPN.pem')
@@ -521,7 +522,7 @@ class VPNServer:
         self.logger.info('VPN server has been configured successfully. Details have been stored in vpn_info.json.')
         url = f"https://{instance_info.get('public_ip')}"
         instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
-        with open('vpn_info.json', 'w') as file:
+        with open(f'{CURRENT_DIR}vpn_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
         self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
@@ -592,7 +593,7 @@ class VPNServer:
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
-    def shutdown_vpn(self, partial: bool = False) -> None:
+    def delete_vpn_server(self, partial: bool = False) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         Args:
@@ -605,7 +606,7 @@ class VPNServer:
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
             return
 
-        with open('vpn_info.json', 'r') as file:
+        with open(f'{CURRENT_DIR}vpn_info.json', 'r') as file:
             data = load(file)
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
@@ -620,38 +621,3 @@ class VPNServer:
                 else:
                     self._sleeper(sleep_time=20)
             remove('vpn_info.json')
-
-
-if __name__ == '__main__':
-    run_env = Process(getpid()).parent().name()
-    if run_env.endswith('sh'):
-        if len(argv) < 2:
-            exit("No arguments were passed. Use 'START' [OR] 'STOP' to enable or disable the VPN server.")
-        if argv[1].upper() == 'START':
-            try:
-                VPNServer().startup_vpn()
-            except KeyboardInterrupt:
-                exit("Interrupted during start up!! If VPN wasn't fully configured, please stop and start once again.")
-        elif argv[1].upper() == 'STOP':
-            try:
-                VPNServer().shutdown_vpn()
-            except KeyboardInterrupt:
-                if not path.isfile('OpenVPN.pem'):
-                    remove('vpn_info.json')
-                exit("Interrupted during shut down!! If resources weren't fully cleaned up, please stop once again.")
-        elif argv[1].upper() == 'CONFIG':
-            try:
-                VPNServer().startup_vpn(reconfig=True)
-            except KeyboardInterrupt:
-                exit("Interrupted during re-configuration!! Run config once again.")
-        elif argv[1].upper() == 'TEST':
-            VPNServer().startup_vpn(test=True)
-        else:
-            exit("The only acceptable arguments are 'START', 'STOP', 'CONFIG' [OR] 'TEST'")
-    else:
-        exit(f"You're running this script on {run_env}\n"
-             "Please use a command line to trigger it, using either of the following arguments.\n"
-             "\t1. python3 vpn.py START\n"
-             "\t2. python3 vpn.py STOP\n"
-             "\t3. python3 vpn.py CONFIG\n"
-             "\t3. python3 vpn.py TEST")
