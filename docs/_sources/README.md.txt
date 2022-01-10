@@ -14,22 +14,20 @@
 [![docs](https://github.com/thevickypedia/vpn-server/actions/workflows/docs.yml/badge.svg)](https://thevickypedia.github.io/vpn-server/)
 
 # VPN Server
-Create on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
+Create an on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 
 ### ENV Variables
-Environment variables are loaded from a `.env` file using the `python_dotenv` module.
+If a `.env` file is present (with the required variables) in current working directory, there is no need for env vars,
+as [`vpn-server`](https://github.com/thevickypedia/vpn-server) loads `.env` files during start up.
 
 <details>
 <summary><strong>More on Environment variables</strong></summary>
 
 Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
 
-**Default args:**<br>
+> AMI IDs are got from `OpenVPN Access Server Community Images` per region.
+
 - **AMI_ID_{REGION_NAME}** - AMI ID in a region. Looks for `AMI_ID_us-west-2` since `us-west-2` is the default region.
-
-AMI IDs are got from `OpenVPN Access Server Community Images` per region.
-
-**Additional args:**<br>
 - **VPN_USERNAME** - Username to access VPN Server once, configuration is done. If `null`, looks for the env var `USER`.
 Defaults to `openvpn`
 - **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`

@@ -92,6 +92,10 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
         logger: Logging module.
         display: Boolean flag whether to display interaction data on screen.
         timeout: Default session timeout.
+
+    Returns:
+        bool:
+        Flag to indicate whether the interactive session has completed successfully.
     """
     pem_key = RSAKey.from_private_key_file(filename=pem_file)
     ssh_client = SSHClient()

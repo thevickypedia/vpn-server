@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.4.8 (01/09/2022)
+------------------
+- Update return types and docstrings
+
 0.4.7 (01/09/2022)
 ------------------
 - Remove AMI_ID from mandatory args

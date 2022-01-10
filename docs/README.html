@@ -60,19 +60,18 @@
 </section>
 <section id="vpn-server">
 <h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
-<p>Create on demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
+<p>Create an on demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
 <section id="env-variables">
 <h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this headline">¶</a></h2>
-<p>Environment variables are loaded from a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file using the <code class="docutils literal notranslate"><span class="pre">python_dotenv</span></code> module.</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file is present (with the required variables) in current working directory, there is no need for env vars,
+as <a class="reference external" href="https://github.com/thevickypedia/vpn-server"><code class="docutils literal notranslate"><span class="pre">vpn-server</span></code></a> loads <code class="docutils literal notranslate"><span class="pre">.env</span></code> files during start up.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><p>Use <a class="reference external" href="https://www.cloudping.info/">cloudping.info</a> to pick the fastest (from current location) available region.</p>
-<p><strong>Default args:</strong><br></p>
+<blockquote>
+<div><p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
+</div></blockquote>
 <ul class="simple">
 <li><p><strong>AMI_ID_{REGION_NAME}</strong> - AMI ID in a region. Looks for <code class="docutils literal notranslate"><span class="pre">AMI_ID_us-west-2</span></code> since <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code> is the default region.</p></li>
-</ul>
-<p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
-<p><strong>Additional args:</strong><br></p>
-<ul class="simple">
 <li><p><strong>VPN_USERNAME</strong> - Username to access VPN Server once, configuration is done. If <code class="docutils literal notranslate"><span class="pre">null</span></code>, looks for the env var <code class="docutils literal notranslate"><span class="pre">USER</span></code>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
 <li><p><strong>VPN_PASSWORD</strong> - Password to access VPN Server once, configuration is done. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>

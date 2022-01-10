@@ -331,9 +331,9 @@ class VPNServer:
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             self.logger.info('OpenVPN has been deleted from KeyPairs.')
-            if path.exists('OpenVPN.pem'):
-                chmod('OpenVPN.pem', int('700', base=8) or 0o700)  # reset file permissions before deleting
-                remove('OpenVPN.pem')
+            if path.exists(f'{CURRENT_DIR}OpenVPN.pem'):
+                chmod(f'{CURRENT_DIR}OpenVPN.pem', int('700', base=8) or 0o700)
+                remove(f'{CURRENT_DIR}OpenVPN.pem')
             return True
         else:
             self.logger.error('Failed to delete the key: OpenVPN')
@@ -460,7 +460,7 @@ class VPNServer:
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
 
-    def reconfigure_vpn(self):
+    def reconfigure_vpn(self) -> None:
         """Runs the configuration on an existing VPN server."""
         if path.isfile(f'{CURRENT_DIR}vpn_info.json') and path.isfile(f'{CURRENT_DIR}OpenVPN.pem'):
             with open(f'{CURRENT_DIR}vpn_info.json') as file:
@@ -471,7 +471,7 @@ class VPNServer:
         else:
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
 
-    def test_vpn(self):
+    def test_vpn(self) -> None:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
         if path.isfile(f'{CURRENT_DIR}vpn_info.json') and path.isfile(f'{CURRENT_DIR}OpenVPN.pem'):
             with open(f'{CURRENT_DIR}vpn_info.json') as file:
@@ -533,7 +533,7 @@ class VPNServer:
             dump(instance_info, file, indent=2)
 
         self.logger.info('Restricting wide open permissions to OpenVPN.pem')
-        chmod('OpenVPN.pem', int('400', base=8) or 0o400)
+        chmod(f'{CURRENT_DIR}OpenVPN.pem', int('400', base=8) or 0o400)
 
         self.logger.info('Waiting for SSH origin to be active.')
         self._sleeper(sleep_time=15)
@@ -636,7 +636,7 @@ class VPNServer:
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
             if partial:
-                remove('vpn_info.json')
+                remove(f'{CURRENT_DIR}vpn_info.json')
                 return
             self.logger.info('Waiting for dependents to release before deleting SecurityGroup.')
             self._sleeper(sleep_time=90)
@@ -645,4 +645,4 @@ class VPNServer:
                     break
                 else:
                     self._sleeper(sleep_time=20)
-            remove('vpn_info.json')
+            remove(f'{CURRENT_DIR}vpn_info.json')
