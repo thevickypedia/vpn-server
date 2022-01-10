@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+0.4.7 (01/09/2022)
+------------------
+- Remove AMI_ID from mandatory args
+- Retrieve AMI_ID automatically
+- Setup AWS defaults
+- Update docs
+
 0.4.6 (01/09/2022)
 ------------------
 - Make `vpn-server` a package and onboard to pypi

@@ -14,7 +14,9 @@ from gmailconnector.send_sms import Messenger
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from vpn.helper import interactive_ssh, logging_wrapper, time_converter, CURRENT_DIR
+from vpn.defaults import AWSDefaults
+from vpn.helper import (CURRENT_DIR, interactive_ssh, logging_wrapper,
+                        time_converter)
 
 disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
@@ -59,16 +61,38 @@ class VPNServer:
         self.phone = environ.get('phone')
 
         # AWS client and resource setup
-        self.region = aws_region_name
-        self.ec2_client = client(service_name='ec2', region_name=aws_region_name,
+        self.region = aws_region_name.lower()
+        if not AWSDefaults.REGIONS.get(self.region):
+            raise ValueError(f'Incorrect region name. {aws_region_name} does not exist.')
+        self.ec2_client = client(service_name='ec2', region_name=self.region,
                                  aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        self.ec2_resource = resource(service_name='ec2', region_name=aws_region_name,
+        self.ec2_resource = resource(service_name='ec2', region_name=self.region,
                                      aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         self.port = int(environ.get('VPN_PORT', 943))
 
     def __del__(self):
         """Destructor to print the run time at the end."""
         self.logger.info(f'Total runtime: {time_converter(perf_counter())}')
+
+    def _get_image_id(self) -> None:
+        """Fetches AMI ID from public images."""
+        if self.region.startswith('us'):
+            return AWSDefaults.IMAGE_MAP[self.region]
+
+        try:
+            images = self.ec2_client.describe_images(Filters=[
+                {
+                    'Name': 'name',
+                    'Values': [AWSDefaults.AMI_NAME]
+                },
+            ])
+        except ClientError as error:
+            self.logger.error(f'API call to retrieve AMI ID for {self.region} has failed.\n{error}')
+            raise
+
+        if not (retrieved := images.get('Images', [{}])[0].get('ImageId')):
+            raise LookupError(f'Failed to retrieve AMI ID for {self.region}. Set one manually.')
+        return retrieved
 
     def _sleeper(self, sleep_time: int) -> None:
         """Sleeps for a particular duration.
@@ -249,8 +273,9 @@ class VPNServer:
             str or None:
             Instance ID.
         """
-        if not image_id:
-            self.logger.error('AMI is mandatory to spin up an EC2 instance. Received `null`')
+        if not image_id and not (image_id := self._get_image_id()):
+            self.logger.warning(f"AMI ID was not set. "
+                                f"Using the default AMI ID {image_id} for the region {self.region}")
             return
 
         if not self._create_key_pair():

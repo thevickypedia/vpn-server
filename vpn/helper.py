@@ -3,7 +3,7 @@ import socket
 import sys
 from datetime import datetime
 from importlib import reload
-from os import devnull, path, getcwd, makedirs
+from os import devnull, getcwd, makedirs, path
 
 from paramiko import (AuthenticationException, AutoAddPolicy,
                       BadHostKeyException, RSAKey, SSHClient)

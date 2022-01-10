@@ -15,7 +15,7 @@ Welcome to VPN Server's documentation!
 VPN Server
 ==========
 
-.. automodule:: vpn
+.. automodule:: vpn.controller
    :members:
    :private-members:
    :undoc-members:
@@ -23,10 +23,18 @@ VPN Server
 VPN Server - Helper Functions
 =============================
 
-.. automodule:: helper
+.. automodule:: vpn.helper
    :members:
    :private-members:
    :undoc-members:
+
+VPN Server - AWS Defaults
+=========================
+
+.. automodule:: vpn.defaults
+   :members:
+   :undoc-members:
+   :exclude-members: AMI_NAME, IMAGE_MAP, REGIONS
 
 Indices and tables
 ==================

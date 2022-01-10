@@ -111,6 +111,8 @@ Usage:
 
 [Runbook](https://thevickypedia.github.io/vpn-server/)
 
+[Package](https://pypi.org/project/vpn-server/)
+
 ## License & copyright
 
 &copy; Vignesh Sivanandha Rao

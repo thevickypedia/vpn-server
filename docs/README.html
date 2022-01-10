@@ -41,7 +41,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <br><p><a class="reference external" href="https://www.python.org/downloads/release/python-385/"><img alt="Python 3.8" src="https://img.shields.io/badge/python-3.8-orange.svg" /></a>
+  <p><a class="reference external" href="https://www.python.org/downloads/release/python-385/"><img alt="Python 3.8" src="https://img.shields.io/badge/python-3.8-orange.svg" /></a>
 <a class="reference external" href="https://www.python.org/downloads/release/python-391/"><img alt="Python 3.9" src="https://img.shields.io/badge/python-3.9-blue.svg" /></a></p>
 <section id="platform-supported">
 <h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this headline">¶</a></h1>
@@ -88,22 +88,25 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn
 </ul>
 <p>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">REGION_NAME</span></code>) can be setup.</p>
 </details></section>
-<section id="setup-and-configuration">
-<h2>Setup and Configuration<a class="headerlink" href="#setup-and-configuration" title="Permalink to this headline">¶</a></h2>
-<ol class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/thevickypedia/vpn-server.git</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">vpn-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">venv</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
-<li><p>Trigger VPN Server - Can be run only via <code class="docutils literal notranslate"><span class="pre">commandline</span></code> since, the script requires arguments as follows.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span> <span class="pre">START</span></code> to initiate the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span> <span class="pre">STOP</span></code> to delete all resource spun up for the <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">vpn.py</span> <span class="pre">CONFIG</span></code> to reconfigure an existing <code class="docutils literal notranslate"><span class="pre">VPN</span> <span class="pre">Server</span></code>.</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Runtime:</span> <span class="pre">~2</span> <span class="pre">minutes</span></code></p></li>
-</ol>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">vpn-server</span></code></p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vpn.controller</span> <span class="kn">import</span> <span class="n">VPNServer</span>
+
+<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">VPNServer</span><span class="p">()</span>
+
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server</span>
+
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">reconfigure_vpn</span><span class="p">()</span>  <span class="c1"># Re-configure an existing VPN Server</span>
+
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">test_vpn</span><span class="p">()</span>  <span class="c1"># Test an existing VPN Server</span>
+
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>  <span class="c1"># Delete the VPN Server</span>
+</pre></div>
+</div>
 <details>
 <summary><strong>Manual Configuration</strong></summary><ol class="simple">
 <li><p>Are you sure you want to continue connecting (yes/no)? <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
@@ -154,6 +157,7 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn
 <h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server">Repository</a></p>
 <p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/">Runbook</a></p>
+<p><a class="reference external" href="https://pypi.org/project/vpn-server/">Package</a></p>
 </section>
 <section id="license-copyright">
 <h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this headline">¶</a></h2>
@@ -176,7 +180,8 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn
 <li><a class="reference internal" href="#deployments">Deployments</a></li>
 <li><a class="reference internal" href="#vpn-server">VPN Server</a><ul>
 <li><a class="reference internal" href="#env-variables">ENV Variables</a></li>
-<li><a class="reference internal" href="#setup-and-configuration">Setup and Configuration</a></li>
+<li><a class="reference internal" href="#install">Install</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#aws-resources-used">AWS Resources Used</a></li>
 <li><a class="reference internal" href="#linting">Linting</a></li>
 <li><a class="reference internal" href="#links">Links</a></li>

@@ -1,5 +1,3 @@
-<br>
-
 [![Python 3.8](https://img.shields.io/badge/python-3.8-orange.svg)](https://www.python.org/downloads/release/python-385/)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-391/)
 
@@ -47,16 +45,23 @@ Defaults to `openvpn`
 Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
 </details>
 
-### Setup and Configuration
-1. `git clone https://github.com/thevickypedia/vpn-server.git`
-2. `cd vpn-server && python3 -m venv venv`
-3. `source venv/bin/activate`
-4. `pip install -r requirements.txt`
-5. Trigger VPN Server - Can be run only via `commandline` since, the script requires arguments as follows.
-   - `python vpn.py START` to initiate the `VPN Server`
-   - `python vpn.py STOP` to delete all resource spun up for the `VPN Server`
-   - `python vpn.py CONFIG` to reconfigure an existing `VPN Server`.
-6. `Runtime: ~2 minutes`
+### Install
+`pip install vpn-server`
+
+### Usage
+```python
+from vpn.controller import VPNServer
+
+vpn_server = VPNServer()
+
+vpn_server.create_vpn_server()  # Create a VPN Server
+
+vpn_server.reconfigure_vpn()  # Re-configure an existing VPN Server
+
+vpn_server.test_vpn()  # Test an existing VPN Server
+
+vpn_server.delete_vpn_server()  # Delete the VPN Server
+```
 
 <details>
 <summary><strong>Manual Configuration</strong></summary>
@@ -105,6 +110,8 @@ Usage:
 [Repository](https://github.com/thevickypedia/vpn-server)
 
 [Runbook](https://thevickypedia.github.io/vpn-server/)
+
+[Package](https://pypi.org/project/vpn-server/)
 
 ## License & copyright
 
