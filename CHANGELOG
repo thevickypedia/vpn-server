@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.5.0 (01/10/2022)
+------------------
+- Take notification args during class instantiation
+
 0.4.9 (01/09/2022)
 ------------------
 - Bump `gmail-connector` version

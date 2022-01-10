@@ -32,7 +32,9 @@ class VPNServer:
     """
 
     def __init__(self, aws_access_key: str = environ.get('ACCESS_KEY'), aws_secret_key: str = environ.get('SECRET_KEY'),
-                 aws_region_name: str = environ.get('REGION_NAME', 'us-west-2'), log: str = 'CONSOLE'):
+                 aws_region_name: str = environ.get('REGION_NAME', 'us-west-2'), log: str = 'CONSOLE',
+                 gmail_user: str = environ.get('gmail_user'), gmail_pass: str = environ.get('gmail_pass'),
+                 phone: str = environ.get('phone'), recipient: str = environ.get('recipient')):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
@@ -40,6 +42,10 @@ class VPNServer:
             aws_secret_key: Secret ID for AWS account.
             aws_region_name: Region where the instance should live. Defaults to ``us-west-2``
             log: Determines whether to print the log in a console or send it to a file.
+            gmail_user: Gmail username or email address.
+            gmail_pass: Gmail password.
+            phone: Phone number to which an SMS notification has to be sent.
+            recipient: Email address to which an email notification has to be sent.
 
         See Also:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
@@ -55,10 +61,10 @@ class VPNServer:
             self.logger = hybrid_logger
 
         # Notification information
-        self.gmail_user = environ.get('gmail_user')
-        self.gmail_pass = environ.get('gmail_pass')
-        self.recipient = environ.get('recipient')
-        self.phone = environ.get('phone')
+        self.gmail_user = gmail_user
+        self.gmail_pass = gmail_pass
+        self.recipient = recipient
+        self.phone = phone
 
         # AWS client and resource setup
         self.region = aws_region_name.lower()
