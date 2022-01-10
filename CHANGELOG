@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+0.4.9 (01/09/2022)
+------------------
+- Bump `gmail-connector` version
+- Include sender in email notification
+
 0.4.8 (01/09/2022)
 ------------------
 - Update return types and docstrings

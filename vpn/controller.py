@@ -613,7 +613,7 @@ class VPNServer:
 
         if self.recipient:
             email_response = SendEmail(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, recipient=self.recipient,
-                                       subject=subject, body=login_details).send_email()
+                                       subject=subject, body=login_details, sender='VPNServer').send_email()
             self._notification_response(response=email_response)
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
