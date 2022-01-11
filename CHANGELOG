@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.5.2 (01/10/2022)
+------------------
+- Disable printing final config when logged in a file
+
 0.5.1 (01/10/2022)
 ------------------
 - Change configuration input to match regex

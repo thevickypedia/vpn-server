@@ -123,7 +123,12 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
         elif isinstance(response, tuple):
             logger.info(f"Sending {response[0]}")
         interact.send(send_string=response[0])
-    sys.stdout = sys.__stdout__
-    interact.expect(timeout=timeout)  # Expect comes after releasing print, so the final stages of config gets printed
-    ssh_client.close()
+    if 'FILE' in str(logger):
+        interact.expect(timeout=timeout)
+        sys.stdout = sys.__stdout__
+        ssh_client.close()
+    else:
+        sys.stdout = sys.__stdout__
+        interact.expect(timeout=timeout)
+        ssh_client.close()
     return True
