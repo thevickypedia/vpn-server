@@ -106,7 +106,7 @@ class VPNServer:
         Args:
             sleep_time: Takes the time script has to sleep, as an argument.
         """
-        if str(self.logger) == '<Logger FILE (INFO)>':
+        if 'FILE' in str(self.logger):
             self.logger.info(f'Waiting for {sleep_time} seconds.')
             sleep(sleep_time)
             return
@@ -405,9 +405,9 @@ class VPNServer:
             A tuple object of Public DNS Name and Public IP Address.
         """
         self.logger.info('Waiting for the instance to go live.')
-        self._sleeper(sleep_time=15)
+        self._sleeper(sleep_time=25)
         while True:
-            sleep(3)
+            self._sleeper(sleep_time=3)
             try:
                 response = self.ec2_client.describe_instance_status(
                     InstanceIds=[instance_id]
@@ -456,6 +456,7 @@ class VPNServer:
         try:
             url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.port}", verify=False)
         except requests.ConnectionError:
+            self.logger.error('Unable to connect the VPN server. Please check the logs for more information.')
             return False
 
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
@@ -465,6 +466,10 @@ class VPNServer:
             self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.port} and "
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
+        else:
+            self.logger.error('Unable to establish SSH connection with the VPN server. '
+                              'Please check the logs for more information.')
+            return False
 
     def reconfigure_vpn(self) -> None:
         """Runs the configuration on an existing VPN server."""
@@ -472,8 +477,7 @@ class VPNServer:
             with open(f'{CURRENT_DIR}vpn_info.json') as file:
                 data_exist = load(file)
             self._configure_vpn(data=data_exist)
-            if not self._tester(data=data_exist):
-                self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
+            self._tester(data=data_exist)
         else:
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
 
@@ -576,20 +580,20 @@ class VPNServer:
         vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
 
         configuration = {
-            "> Please enter 'yes' to indicate your agreement [no]: ": "yes",
-            "> Press ENTER for default [yes]: ": "yes",
-            "> Press Enter for default [1]: ": "1",
-            "Please specify the port number for the Admin Web UI.": [str(self.port)],
-            "Please specify the TCP port number for the OpenVPN Daemon.": "443",
-            "Should client traffic be routed by default through the VPN?": "yes",
-            "Should client DNS traffic be routed by default through the VPN?": "no",
-            "Use local authentication via internal DB?": "yes",
-            "Should private subnets be accessible to clients by default?": "yes",
-            "Do you wish to login to the Admin UI as 'openvpn'?": "no",
-            "Specify the username for an existing user or for the new user account:": [vpn_username],
-            f"Type the password for the '{vpn_username}' account:": [vpn_password],
-            f"Confirm the password for the '{vpn_username}' account:": [vpn_password],
-            "Please specify your Activation key (or leave blank to specify later):": "\n"
+            "1|Please enter 'yes' to indicate your agreement \\[no\\]: ": ("yes", 10),
+            "2|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
+            "3|> Press Enter for default \\[1\\]: ": ("1", 2),
+            "4|> Press ENTER for default \\[943\\]: ": [str(self.port), 2],
+            "5|> Press ENTER for default \\[443\\]: ": ("443", 2),
+            "6|> Press ENTER for default \\[no\\]: ": ("yes", 2),
+            "7|> Press ENTER for default \\[no\\]: ": ("no", 2),
+            "8|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
+            "9|> Press ENTER for EC2 default \\[yes\\]: ": ("yes", 2),
+            "10|> Press ENTER for default \\[yes\\]: ": ("no", 2),
+            "11|> Specify the username for an existing user or for the new user account: ": [vpn_username, 2],
+            f"12|Type the password for the '{vpn_username}' account:": [vpn_password, 2],
+            f"13|Confirm the password for the '{vpn_username}' account:": [vpn_password, 2],
+            "14|> Please specify your Activation key \\(or leave blank to specify later\\): ": ("\n", 2)
         }
 
         interactive_ssh(hostname=data.get('public_dns'),
@@ -629,9 +633,6 @@ class VPNServer:
 
         Args:
             partial: Flag to indicate whether the ``SecurityGroup`` has to be removed.
-
-        See Also:
-            There is a wait time (60 seconds) for the instance to terminate.
         """
         if not path.exists('vpn_info.json'):
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')

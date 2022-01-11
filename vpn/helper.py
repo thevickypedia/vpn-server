@@ -102,23 +102,27 @@ def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging
     ssh_client.set_missing_host_key_policy(AutoAddPolicy())
     try:
         ssh_client.connect(hostname=hostname, username=username, pkey=pem_key)
-    except (BadHostKeyException, AuthenticationException, SSHException, socket.error) as conn_error:
-        logger.error(conn_error)
+    except (ConnectionResetError, BadHostKeyException, AuthenticationException, SSHException, socket.error) as error:
+        logger.error(error)
         return False
     interact = SSHClientInteraction(client=ssh_client, timeout=timeout, display=display)
+    if not prompts_and_response:
+        ssh_client.close()
+        return True
+
     sys.stdout = open(devnull, 'w')
-    if prompts_and_response:
-        for prompt, response in prompts_and_response.items():
-            logger.info(f"Expecting {prompt}")
-            interact.expect(re_strings=prompt, timeout=2)
-            if isinstance(response, list):
-                response = response[0]
-                logger.info(f"Sending {''.join(['*' for _ in range(len(response))])}")
-            else:
-                logger.info(f"Sending {response}")
-            interact.send(send_string=response)
-    else:
-        interact.send(send_string='logout')
+    n = 0
+    for prompt, response in prompts_and_response.items():
+        n += 1
+        prompt = prompt.lstrip(f'{n}|')
+        replace_this = '\\'
+        logger.info(f"Expecting {prompt.replace(replace_this, '')}")
+        interact.expect(re_strings=prompt, timeout=response[1])
+        if isinstance(response, list):
+            logger.info(f"Sending {''.join(['*' for _ in range(len(response[0]))])}")
+        elif isinstance(response, tuple):
+            logger.info(f"Sending {response[0]}")
+        interact.send(send_string=response[0])
     sys.stdout = sys.__stdout__
     interact.expect(timeout=timeout)  # Expect comes after releasing print, so the final stages of config gets printed
     ssh_client.close()
