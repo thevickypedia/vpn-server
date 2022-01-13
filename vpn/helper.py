@@ -40,8 +40,11 @@ def time_converter(seconds: float) -> str:
         return f'{seconds} seconds'
 
 
-def logging_wrapper() -> tuple:
+def logging_wrapper(file: bool = False) -> tuple:
     """Wraps logging module to create multiple handlers for different purposes.
+
+    Args:
+        file: Takes a boolean flag to determine if a file logger should be created.
 
     See Also:
         - fileLogger: Writes the log information only to the log file.
@@ -58,26 +61,27 @@ def logging_wrapper() -> tuple:
         datefmt=DATETIME_FORMAT
     )
 
-    log_file = datetime.now().strftime(f'{CURRENT_DIR}logs{path.sep}vpn_server_%d_%m_%Y_%H_%M.log')
-
-    file_logger = logging.getLogger('FILE')
     console_logger = logging.getLogger('CONSOLE')
-    hybrid_logger = logging.getLogger('HYBRID')
-
-    file_handler = logging.FileHandler(filename=log_file)
-    file_handler.setFormatter(fmt=log_formatter)
-    file_logger.setLevel(level=logging.INFO)
-    file_logger.addHandler(hdlr=file_handler)
-
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(fmt=log_formatter)
     console_logger.setLevel(level=logging.INFO)
     console_logger.addHandler(hdlr=console_handler)
 
-    hybrid_logger.addHandler(hdlr=file_handler)
-    hybrid_logger.addHandler(hdlr=console_handler)
-    hybrid_logger.setLevel(level=logging.INFO)
-    return file_logger, console_logger, hybrid_logger
+    if file:
+        file_logger = logging.getLogger('FILE')
+        log_file = datetime.now().strftime(f'{CURRENT_DIR}logs{path.sep}vpn_server_%d_%m_%Y_%H_%M.log')
+        file_handler = logging.FileHandler(filename=log_file)
+        file_handler.setFormatter(fmt=log_formatter)
+        file_logger.setLevel(level=logging.INFO)
+        file_logger.addHandler(hdlr=file_handler)
+        hybrid_logger = logging.getLogger('HYBRID')
+        hybrid_logger.addHandler(hdlr=console_handler)
+        hybrid_logger.setLevel(level=logging.INFO)
+        hybrid_logger.addHandler(hdlr=file_handler)
+    else:
+        file_logger, hybrid_logger, log_file = None, None, None
+
+    return file_logger, console_logger, hybrid_logger, log_file
 
 
 def interactive_ssh(hostname: str, username: str, pem_file: str, logger: logging.Logger,

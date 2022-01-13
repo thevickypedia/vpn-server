@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+0.5.3 (01/12/2022)
+------------------
+- Take `vpn_username` and `vpn_password` as args
+- Create log files only when requested
+- Notify upon failure and attach logfile in email
+
 0.5.2 (01/10/2022)
 ------------------
 - Disable printing final config when logged in a file

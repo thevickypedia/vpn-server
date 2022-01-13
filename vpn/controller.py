@@ -33,6 +33,7 @@ class VPNServer:
 
     def __init__(self, aws_access_key: str = environ.get('ACCESS_KEY'), aws_secret_key: str = environ.get('SECRET_KEY'),
                  aws_region_name: str = environ.get('REGION_NAME', 'us-west-2'), log: str = 'CONSOLE',
+                 vpn_username: str = environ.get('VPN_USERNAME'), vpn_password: str = environ.get('VPN_PASSWORD'),
                  gmail_user: str = environ.get('gmail_user'), gmail_pass: str = environ.get('gmail_pass'),
                  phone: str = environ.get('phone'), recipient: str = environ.get('recipient')):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
@@ -51,21 +52,6 @@ class VPNServer:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
-        # Logger setup
-        file_logger, console_logger, hybrid_logger = logging_wrapper()
-        if log.upper() == 'CONSOLE':
-            self.logger = console_logger
-        elif log.upper() == 'FILE':
-            self.logger = file_logger
-        else:
-            self.logger = hybrid_logger
-
-        # Notification information
-        self.gmail_user = gmail_user
-        self.gmail_pass = gmail_pass
-        self.recipient = recipient
-        self.phone = phone
-
         # AWS client and resource setup
         self.region = aws_region_name.lower()
         if not AWSDefaults.REGIONS.get(self.region):
@@ -75,6 +61,28 @@ class VPNServer:
         self.ec2_resource = resource(service_name='ec2', region_name=self.region,
                                      aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         self.port = int(environ.get('VPN_PORT', 943))
+
+        # Login credentials setup
+        self.vpn_username = vpn_username or environ.get('USER', 'openvpn')
+        self.vpn_password = vpn_password or 'awsVPN2021'
+
+        # Logger setup
+        if log.upper() == 'CONSOLE':
+            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper()
+            self.logger = console_logger
+        elif log.upper() == 'FILE':
+            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper(file=True)
+            self.logger = file_logger
+        else:
+            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper(file=True)
+            self.logger = hybrid_logger
+        self.log_file = log_file
+
+        # Notification information
+        self.gmail_user = gmail_user
+        self.gmail_pass = gmail_pass
+        self.recipient = recipient
+        self.phone = phone
 
     def __del__(self):
         """Destructor to print the run time at the end."""
@@ -425,17 +433,6 @@ class VPNServer:
                             instance_info.public_ip_address,
                             instance_info.private_ip_address)
 
-    def _notification_response(self, response: Response) -> None:
-        """Logs the response after sending notifications.
-
-        Args:
-            response: Takes the response dictionary to log the success/failure message.
-        """
-        if response.ok:
-            self.logger.info(response.body)
-        else:
-            self.logger.error(response.json())
-
     def _tester(self, data: dict) -> bool:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
 
@@ -509,19 +506,15 @@ class VPNServer:
                     self.logger.warning('Received a second request to spin up a new VPN Server. Proceeding this time.')
                 else:
                     data_exist.update({'RETRY': True})
-                    self._notify(login_details=f"CURRENTLY SERVING: {data_exist.get('SERVER').lstrip('https://')}\n\n"
-                                               f"Username: {data_exist.get('USERNAME')}\n"
-                                               f"Password: {data_exist.get('PASSWORD')}")
+                    self._notify(message=f"CURRENTLY SERVING: {data_exist.get('SERVER').lstrip('https://')}\n\n"
+                                         f"Username: {data_exist.get('USERNAME')}\n"
+                                         f"Password: {data_exist.get('PASSWORD')}")
                     with open(f'{CURRENT_DIR}vpn_info.json', 'w') as file:
                         dump(data_exist, file, indent=2)
                     return
             else:
                 self.logger.error('Existing server is not responding. Creating a new one.')
                 self.delete_vpn_server(partial=True)
-
-        if not all([self.gmail_user, self.gmail_pass, self.phone, self.recipient]):
-            self.logger.warning('Env vars for notifications are missing! '
-                                'Credentials will be stored in vpn_info.json file.')
 
         if not (instance_basic := self._create_ec2_instance()):
             return
@@ -548,36 +541,38 @@ class VPNServer:
         self.logger.info('Waiting for SSH origin to be active.')
         self._sleeper(sleep_time=15)
 
-        vpn_username, vpn_password = self._configure_vpn(data=instance_info)
+        if not self._configure_vpn(data=instance_info):
+            self.logger.warning('Unknown error occurred during configuration. Testing connecting to server.')
 
         if not self._tester(data=instance_info):
-            self.logger.error('Unable to connect VPN server. Please check the logs for more information.')
+            if 'FILE' in str(self.logger):
+                self._notify(message='Failed to configure VPN server. Please check the logs for more information.',
+                             attachment=self.log_file)
             return
 
         self.logger.info('VPN server has been configured successfully. Details have been stored in vpn_info.json.')
         url = f"https://{instance_info.get('public_ip')}"
-        instance_info.update({'SERVER': f"{url}:{self.port}", 'USERNAME': vpn_username, 'PASSWORD': vpn_password})
+        instance_info.update({'SERVER': f"{url}:{self.port}",
+                              'USERNAME': self.vpn_username,
+                              'PASSWORD': self.vpn_password})
         with open(f'{CURRENT_DIR}vpn_info.json', 'w') as file:
             dump(instance_info, file, indent=2)
 
-        self._notify(login_details=f"SERVER: {public_ip}:{self.port}\n\n"
-                                   f"Username: {vpn_username}\n"
-                                   f"Password: {vpn_password}")
+        self._notify(message=f"SERVER: {public_ip}:{self.port}\n\n"
+                             f"Username: {self.vpn_username}\n"
+                             f"Password: {self.vpn_password}")
 
-    def _configure_vpn(self, data: dict) -> tuple:
+    def _configure_vpn(self, data: dict) -> bool:
         """Frames a dictionary of anticipated prompts and responses to initiate interactive SSH commands.
 
         Args:
             data: A dictionary with key, value pairs with instance information in it.
 
         Returns:
-            tuple:
-            A tuple of ``vpn_username`` and ``vpn_password`` to trigger the notification.
+            bool:
+            A boolean flag to indicate whether the interactive ssh session succeeded.
         """
         self.logger.info('Configuring VPN server.')
-        if not (vpn_username := environ.get('VPN_USERNAME')):
-            vpn_username = environ.get('USER', 'openvpn')
-        vpn_password = environ.get('VPN_PASSWORD', 'awsVPN2021')
 
         configuration = {
             "1|Please enter 'yes' to indicate your agreement \\[no\\]: ": ("yes", 10),
@@ -590,32 +585,31 @@ class VPNServer:
             "8|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
             "9|> Press ENTER for EC2 default \\[yes\\]: ": ("yes", 2),
             "10|> Press ENTER for default \\[yes\\]: ": ("no", 2),
-            "11|> Specify the username for an existing user or for the new user account: ": [vpn_username, 2],
-            f"12|Type the password for the '{vpn_username}' account:": [vpn_password, 2],
-            f"13|Confirm the password for the '{vpn_username}' account:": [vpn_password, 2],
+            "11|> Specify the username for an existing user or for the new user account: ": [self.vpn_username, 2],
+            f"12|Type the password for the '{self.vpn_username}' account:": [self.vpn_password, 2],
+            f"13|Confirm the password for the '{self.vpn_username}' account:": [self.vpn_password, 2],
             "14|> Please specify your Activation key \\(or leave blank to specify later\\): ": ("\n", 2)
         }
 
-        interactive_ssh(hostname=data.get('public_dns'),
-                        username='root',
-                        pem_file='OpenVPN.pem',
-                        logger=self.logger,
-                        prompts_and_response=configuration)
+        return interactive_ssh(hostname=data.get('public_dns'),
+                               username='root',
+                               pem_file='OpenVPN.pem',
+                               logger=self.logger,
+                               prompts_and_response=configuration)
 
-        return vpn_username, vpn_password
-
-    def _notify(self, login_details: str) -> None:
+    def _notify(self, message: str, attachment: str = None) -> None:
         """Send login details via SMS and Email if the following env vars are present.
 
         ``gmail_user``, ``gmail_pass`` and ``phone [or] recipient``
 
         Args:
-            login_details: Login information that has to be sent as a message/email.
+            message: Login information that has to be sent as a message/email.
+            attachment: Name of the log file in case of a failure.
         """
         subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
         if self.phone:
             sms_response = Messenger(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, phone=self.phone,
-                                     subject=subject, message=login_details).send_sms()
+                                     subject=subject, message=message).send_sms()
 
             self._notification_response(response=sms_response)
         else:
@@ -623,10 +617,22 @@ class VPNServer:
 
         if self.recipient:
             email_response = SendEmail(gmail_user=self.gmail_user, gmail_pass=self.gmail_pass, recipient=self.recipient,
-                                       subject=subject, body=login_details, sender='VPNServer').send_email()
+                                       subject=subject, body=message, sender='VPNServer',
+                                       attachment=attachment).send_email()
             self._notification_response(response=email_response)
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
+
+    def _notification_response(self, response: Response) -> None:
+        """Logs the response after sending notifications.
+
+        Args:
+            response: Takes the response dictionary to log the success/failure message.
+        """
+        if response.ok:
+            self.logger.info(response.body)
+        else:
+            self.logger.error(response.json())
 
     def delete_vpn_server(self, partial: bool = False) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
