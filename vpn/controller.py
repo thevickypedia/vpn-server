@@ -15,8 +15,8 @@ from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 from vpn.defaults import AWSDefaults
-from vpn.helper import (CURRENT_DIR, interactive_ssh, logging_wrapper,
-                        time_converter)
+from vpn.helper import CURRENT_DIR, logging_wrapper, time_converter
+from vpn.server import Server
 
 disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
@@ -114,7 +114,7 @@ class VPNServer:
         Args:
             sleep_time: Takes the time script has to sleep, as an argument.
         """
-        if 'FILE' in str(self.logger):
+        if self.logger.name == 'FILE':
             self.logger.info(f'Waiting for {sleep_time} seconds.')
             sleep(sleep_time)
             return
@@ -456,10 +456,10 @@ class VPNServer:
             self.logger.error('Unable to connect the VPN server. Please check the logs for more information.')
             return False
 
+        test_ssh = Server(username='openvpnas', hostname=data.get('public_dns'), pem_file='OpenVPN.pem')
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
-        if url_check.ok and interactive_ssh(hostname=data.get('public_dns'), username='openvpnas',
-                                            pem_file='OpenVPN.pem', logger=self.logger,
-                                            display=False, timeout=5):
+        if url_check.ok and test_ssh.run_interactive_ssh(logger=self.logger, display=False,
+                                                         timeout=5, log_file=self.log_file):
             self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.port} and "
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
@@ -545,7 +545,7 @@ class VPNServer:
             self.logger.warning('Unknown error occurred during configuration. Testing connecting to server.')
 
         if not self._tester(data=instance_info):
-            if 'FILE' in str(self.logger):
+            if self.logger.name == 'FILE':
                 self._notify(message='Failed to configure VPN server. Please check the logs for more information.',
                              attachment=self.log_file)
             return
@@ -591,11 +591,11 @@ class VPNServer:
             "14|> Please specify your Activation key \\(or leave blank to specify later\\): ": ("\n", 2)
         }
 
-        return interactive_ssh(hostname=data.get('public_dns'),
-                               username='root',
-                               pem_file='OpenVPN.pem',
-                               logger=self.logger,
-                               prompts_and_response=configuration)
+        ssh_configuration = Server(hostname=data.get('public_dns'),
+                                   username='root',
+                                   pem_file='OpenVPN.pem')
+        return ssh_configuration.run_interactive_ssh(logger=self.logger, log_file=self.log_file,
+                                                     prompts_and_response=configuration)
 
     def _notify(self, message: str, attachment: str = None) -> None:
         """Send login details via SMS and Email if the following env vars are present.

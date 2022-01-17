@@ -20,6 +20,14 @@ VPN Server
    :private-members:
    :undoc-members:
 
+VPN Server - SSH Configuration
+==============================
+
+.. automodule:: vpn.server
+   :members:
+   :private-members:
+   :undoc-members:
+
 VPN Server - Helper Functions
 =============================
 

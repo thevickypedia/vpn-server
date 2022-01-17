@@ -379,22 +379,37 @@
 </dd></dl>
 
 </section>
-<section id="module-vpn.helper">
-<span id="vpn-server-helper-functions"></span><h1>VPN Server - Helper Functions<a class="headerlink" href="#module-vpn.helper" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="vpn.helper.interactive_ssh">
-<span class="sig-prename descclassname"><span class="pre">vpn.helper.</span></span><span class="sig-name descname"><span class="pre">interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pem_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts_and_response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.helper.interactive_ssh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs interactive ssh commands to configure the VPN server.</p>
+<section id="module-vpn.server">
+<span id="vpn-server-ssh-configuration"></span><h1>VPN Server - SSH Configuration<a class="headerlink" href="#module-vpn.server" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vpn.server.Server">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.server.</span></span><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pem_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.server.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">Server</span></code> object to create an SSH session to configure the server.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Server</span>
+</pre></div>
+</div>
+<p>Instantiates the session using RSAKey generated from a <code class="docutils literal notranslate"><span class="pre">***.pem</span></code> file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hostname</strong> – Hostname of the server.</p></li>
 <li><p><strong>username</strong> – Username to log in to the server.</p></li>
 <li><p><strong>pem_file</strong> – PEM filename to authenticate the login.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.server.Server.run_interactive_ssh">
+<span class="sig-name descname"><span class="pre">run_interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts_and_response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.server.Server.run_interactive_ssh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs interactive ssh commands to configure the VPN server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><strong>prompts_and_response</strong> – Prompts and their responses.</p></li>
 <li><p><strong>logger</strong> – Logging module.</p></li>
 <li><p><strong>display</strong> – Boolean flag whether to display interaction data on screen.</p></li>
 <li><p><strong>timeout</strong> – Default session timeout.</p></li>
+<li><p><strong>log_file</strong> – To write clean console output to the log file.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -406,6 +421,11 @@
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-vpn.helper">
+<span id="vpn-server-helper-functions"></span><h1>VPN Server - Helper Functions<a class="headerlink" href="#module-vpn.helper" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.helper.logging_wrapper">
 <span class="sig-prename descclassname"><span class="pre">vpn.helper.</span></span><span class="sig-name descname"><span class="pre">logging_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#vpn.helper.logging_wrapper" title="Permalink to this definition">¶</a></dt>
@@ -482,6 +502,7 @@
   <ul>
 <li><a class="reference internal" href="#">Welcome to VPN Server’s documentation!</a></li>
 <li><a class="reference internal" href="#module-vpn.controller">VPN Server</a></li>
+<li><a class="reference internal" href="#module-vpn.server">VPN Server - SSH Configuration</a></li>
 <li><a class="reference internal" href="#module-vpn.helper">VPN Server - Helper Functions</a></li>
 <li><a class="reference internal" href="#module-vpn.defaults">VPN Server - AWS Defaults</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

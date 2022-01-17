@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+0.5.4 (01/17/2022)
+------------------
+- Redirect prints to log file when used
+- Split server config into its own module
+
 0.5.3 (01/12/2022)
 ------------------
 - Take `vpn_username` and `vpn_password` as args
