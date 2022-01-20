@@ -634,28 +634,30 @@ class VPNServer:
         else:
             self.logger.error(response.json())
 
-    def delete_vpn_server(self, partial: bool = False) -> None:
+    def delete_vpn_server(self, partial: bool = False, instance_id: str = None, security_group_id: str = None) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         Args:
             partial: Flag to indicate whether the ``SecurityGroup`` has to be removed.
+            instance_id: Instance that has to be terminated.
+            security_group_id: Security group that has to be removed.
         """
-        if not path.exists('vpn_info.json'):
+        if not path.exists('vpn_info.json') and not instance_id and not security_group_id:
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
             return
 
         with open(f'{CURRENT_DIR}vpn_info.json', 'r') as file:
             data = load(file)
 
-        if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=data.get('instance_id')):
+        if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=instance_id or data.get('instance_id')):
             if partial:
                 remove(f'{CURRENT_DIR}vpn_info.json')
                 return
             self.logger.info('Waiting for dependents to release before deleting SecurityGroup.')
             self._sleeper(sleep_time=90)
             while True:
-                if self._delete_security_group(security_group_id=data.get('security_group_id')):
+                if self._delete_security_group(security_group_id=security_group_id or data.get('security_group_id')):
                     break
                 else:
                     self._sleeper(sleep_time=20)
-            remove(f'{CURRENT_DIR}vpn_info.json')
+            remove(f'{CURRENT_DIR}vpn_info.json') if path.isfile(f'{CURRENT_DIR}vpn_info.json') else None

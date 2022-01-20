@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+0.5.5 (01/19/2022)
+------------------
+- Take optional args to delete vpn server
+
 0.5.4 (01/17/2022)
 ------------------
 - Redirect prints to log file when used
