@@ -123,6 +123,7 @@ class VPNServer:
         for i in range(sleep_time):
             stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
             sleep(1)
+        stdout.flush()
         stdout.write('\r')
 
     def _create_key_pair(self) -> bool:
