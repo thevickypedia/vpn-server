@@ -1,3 +1,6 @@
+from typing import Dict
+
+
 class AWSDefaults:
     """Default values for missing AWS configuration.
 
@@ -5,16 +8,16 @@ class AWSDefaults:
 
     """
 
-    AMI_NAME = 'OpenVPN Access Server Community Image-fe8020db-5343-4c43-9e65-5ed4a825c931-ami-06585f7cf2fb8855c.4'
+    AMI_NAME: str = 'OpenVPN Access Server Community Image-fe8020db-5343-4c43-9e65-5ed4a825c931-ami-06585f7cf2fb8855c.4'
 
-    IMAGE_MAP = {
+    IMAGE_MAP: Dict = {
         "us-east-1": "ami-037ff6453f0855c46",
         "us-east-2": "ami-04406fdec0f245050",
         "us-west-1": "ami-0ce1d8c91d5b9ee92",
         "us-west-2": "ami-0d10bccf2f1a6d60b"
     }
 
-    REGIONS = {
+    REGIONS: Dict = {
         "us-east-2": "US East (Ohio)",
         "us-east-1": "US East (N. Virginia)",
         "us-west-1": "US West (N. California)",

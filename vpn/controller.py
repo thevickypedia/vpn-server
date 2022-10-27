@@ -3,6 +3,7 @@ import os
 import sys
 import time
 from datetime import datetime
+from typing import Dict, NoReturn, Optional, Tuple, Union
 
 import boto3
 import dotenv
@@ -23,6 +24,9 @@ urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-si
 if os.path.isfile('.env'):
     dotenv.load_dotenv(dotenv_path='.env', verbose=True, override=True)
 
+PEM_FILE = os.path.join(os.getcwd(), 'OpenVPN.pem')
+INFO_FILE = os.path.join(os.getcwd(), 'vpn_info.json')
+
 
 class VPNServer:
     """Initiates ``VPNServer`` object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.
@@ -30,9 +34,6 @@ class VPNServer:
     >>> VPNServer
 
     """
-
-    PEM_FILE = os.path.join(os.getcwd(), 'OpenVPN.pem')
-    INFO_FILE = os.path.join(os.getcwd(), 'vpn_info.json')
 
     def __init__(self, aws_access_key: str = os.environ.get('ACCESS_KEY'),
                  aws_secret_key: str = os.environ.get('SECRET_KEY'),
@@ -56,6 +57,16 @@ class VPNServer:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
             - If the environment variables are ``null``, gets the default credentials from ``~/.aws/credentials``.
         """
+        # Check is custom directory exists, raise an error otherwise
+        if os.path.isdir(os.path.dirname(PEM_FILE)):
+            self.PEM_FILE = PEM_FILE
+        else:
+            raise NotADirectoryError(f"{os.path.dirname(PEM_FILE)!r} does not exist!")
+        if os.path.isdir(os.path.dirname(INFO_FILE)):
+            self.INFO_FILE = INFO_FILE
+        else:
+            raise NotADirectoryError(f"{os.path.dirname(INFO_FILE)!r} does not exist!")
+
         # AWS client and resource setup
         self.region = aws_region_name.lower()
         if not AWSDefaults.REGIONS.get(self.region):
@@ -90,10 +101,16 @@ class VPNServer:
 
     def __del__(self):
         """Destructor to print the run time at the end."""
-        self.logger.info(f'Total runtime: {time_converter(time.perf_counter())}')
+        if time and hasattr(self, 'logger'):  # Hit or miss, since this is not the actual purpose of a destructor
+            self.logger.info(f'Total runtime: {time_converter(time.perf_counter())}')
 
-    def _get_image_id(self) -> None:
-        """Fetches AMI ID from public images."""
+    def _get_image_id(self) -> str:
+        """Looks for AMI ID in the default image map. Fetches AMI ID from public images if not present.
+
+        Returns:
+            str:
+            AMI ID.
+        """
         if self.region.startswith('us'):
             return AWSDefaults.IMAGE_MAP[self.region]
 
@@ -112,7 +129,7 @@ class VPNServer:
             raise LookupError(f'Failed to retrieve AMI ID for {self.region}. Set one manually.')
         return retrieved
 
-    def _sleeper(self, sleep_time: int) -> None:
+    def _sleeper(self, sleep_time: int) -> NoReturn:
         """Sleeps for a particular duration.
 
         Args:
@@ -121,14 +138,13 @@ class VPNServer:
         if self.logger.name == 'FILE':
             self.logger.info(f'Waiting for {sleep_time} seconds.')
             time.sleep(sleep_time)
-            return
-
-        time.sleep(1)
-        for i in range(sleep_time):
-            sys.stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
+        else:
             time.sleep(1)
-        sys.stdout.flush()
-        sys.stdout.write('\r')
+            for i in range(sleep_time):
+                sys.stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
+                time.sleep(1)
+            sys.stdout.flush()
+            sys.stdout.write('\r')
 
     def _create_key_pair(self) -> bool:
         """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
@@ -160,7 +176,7 @@ class VPNServer:
         else:
             self.logger.error('Unable to create a key pair: OpenVPN')
 
-    def _get_vpc_id(self) -> str or None:
+    def _get_vpc_id(self) -> Union[str, None]:
         """Gets the default VPC id.
 
         Returns:
@@ -174,11 +190,10 @@ class VPNServer:
             return
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
-            vpc_id = response.get('Vpcs', [{}])[0].get('VpcId', '')
-            self.logger.info(f'Got the default VPC: {vpc_id}')
-            return vpc_id
-        else:
-            self.logger.error('Unable to get VPC ID')
+            if vpc_id := response.get('Vpcs', [{}])[0].get('VpcId', ''):
+                self.logger.info(f'Got the default VPC: {vpc_id}')
+                return vpc_id
+        self.logger.error('Unable to get VPC ID')
 
     def _authorize_security_group(self, security_group_id: str) -> bool:
         """Authorizes the security group for certain ingress list.
@@ -244,7 +259,7 @@ class VPNServer:
         else:
             self.logger.info(f'Failed to set Ingress: {response}')
 
-    def _create_security_group(self) -> str or None:
+    def _create_security_group(self) -> Union[str, None]:
         """Calls the class method ``_get_vpc_id`` and uses the VPC ID to create a ``SecurityGroup`` for the instance.
 
         Returns:
@@ -281,9 +296,7 @@ class VPNServer:
         else:
             self.logger.error('Failed to created the SecurityGroup')
 
-    def _create_ec2_instance(self,
-                             image_id: str = os.environ.get(f"AMI_ID_{os.environ.get('REGION_NAME', 'us-west-2')}")) \
-            -> str or None:
+    def _create_ec2_instance(self, image_id: Optional[str] = None) -> Union[Tuple[str, str], None]:
         """Creates an EC2 instance of type ``t2.nano`` with the pre-configured AMI id.
 
         Args:
@@ -293,6 +306,8 @@ class VPNServer:
             str or None:
             Instance ID.
         """
+        if not image_id:
+            image_id = os.environ.get(f"AMI_ID_{os.environ.get('REGION_NAME', 'us-west-2')}")
         if not image_id and not (image_id := self._get_image_id()):
             self.logger.warning(f"AMI ID was not set. "
                                 f"Using the default AMI ID {image_id} for the region {self.region}")
@@ -408,7 +423,7 @@ class VPNServer:
         else:
             self.logger.error(f'Failed to terminate the InstanceId: {instance_id}')
 
-    def _instance_info(self, instance_id: str) -> tuple or None:
+    def _instance_info(self, instance_id: str) -> Union[Tuple[str, str, str], None]:
         """Makes a ``describe_instance_status`` API call to get the status of the instance that was created.
 
         Args:
@@ -439,7 +454,7 @@ class VPNServer:
                             instance_info.public_ip_address,
                             instance_info.private_ip_address)
 
-    def _tester(self, data: dict) -> bool:
+    def _tester(self, data: Dict) -> bool:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
 
         Args:
@@ -474,7 +489,7 @@ class VPNServer:
                               'Please check the logs for more information.')
             return False
 
-    def reconfigure_vpn(self) -> None:
+    def reconfigure_vpn(self) -> NoReturn:
         """Runs the configuration on an existing VPN server."""
         if os.path.isfile(self.INFO_FILE) and os.path.isfile(self.PEM_FILE):
             with open(self.INFO_FILE) as file:
@@ -484,7 +499,7 @@ class VPNServer:
         else:
             self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
 
-    def test_vpn(self) -> None:
+    def test_vpn(self) -> NoReturn:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
         if os.path.isfile(self.INFO_FILE) and os.path.isfile(self.PEM_FILE):
             with open(self.INFO_FILE) as file:
@@ -603,7 +618,7 @@ class VPNServer:
         return ssh_configuration.run_interactive_ssh(logger=self.logger, log_file=self.log_file,
                                                      prompts_and_response=configuration)
 
-    def _notify(self, message: str, attachment: str = None) -> None:
+    def _notify(self, message: str, attachment: Optional[str] = None) -> None:
         """Send login details via SMS and Email if the following env vars are present.
 
         ``gmail_user``, ``gmail_pass`` and ``phone [or] recipient``
@@ -630,7 +645,7 @@ class VPNServer:
         else:
             self.logger.warning('ENV vars are not configured for an SMS notification.')
 
-    def _notification_response(self, response: Response) -> None:
+    def _notification_response(self, response: Response) -> NoReturn:
         """Logs the response after sending notifications.
 
         Args:
@@ -641,7 +656,8 @@ class VPNServer:
         else:
             self.logger.error(response.json())
 
-    def delete_vpn_server(self, partial: bool = False, instance_id: str = None, security_group_id: str = None) -> None:
+    def delete_vpn_server(self, partial: Optional[bool] = False, instance_id: Optional[str] = None,
+                          security_group_id: Optional[str] = None) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         Args:

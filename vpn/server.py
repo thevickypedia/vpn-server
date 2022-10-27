@@ -1,6 +1,7 @@
+import logging
+import os
 import sys
-from logging import Logger
-from os import devnull
+from typing import Dict, Optional
 
 from paramiko import AutoAddPolicy, RSAKey, SSHClient
 from paramiko_expect import SSHClientInteraction
@@ -27,8 +28,9 @@ class Server:
         self.ssh_client.set_missing_host_key_policy(policy=AutoAddPolicy())
         self.ssh_client.connect(hostname=hostname, username=username, pkey=pem_key)
 
-    def run_interactive_ssh(self, logger: Logger, log_file: str = None, prompts_and_response: dict = None,
-                            display: bool = True, timeout: int = 30) -> bool:
+    def run_interactive_ssh(self, logger: logging.Logger, log_file: Optional[str] = None,
+                            prompts_and_response: Optional[Dict] = None,
+                            display: Optional[bool] = True, timeout: Optional[int] = 30) -> bool:
         """Runs interactive ssh commands to configure the VPN server.
 
         Args:
@@ -47,7 +49,7 @@ class Server:
             self.ssh_client.close()
             return True
 
-        sys.stdout = open(log_file, 'a') if log_file else open(devnull, 'w')
+        sys.stdout = open(log_file, 'a') if log_file else open(os.devnull, 'w')
         n = 0
         for prompt, response in prompts_and_response.items():
             n += 1

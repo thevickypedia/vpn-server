@@ -1,5 +1,4 @@
-[![Python 3.8](https://img.shields.io/badge/python-3.8-orange.svg)](https://www.python.org/downloads/release/python-385/)
-[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-391/)
+![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
 
 ###### Platform Supported
 ![Generic badge](https://img.shields.io/badge/Platform-MacOS|Windows-1f425f.svg)
@@ -11,7 +10,12 @@
 [![LOC](https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server)](https://api.github.com/repos/thevickypedia/vpn-server)
 
 ###### Deployments
-[![docs](https://github.com/thevickypedia/vpn-server/actions/workflows/docs.yml/badge.svg)](https://thevickypedia.github.io/vpn-server/)
+[![pages-build-deployment](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment)
+[![pypi](https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml/badge.svg)](https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml)
+
+[![Pypi-format](https://img.shields.io/pypi/format/vpn-server)](https://pypi.org/project/vpn-server/#files)
+[![Pypi-status](https://img.shields.io/pypi/status/vpn-server)](https://pypi.org/project/vpn-server)
+[![sourcerank](https://img.shields.io/librariesio/sourcerank/pypi/vpn-server)](https://libraries.io/pypi/vpn-server)
 
 # VPN Server
 Create an on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
@@ -48,13 +52,14 @@ Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`)
 
 ### Usage
 ```python
-from vpn.controller import VPNServer
-
-vpn_server = VPNServer()
+from vpn import controller
 
 # Store generated files in any location (Default: current working directory)
-vpn_server.INFO_FILE = 'my_secret_repo'
-vpn_server.PEM_FILE = 'my_secret_repo'
+# If a custom file path is set for creation, the same path has to be used for deletion
+controller.INFO_FILE = 'my_secret_repo'
+controller.PEM_FILE = 'my_secret_repo'
+
+vpn_server = controller.VPNServer()  # Instantiates of the object
 
 vpn_server.create_vpn_server()  # Create a VPN Server
 

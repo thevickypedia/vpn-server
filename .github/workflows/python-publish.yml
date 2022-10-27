@@ -5,9 +5,11 @@
 
 name: pypi-publish
 
+# Controls when the workflow will run
 on:
-  release:
-    types: [published]
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:

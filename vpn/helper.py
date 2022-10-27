@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 from datetime import datetime
+from typing import Optional, Tuple
 
 DATETIME_FORMAT = '%b-%d-%Y %I:%M:%S %p'
 
@@ -32,7 +33,8 @@ def time_converter(seconds: float) -> str:
         return f'{seconds} seconds'
 
 
-def logging_wrapper(file: bool = False) -> tuple:
+def logging_wrapper(file: Optional[bool] = False) -> Tuple[Optional[logging.Logger], logging.Logger,
+                                                           Optional[logging.Logger], Optional[str]]:
     """Wraps logging module to create multiple handlers for different purposes.
 
     Args:

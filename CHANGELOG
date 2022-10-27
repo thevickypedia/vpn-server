@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+0.5.8 (10/27/2022)
+------------------
+- Improve type hinting
+- Upgrade paramiko
+- Set build to kick off on push to main branch
+- Setup manual workflow dispatch for pypi build
+
 0.5.7 (10/26/2022)
 ------------------
 - Add option to store run time files in any directory
