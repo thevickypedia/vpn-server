@@ -19,6 +19,7 @@ VPN Server
    :members:
    :private-members:
    :undoc-members:
+   :exclude-members: PEM_FILE, INFO_FILE
 
 VPN Server - SSH Configuration
 ==============================

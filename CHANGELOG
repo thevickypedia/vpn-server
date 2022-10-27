@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+0.5.7 (10/26/2022)
+------------------
+- Add option to store run time files in any directory
+- Refactor code
+- Bump gmail-connector version to 0.5.4
+- Update requirements.txt
+- Fix imports
+
 0.5.6 (01/19/2022)
 ------------------
 - Flush screen output before carriage return

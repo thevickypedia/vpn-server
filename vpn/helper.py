@@ -1,10 +1,9 @@
+import importlib
 import logging
+import os
 from datetime import datetime
-from importlib import reload
-from os import getcwd, makedirs, path
 
 DATETIME_FORMAT = '%b-%d-%Y %I:%M:%S %p'
-CURRENT_DIR = getcwd() + path.sep
 
 
 def time_converter(seconds: float) -> str:
@@ -47,8 +46,7 @@ def logging_wrapper(file: bool = False) -> tuple:
         tuple:
         A tuple of classes ``logging.Logger`` for file and console logging.
     """
-    reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module before start
-    makedirs(f'{CURRENT_DIR}logs') if not path.isdir(f'{CURRENT_DIR}logs') else None  # create logs dir if not found
+    importlib.reload(logging)  # since the gmail-connector module uses logging, it is better to reload logging module
     log_formatter = logging.Formatter(
         fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
         datefmt=DATETIME_FORMAT
@@ -61,8 +59,10 @@ def logging_wrapper(file: bool = False) -> tuple:
     console_logger.addHandler(hdlr=console_handler)
 
     if file:
+        logs_dir = os.path.join(os.getcwd(), 'logs')
+        os.makedirs(logs_dir) if not os.path.isdir(logs_dir) else None
         file_logger = logging.getLogger('FILE')
-        log_file = datetime.now().strftime(f'{CURRENT_DIR}logs{path.sep}vpn_server_%d_%m_%Y_%H_%M.log')
+        log_file = datetime.now().strftime(os.path.join(os.getcwd(), 'logs', 'vpn_server_%d_%m_%Y_%H_%M.log'))
         file_handler = logging.FileHandler(filename=log_file)
         file_handler.setFormatter(fmt=log_formatter)
         file_logger.setLevel(level=logging.INFO)

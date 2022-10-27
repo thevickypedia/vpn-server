@@ -34,11 +34,11 @@ Defaults to `openvpn`
 - **VPN_PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 - **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
 
-**To get notification of login information:**<br>
+**To get notification about login information:**<br>
 - **gmail_user** - Username of the gmail account.
 - **gmail_pass** - Password of the gmail account.
-- **phone** - Phone number to which the notification has to be sent.
 - **recipient** - Email address to which the notification has to be sent.
+- **phone** - Phone number to which the notification has to be sent (Only works for `US` based cellular)
 
 Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
 </details>
@@ -51,6 +51,10 @@ Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`)
 from vpn.controller import VPNServer
 
 vpn_server = VPNServer()
+
+# Store generated files in any location (Default: current working directory)
+vpn_server.INFO_FILE = 'my_secret_repo'
+vpn_server.PEM_FILE = 'my_secret_repo'
 
 vpn_server.create_vpn_server()  # Create a VPN Server
 
