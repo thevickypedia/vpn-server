@@ -66,29 +66,25 @@
 <p>Create an on demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
 <section id="env-variables">
 <h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this headline">¶</a></h2>
-<p>If a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file is present (with the required variables) in current working directory, there is no need for env vars,
-as <a class="reference external" href="https://github.com/thevickypedia/vpn-server"><code class="docutils literal notranslate"><span class="pre">vpn-server</span></code></a> loads <code class="docutils literal notranslate"><span class="pre">.env</span></code> files during start up.</p>
+<p>Environment variables are loaded from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file if present.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><p>Use <a class="reference external" href="https://www.cloudping.info/">cloudping.info</a> to pick the fastest (from current location) available region.</p>
-<blockquote>
-<div><p>AMI IDs are got from <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span> <span class="pre">Community</span> <span class="pre">Images</span></code> per region.</p>
-</div></blockquote>
 <ul class="simple">
-<li><p><strong>AMI_ID_{REGION_NAME}</strong> - AMI ID in a region. Looks for <code class="docutils literal notranslate"><span class="pre">AMI_ID_us-west-2</span></code> since <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code> is the default region.</p></li>
-<li><p><strong>VPN_USERNAME</strong> - Username to access VPN Server once, configuration is done. If <code class="docutils literal notranslate"><span class="pre">null</span></code>, looks for the env var <code class="docutils literal notranslate"><span class="pre">USER</span></code>.
-Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
-<li><p><strong>VPN_PASSWORD</strong> - Password to access VPN Server once, configuration is done. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
+<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
+<li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
 <li><p><strong>VPN_PORT</strong> - Port number where the traffic has to be forwarded. Defaults to <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
-<li><p><strong>REGION_NAME</strong> - Region where the VPN Server should live. Defaults to <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code></p></li>
+<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI for the US regions.</p></li>
+<li><p><strong>DOMAIN</strong> - Domain name for the hosted zone.</p></li>
+<li><p><strong>RECORD_NAME</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
 </ul>
 <p><strong>To get notification about login information:</strong><br></p>
 <ul class="simple">
-<li><p><strong>gmail_user</strong> - Username of the gmail account.</p></li>
-<li><p><strong>gmail_pass</strong> - Password of the gmail account.</p></li>
-<li><p><strong>recipient</strong> - Email address to which the notification has to be sent.</p></li>
-<li><p><strong>phone</strong> - Phone number to which the notification has to be sent (Only works for <code class="docutils literal notranslate"><span class="pre">US</span></code> based cellular)</p></li>
+<li><p><strong>GMAIL_USER</strong> - Username of the gmail account.</p></li>
+<li><p><strong>GMAIL_PASS</strong> - Password of the gmail account.</p></li>
+<li><p><strong>RECIPIENT</strong> - Email address to which the notification has to be sent.</p></li>
+<li><p><strong>PHONE</strong> - Phone number to which the notification has to be sent (Only works for <code class="docutils literal notranslate"><span class="pre">US</span></code> based cellular)</p></li>
 </ul>
-<p>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">REGION_NAME</span></code>) can be setup.</p>
+<p>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</p>
 </details></section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
@@ -100,8 +96,8 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn
 
 <span class="c1"># Store generated files in any location (Default: current working directory)</span>
 <span class="c1"># If a custom file path is set for creation, the same path has to be used for deletion</span>
-<span class="n">controller</span><span class="o">.</span><span class="n">INFO_FILE</span> <span class="o">=</span> <span class="s1">&#39;my_secret_repo&#39;</span>
-<span class="n">controller</span><span class="o">.</span><span class="n">PEM_FILE</span> <span class="o">=</span> <span class="s1">&#39;my_secret_repo&#39;</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">INFO_FILE</span> <span class="o">=</span> <span class="s1">&#39;/path/to/my_secret_repo/info.json&#39;</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">PEM_FILE</span> <span class="o">=</span> <span class="s1">&#39;/path/to/my_secret_repo/key.pem&#39;</span>
 
 <span class="n">vpn_server</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Instantiates of the object</span>
 
@@ -153,10 +149,10 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn
 <section id="linting">
 <h2>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">PreCommit</span></code> will ensure linting, and the doc creation are run on every commit.</p>
-<p>Requirement:
+<p><strong>Requirement:</strong>
 <br>
 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--no-cache</span> <span class="pre">--upgrade</span> <span class="pre">sphinx</span> <span class="pre">pre-commit</span> <span class="pre">recommonmark</span></code></p>
-<p>Usage:
+<p><strong>Usage:</strong>
 <br>
 <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code></p>
 </section>

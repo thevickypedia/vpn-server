@@ -21,30 +21,27 @@
 Create an on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
 
 ### ENV Variables
-If a `.env` file is present (with the required variables) in current working directory, there is no need for env vars,
-as [`vpn-server`](https://github.com/thevickypedia/vpn-server) loads `.env` files during start up.
+Environment variables are loaded from `.env` file if present.
 
 <details>
 <summary><strong>More on Environment variables</strong></summary>
 
 Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
 
-> AMI IDs are got from `OpenVPN Access Server Community Images` per region.
-
-- **AMI_ID_{REGION_NAME}** - AMI ID in a region. Looks for `AMI_ID_us-west-2` since `us-west-2` is the default region.
-- **VPN_USERNAME** - Username to access VPN Server once, configuration is done. If `null`, looks for the env var `USER`.
-Defaults to `openvpn`
-- **VPN_PASSWORD** - Password to access VPN Server once, configuration is done. Defaults to `awsVPN2021`
+- **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to `openvpn`
+- **VPN_PASSWORD** - Password to access `OpenVPN Connect` client. Defaults to `awsVPN2021`
 - **VPN_PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
-- **REGION_NAME** - Region where the VPN Server should live. Defaults to `us-west-2`
+- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI for the US regions.
+- **DOMAIN** - Domain name for the hosted zone.
+- **RECORD_NAME** - Alias record name using which the VPN server has to be accessed.
 
 **To get notification about login information:**<br>
-- **gmail_user** - Username of the gmail account.
-- **gmail_pass** - Password of the gmail account.
-- **recipient** - Email address to which the notification has to be sent.
-- **phone** - Phone number to which the notification has to be sent (Only works for `US` based cellular)
+- **GMAIL_USER** - Username of the gmail account.
+- **GMAIL_PASS** - Password of the gmail account.
+- **RECIPIENT** - Email address to which the notification has to be sent.
+- **PHONE** - Phone number to which the notification has to be sent (Only works for `US` based cellular)
 
-Optionally `env vars` for AWS config (`ACCESS_KEY`, `SECRET_KEY`, `REGION_NAME`) can be setup.
+Optionally `env vars` for AWS config (`AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION_NAME`) can be setup.
 </details>
 
 ### Install
@@ -56,8 +53,8 @@ from vpn import controller
 
 # Store generated files in any location (Default: current working directory)
 # If a custom file path is set for creation, the same path has to be used for deletion
-controller.INFO_FILE = 'my_secret_repo'
-controller.PEM_FILE = 'my_secret_repo'
+controller.INFO_FILE = '/path/to/my_secret_repo/info.json'
+controller.PEM_FILE = '/path/to/my_secret_repo/key.pem'
 
 vpn_server = controller.VPNServer()  # Instantiates of the object
 
@@ -105,11 +102,11 @@ vpn_server.delete_vpn_server()  # Delete the VPN Server
 ### Linting
 `PreCommit` will ensure linting, and the doc creation are run on every commit.
 
-Requirement:
+**Requirement:**
 <br>
 `pip install --no-cache --upgrade sphinx pre-commit recommonmark`
 
-Usage:
+**Usage:**
 <br>
 `pre-commit run --all-files`
 

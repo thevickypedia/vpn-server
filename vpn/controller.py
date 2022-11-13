@@ -3,6 +3,8 @@ import os
 import sys
 import time
 from datetime import datetime
+from ipaddress import IPv4Address
+from threading import Thread
 from typing import Dict, NoReturn, Optional, Tuple, Union
 
 import boto3
@@ -17,12 +19,14 @@ from urllib3.exceptions import InsecureRequestWarning
 
 from .defaults import AWSDefaults
 from .helper import logging_wrapper, time_converter
+from .models import Settings
 from .server import Server
 
 urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
 if os.path.isfile('.env'):
     dotenv.load_dotenv(dotenv_path='.env', verbose=True, override=True)
+settings = Settings()
 
 PEM_FILE = os.path.join(os.getcwd(), 'OpenVPN.pem')
 INFO_FILE = os.path.join(os.getcwd(), 'vpn_info.json')
@@ -35,23 +39,31 @@ class VPNServer:
 
     """
 
-    def __init__(self, aws_access_key: str = os.environ.get('ACCESS_KEY'),
-                 aws_secret_key: str = os.environ.get('SECRET_KEY'),
-                 aws_region_name: str = os.environ.get('REGION_NAME', 'us-west-2'), log: str = 'CONSOLE',
-                 vpn_username: str = os.environ.get('VPN_USERNAME'), vpn_password: str = os.environ.get('VPN_PASSWORD'),
-                 gmail_user: str = os.environ.get('gmail_user'), gmail_pass: str = os.environ.get('gmail_pass'),
-                 phone: str = os.environ.get('phone'), recipient: str = os.environ.get('recipient')):
+    def __init__(self, aws_access_key: str = settings.aws_access_key,
+                 aws_secret_key: str = settings.aws_secret_key, image_id: str = settings.image_id,
+                 aws_region_name: str = settings.aws_region_name, vpn_port: int = settings.vpn_port,
+                 domain: str = settings.domain, record_name: str = settings.record_name,
+                 vpn_username: str = settings.vpn_username, vpn_password: str = settings.vpn_password,
+                 gmail_user: str = settings.gmail_user, gmail_pass: str = settings.gmail_pass,
+                 phone: str = settings.phone, recipient: str = settings.recipient,
+                 log: str = 'CONSOLE'):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
             aws_access_key: Access token for AWS account.
             aws_secret_key: Secret ID for AWS account.
-            aws_region_name: Region where the instance should live. Defaults to ``us-west-2``
-            log: Determines whether to print the log in a console or send it to a file.
+            aws_region_name: Region where the instance should live. Defaults to AWS profile default.
+            image_id: AMI ID using which the instance should be created.
+            vpn_port: Port number using which VPN traffic should be forwarded.
+            domain: Domain name for the hosted zone.
+            record_name: Record using which the VPN server has to be accessed.
+            vpn_username: Username to access VPN client.
+            vpn_password: Password to access VPN client.
             gmail_user: Gmail username or email address.
             gmail_pass: Gmail password.
             phone: Phone number to which an SMS notification has to be sent.
             recipient: Email address to which an email notification has to be sent.
+            log: Determines whether to print the log in a console or send it to a file.
 
         See Also:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
@@ -60,26 +72,45 @@ class VPNServer:
         # Check is custom directory exists, raise an error otherwise
         if os.path.isdir(os.path.dirname(PEM_FILE)):
             self.PEM_FILE = PEM_FILE
+            self.PEM_IDENTIFIER = os.path.basename(PEM_FILE).rstrip('.pem')
         else:
             raise NotADirectoryError(f"{os.path.dirname(PEM_FILE)!r} does not exist!")
         if os.path.isdir(os.path.dirname(INFO_FILE)):
             self.INFO_FILE = INFO_FILE
+            self.INFO_IDENTIFIER = os.path.basename(INFO_FILE)
         else:
             raise NotADirectoryError(f"{os.path.dirname(INFO_FILE)!r} does not exist!")
 
-        # AWS client and resource setup
-        self.region = aws_region_name.lower()
-        if not AWSDefaults.REGIONS.get(self.region):
-            raise ValueError(f'Incorrect region name. {aws_region_name} does not exist.')
-        self.ec2_client = boto3.client(service_name='ec2', region_name=self.region,
-                                       aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        self.ec2_resource = boto3.resource(service_name='ec2', region_name=self.region,
-                                           aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        self.port = int(os.environ.get('VPN_PORT', 943))
+        # AWS region setup
+        test_client = boto3.client('ec2')
+        default_region = test_client.meta.region_name
+        self.AVAILABLE_REGIONS = [region['RegionName'] for region in test_client.describe_regions()['Regions']]
+        if aws_region_name and aws_region_name.lower() in self.AVAILABLE_REGIONS:
+            self.region = aws_region_name.lower()
+        elif aws_region_name:
+            raise ValueError(
+                f'Incorrect region name. {aws_region_name!r} does not exist.'
+            )
+        else:
+            self.region = default_region
+
+        self.SESSION = boto3.session.Session(aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key,
+                                             region_name=self.region)
+
+        # AWS user inputs
+        self.image_id = image_id
+        self.port = vpn_port
+        self.domain = domain
+        self.record_name = record_name
+
+        # Load boto3 clients
+        self.ec2_client = self.SESSION.client(service_name='ec2')
+        self.ec2_resource = self.SESSION.resource(service_name='ec2')
+        self.route53_client = self.SESSION.client(service_name='route53')
 
         # Login credentials setup
-        self.vpn_username = vpn_username or os.environ.get('USER', 'openvpn')
-        self.vpn_password = vpn_password or 'awsVPN2021'
+        self.vpn_username = vpn_username
+        self.vpn_password = vpn_password
 
         # Logger setup
         if log.upper() == 'CONSOLE':
@@ -122,11 +153,14 @@ class VPNServer:
                 },
             ])
         except ClientError as error:
-            self.logger.error(f'API call to retrieve AMI ID for {self.region} has failed.\n{error}')
+            self.logger.error(f'API call to retrieve AMI ID has failed.\n{error}')
             raise
 
-        if not (retrieved := images.get('Images', [{}])[0].get('ImageId')):
-            raise LookupError(f'Failed to retrieve AMI ID for {self.region}. Set one manually.')
+        if not (retrieved := (images.get('Images') or [{}])[0].get('ImageId')):
+            raise LookupError(
+                f'Failed to retrieve AMI ID. Get AMI ID from {AWSDefaults.AMI_SOURCE} and set one manually for '
+                f'{self.region!r}.'
+            )
         return retrieved
 
     def _sleeper(self, sleep_time: int) -> NoReturn:
@@ -155,13 +189,13 @@ class VPNServer:
         """
         try:
             response = self.ec2_client.create_key_pair(
-                KeyName='OpenVPN',
+                KeyName=self.PEM_IDENTIFIER,
                 KeyType='rsa'
             )
         except ClientError as error:
             error = str(error)
-            if '(InvalidKeyPair.Duplicate)' in error and 'OpenVPN' in error:
-                self.logger.warning('Found an existing KeyPair named: OpenVPN. Re-creating it.')
+            if '(InvalidKeyPair.Duplicate)' in error and self.PEM_IDENTIFIER in error:
+                self.logger.warning(f'Found an existing KeyPair named: {self.PEM_IDENTIFIER!r}. Re-creating it.')
                 self._delete_key_pair()
                 self._create_key_pair()
                 return True
@@ -171,10 +205,10 @@ class VPNServer:
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             with open(self.PEM_FILE, 'w') as file:
                 file.write(response.get('KeyMaterial'))
-            self.logger.info(f'Created a key pair named: OpenVPN and stored as {self.PEM_FILE}')
+            self.logger.info(f'Created a key pair named: {self.PEM_IDENTIFIER!r} and stored as {self.PEM_FILE}')
             return True
         else:
-            self.logger.error('Unable to create a key pair: OpenVPN')
+            self.logger.error(f'Unable to create a key pair: {self.PEM_IDENTIFIER!r}')
 
     def _get_vpc_id(self) -> Union[str, None]:
         """Gets the default VPC id.
@@ -296,21 +330,15 @@ class VPNServer:
         else:
             self.logger.error('Failed to created the SecurityGroup')
 
-    def _create_ec2_instance(self, image_id: Optional[str] = None) -> Union[Tuple[str, str], None]:
+    def _create_ec2_instance(self) -> Union[Tuple[str, str], None]:
         """Creates an EC2 instance of type ``t2.nano`` with the pre-configured AMI id.
 
-        Args:
-            image_id: Takes image ID as an argument. Defaults to ``ami_id`` in environment variable. Exits if `null`.
-
         Returns:
-            str or None:
-            Instance ID.
+            tuple:
+            A tuple of Instance ID and Security Group ID.
         """
-        if not image_id:
-            image_id = os.environ.get(f"AMI_ID_{os.environ.get('REGION_NAME', 'us-west-2')}")
-        if not image_id and not (image_id := self._get_image_id()):
-            self.logger.warning(f"AMI ID was not set. "
-                                f"Using the default AMI ID {image_id} for the region {self.region}")
+        self.image_id = self.image_id or self._get_image_id()
+        if not self.image_id:
             return
 
         if not self._create_key_pair():
@@ -330,8 +358,8 @@ class VPNServer:
                 InstanceType="t2.nano",
                 MaxCount=1,
                 MinCount=1,
-                ImageId=image_id,
-                KeyName='OpenVPN',
+                ImageId=self.image_id,
+                KeyName=self.PEM_IDENTIFIER,
                 SecurityGroupIds=[security_group_id]
             )
         except ClientError as error:
@@ -358,20 +386,20 @@ class VPNServer:
         """
         try:
             response = self.ec2_client.delete_key_pair(
-                KeyName='OpenVPN'
+                KeyName=self.PEM_IDENTIFIER
             )
         except ClientError as error:
-            self.logger.error(f'API call to delete the key OpenVPN has failed.\n{error}')
+            self.logger.error(f'API call to delete the key {self.PEM_IDENTIFIER!r} has failed.\n{error}')
             return False
 
         if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
             if os.path.exists(self.PEM_FILE):
-                self.logger.info('OpenVPN has been deleted from KeyPairs.')
+                self.logger.info(f'{self.PEM_IDENTIFIER!r} has been deleted from KeyPairs.')
                 os.chmod(self.PEM_FILE, int('700', base=8) or 0o700)
                 os.remove(self.PEM_FILE)
             return True
         else:
-            self.logger.error('Failed to delete the key: OpenVPN')
+            self.logger.error(f'Failed to delete the key: {self.PEM_IDENTIFIER!r}')
 
     def _delete_security_group(self, security_group_id: str) -> bool:
         """Deletes the security group.
@@ -442,7 +470,7 @@ class VPNServer:
                     InstanceIds=[instance_id]
                 )
             except ClientError as error:
-                self.logger.error(f'API call to describe instance has failed.{error}')
+                self.logger.error(f'API call to describe instance has failed.\n{error}')
                 return
 
             if response.get('ResponseMetadata').get('HTTPStatusCode') != 200:
@@ -461,7 +489,7 @@ class VPNServer:
             data: Takes the instance information in a dictionary format as an argument.
 
         See Also:
-            - Called when a startup request is made but ``vpn_info.json`` and ``OpenVPN.pem`` are present already.
+            - Called when a startup request is made but info file and pem file are present already.
             - Called when a manual test request is made.
             - Testing SSH connection will also run updates on the VM.
 
@@ -497,7 +525,7 @@ class VPNServer:
             self._configure_vpn(data=data_exist)
             self._tester(data=data_exist)
         else:
-            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
+            self.logger.error(f'Input file: {self.INFO_IDENTIFIER} is missing. CANNOT proceed.')
 
     def test_vpn(self) -> NoReturn:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
@@ -506,15 +534,94 @@ class VPNServer:
                 data_exist = json.load(file)
             self._tester(data=data_exist)
         else:
-            self.logger.error('Input file: vpn_info.json is missing. CANNOT proceed.')
+            self.logger.error(f'Input file: {self.INFO_IDENTIFIER} is missing. CANNOT proceed.')
+
+    def _get_hosted_zone_id_by_name(self, domain: str) -> Union[str, None]:
+        """Get hosted zone id using the domain name.
+
+        Args:
+            domain: Domain name to add the A record.
+
+        Returns:
+            str:
+            Hosted zone ID.
+        """
+        try:
+            zones = self.route53_client.list_hosted_zones_by_name(DNSName=domain)
+        except ClientError as error:
+            self.logger.error(f"API call to get hosted zone has failed.\n{error}")
+            return
+
+        if not zones or len(zones['HostedZones']) == 0:
+            self.logger.info(f"Could not find hosted zone for the domain: {domain!r}")
+            return
+
+        zone_id = zones['HostedZones'][0]['Id']
+        return zone_id.split('/')[-1]
+
+    def _hosted_zone_record(self, instance_ip: Union[IPv4Address, str], action: str, record_name: Optional[str] = None,
+                            domain: Optional[str] = None) -> Union[bool, None]:
+        """Add or remove A record in hosted zone.
+
+        Args:
+            instance_ip: Public IP of the ec2 instance.
+            action: Argument to ADD|DELETE|UPSERT dns record.
+            record_name: Name of the DNS record.
+            domain: Domain of the hosted zone where an alias record has been made.
+
+        Returns:
+            bool:
+            Boolean flag to indicate whether the A name record was added.
+        """
+        domain = domain or self.domain
+        record_name = record_name or self.record_name
+        if not domain or not record_name:
+            self.logger.warning('ENV vars are not configured for hosted zone.')
+            return
+
+        if not (hosted_zone_id := self._get_hosted_zone_id_by_name(domain=domain)):
+            return
+
+        try:
+            response = self.route53_client.change_resource_record_sets(
+                HostedZoneId=hosted_zone_id,
+                ChangeBatch={
+                    'Comment': 'OpenVPN server',
+                    'Changes': [
+                        {
+                            'Action': action,
+                            'ResourceRecordSet': {
+                                'Name': record_name,
+                                'Type': 'A',
+                                'TTL': 300,
+                                'ResourceRecords': [
+                                    {
+                                        'Value': instance_ip
+                                    },
+                                ],
+                            }
+                        },
+                    ]
+                }
+            )
+        except ClientError as error:
+            self.logger.error(f"API call to add A record has failed.\n{error}")
+            return
+
+        if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
+            self.logger.info(f"{action.lower()}'ed {record_name} → {instance_ip} in the hosted zone: "
+                             f"{'.'.join(record_name.split('.')[-2:])}")
+            return True
+        else:
+            self.logger.error(f"Failed to add A record: {record_name!r}")
 
     def create_vpn_server(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
 
         See Also:
-            - Checks if ``vpn_info.json`` and ``OpenVPN.pem`` files are present, before spinning up a new instance.
+            - Checks if info and pem files are present, before spinning up a new instance.
             - If present, checks the connection to the existing origin and tears down the instance if connection fails.
-            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to ``vpn_info.json``
+            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to info file.
             - If another request is sent to start the vpn, creates a new instance regardless of existing info.
         """
         if os.path.isfile(self.INFO_FILE) and os.path.isfile(self.PEM_FILE):
@@ -556,7 +663,7 @@ class VPNServer:
         with open(self.INFO_FILE, 'w') as file:
             json.dump(instance_info, file, indent=2)
 
-        self.logger.info('Restricting wide open permissions to OpenVPN.pem')
+        self.logger.info(f'Restricting wide open permissions to {self.PEM_FILE!r}')
         os.chmod(self.PEM_FILE, int('400', base=8) or 0o400)
 
         self.logger.info('Waiting for SSH origin to be active.')
@@ -571,7 +678,12 @@ class VPNServer:
                              attachment=self.log_file)
             return
 
-        self.logger.info('VPN server has been configured successfully. Details have been stored in vpn_info.json.')
+        if self._hosted_zone_record(instance_ip=public_ip, action='UPSERT'):
+            instance_info['domain'] = self.domain
+            instance_info['record_name'] = self.record_name
+
+        self.logger.info('VPN server has been configured successfully. '
+                         f'Details have been stored in {self.INFO_IDENTIFIER}.')
         url = f"https://{instance_info.get('public_ip')}"
         instance_info.update({'SERVER': f"{url}:{self.port}",
                               'USERNAME': self.vpn_username,
@@ -657,13 +769,18 @@ class VPNServer:
             self.logger.error(response.json())
 
     def delete_vpn_server(self, partial: Optional[bool] = False, instance_id: Optional[str] = None,
-                          security_group_id: Optional[str] = None) -> None:
+                          security_group_id: Optional[str] = None,
+                          domain: Optional[str] = None, record_name: Optional[str] = None,
+                          instance_ip: Optional[Union[IPv4Address, str]] = None) -> None:
         """Disables VPN server by terminating the ``EC2`` instance, ``KeyPair``, and the ``SecurityGroup`` created.
 
         Args:
             partial: Flag to indicate whether the ``SecurityGroup`` has to be removed.
             instance_id: Instance that has to be terminated.
             security_group_id: Security group that has to be removed.
+            domain: Domain of the hosted zone where an alias record has been made.
+            record_name: Record name for the alias.
+            instance_ip: Value of the record.
         """
         if not os.path.exists(self.INFO_FILE) and (not instance_id or not security_group_id):
             self.logger.error("CANNOT proceed without input file or 'instance_id' and 'security_group_id' as params.")
@@ -676,6 +793,10 @@ class VPNServer:
             data = {}
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=instance_id or data.get('instance_id')):
+            Thread(target=self._hosted_zone_record,
+                   kwargs={'record_name': record_name or data.get('record_name'),
+                           'domain': domain or data.get('domain'),
+                           'instance_ip': instance_ip or data.get('public_ip'), 'action': 'DELETE'}).start()
             if partial:
                 os.remove(self.INFO_FILE)
                 return
