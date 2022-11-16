@@ -40,15 +40,10 @@ class VPNServer:
 
     """
 
-    def __init__(self, aws_access_key: str = settings.aws_access_key,
-                 aws_secret_key: str = settings.aws_secret_key, image_id: str = settings.image_id,
-                 aws_region_name: str = settings.aws_region_name, vpn_port: int = settings.vpn_port,
-                 domain: str = settings.domain, record_name: str = settings.record_name,
-                 vpn_username: str = settings.vpn_username, vpn_password: str = settings.vpn_password,
-                 gmail_user: str = settings.gmail_user, gmail_pass: str = settings.gmail_pass,
-                 phone: str = settings.phone, recipient: str = settings.recipient,
-                 instance_type: str = settings.instance_type,
-                 log: str = 'CONSOLE'):
+    def __init__(self, aws_access_key: str = None, aws_secret_key: str = None,
+                 image_id: str = None, aws_region_name: str = None, domain: str = None, record_name: str = None,
+                 vpn_username: str = None, vpn_password: str = None, gmail_user: str = None, gmail_pass: str = None,
+                 phone: str = None, recipient: str = None, instance_type: str = None, log: str = 'CONSOLE'):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
@@ -56,7 +51,6 @@ class VPNServer:
             aws_secret_key: Secret ID for AWS account.
             aws_region_name: Region where the instance should live. Defaults to AWS profile default.
             image_id: AMI ID using which the instance should be created.
-            vpn_port: Port number using which VPN traffic should be forwarded.
             domain: Domain name for the hosted zone.
             record_name: Record using which the VPN server has to be accessed.
             vpn_username: Username to access VPN client.
@@ -84,17 +78,17 @@ class VPNServer:
             raise NotADirectoryError(f"{os.path.dirname(INFO_FILE)!r} does not exist!")
 
         # AWS region setup
-        self.region = aws_region_name
+        self.region = aws_region_name or settings.aws_region_name
 
-        self.SESSION = boto3.session.Session(aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key,
+        self.SESSION = boto3.session.Session(aws_access_key_id=aws_access_key or settings.aws_access_key,
+                                             aws_secret_access_key=aws_secret_key or settings.aws_secret_key,
                                              region_name=self.region)
 
         # AWS user inputs
-        self.image_id = image_id
-        self.port = vpn_port
-        self.domain = domain
-        self.record_name = record_name
-        self.instance_type = instance_type
+        self.image_id = image_id or settings.image_id
+        self.domain = domain or settings.domain
+        self.record_name = record_name or settings.record_name
+        self.instance_type = instance_type or settings.instance_type
 
         # Load boto3 clients
         self.ec2_client = self.SESSION.client(service_name='ec2')
@@ -102,8 +96,8 @@ class VPNServer:
         self.route53_client = self.SESSION.client(service_name='route53')
 
         # Login credentials setup
-        self.vpn_username = vpn_username
-        self.vpn_password = vpn_password
+        self.vpn_username = vpn_username or settings.vpn_username
+        self.vpn_password = vpn_password or settings.vpn_password
 
         # Logger setup
         if log.upper() == 'CONSOLE':
@@ -118,13 +112,12 @@ class VPNServer:
         self.log_file = log_file
 
         # Notification information
-        self.gmail_user = gmail_user
-        self.gmail_pass = gmail_pass
-        self.recipient = recipient
-        self.phone = phone
+        self.gmail_user = gmail_user or settings.gmail_user
+        self.gmail_pass = gmail_pass or settings.gmail_pass
+        self.recipient = recipient or settings.recipient
+        self.phone = phone or settings.phone
 
-        self.configuration = SSHConfig(vpn_username=self.vpn_username, vpn_password=self.vpn_password,
-                                       port=self.port)
+        self.configuration = SSHConfig(vpn_username=self.vpn_username, vpn_password=self.vpn_password)
 
     def __del__(self):
         """Destructor to print the run time at the end."""
@@ -259,8 +252,8 @@ class VPNServer:
                      'ToPort': 443,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
-                     'FromPort': self.port,
-                     'ToPort': self.port,
+                     'FromPort': 943,
+                     'ToPort': 943,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
                      'FromPort': 945,
@@ -496,18 +489,19 @@ class VPNServer:
             - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
             - ``False`` if the connection fails or unable to ``ssh`` to the origin.
         """
-        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.port}")
+        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:943")
         try:
-            url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.port}", verify=False)
-        except requests.ConnectionError:
-            self.logger.error('Unable to connect the VPN server. Please check the logs for more information.')
+            url_check = requests.get(url=f"https://{data.get('public_ip')}:943", verify=False, timeout=5)
+        except requests.RequestException as error:
+            self.logger.error(error)
+            self.logger.error('Unable to connect the VPN server.')
             return False
 
         test_ssh = Server(username='openvpnas', hostname=data.get('public_dns'), pem_file=self.PEM_FILE)
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         if url_check.ok and test_ssh.run_interactive_ssh(logger=self.logger, display=False,
                                                          timeout=5, log_file=self.log_file):
-            self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.port} and "
+            self.logger.info(f"Connection to https://{data.get('public_ip')}:943 and "
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
         else:
@@ -683,13 +677,13 @@ class VPNServer:
         self.logger.info('VPN server has been configured successfully. '
                          f'Details have been stored in {self.INFO_IDENTIFIER}.')
         url = f"https://{instance_info.get('public_ip')}"
-        instance_info.update({'SERVER': f"{url}:{self.port}",
+        instance_info.update({'SERVER': f"{url}:943",
                               'USERNAME': self.vpn_username,
                               'PASSWORD': self.vpn_password})
         with open(self.INFO_FILE, 'w') as file:
             json.dump(instance_info, file, indent=2)
 
-        self._notify(message=f"SERVER: {public_ip}:{self.port}\n\n"
+        self._notify(message=f"SERVER: {public_ip}:943\n\n"
                              f"Username: {self.vpn_username}\n"
                              f"Password: {self.vpn_password}")
 

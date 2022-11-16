@@ -28,7 +28,6 @@ class Settings:
         self.aws_secret_key: str = os.environ.get('AWS_SECRET_KEY', os.environ.get('aws_secret_key'))
         self.aws_region_name: str = os.environ.get('AWS_REGION_NAME', os.environ.get('aws_region_name'))
         self.image_id: str = os.environ.get('IMAGE_ID', os.environ.get('image_id'))
-        self.vpn_port: int = os.environ.get('VPN_PORT', os.environ.get('vpn_port', 943))
         self.domain: str = os.environ.get('DOMAIN', os.environ.get('domain'))
         self.record_name: str = os.environ.get('RECORD_NAME', os.environ.get('record_name'))
         self.vpn_username: str = os.environ.get('VPN_USERNAME', os.environ.get('vpn_username',
@@ -39,14 +38,6 @@ class Settings:
         self.phone: str = os.environ.get('PHONE', os.environ.get('phone'))
         self.recipient: str = os.environ.get('RECIPIENT', os.environ.get('recipient'))
         self.instance_type: str = os.environ.get('INSTANCE_TYPE', os.environ.get('instance_type'))
-
-        if not isinstance(self.vpn_port, int):
-            if str(self.vpn_port).isdigit():
-                self.vpn_port = int(self.vpn_port)
-            else:
-                raise ValueError(
-                    "Port number should be an integer."
-                )
 
         test_client = boto3.client('ec2')
         if self.aws_region_name and self.aws_region_name.lower() in [region['RegionName'] for region in

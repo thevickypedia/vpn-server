@@ -8,15 +8,13 @@ class SSHConfig:
 
     """
 
-    def __init__(self, port, vpn_username, vpn_password):
+    def __init__(self, vpn_username: AnyStr, vpn_password: AnyStr):
         """Instantiates object and stores port, username and password as members.
 
         Args:
-            port: Port number to spin up VPN server on.
             vpn_username: Username for authentication.
             vpn_password: Password for authentication.
         """
-        self.port = port
         self.vpn_username = vpn_username
         self.vpn_password = vpn_password
 
@@ -26,7 +24,7 @@ class SSHConfig:
             "1|Please enter 'yes' to indicate your agreement \\[no\\]: ": ("yes", 10),
             "2|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
             "3|> Press Enter for default \\[1\\]: ": ("1", 2),
-            "4|> Press ENTER for default \\[943\\]: ": [str(self.port), 2],
+            "4|> Press ENTER for default \\[943\\]: ": ("943", 2),
             "5|> Press ENTER for default \\[443\\]: ": ("443", 2),
             "6|> Press ENTER for default \\[no\\]: ": ("yes", 2),
             "7|> Press ENTER for default \\[no\\]: ": ("yes", 2),

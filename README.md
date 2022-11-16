@@ -18,7 +18,17 @@
 [![sourcerank](https://img.shields.io/librariesio/sourcerank/pypi/vpn-server)](https://libraries.io/pypi/vpn-server)
 
 # VPN Server
-Create an on demand VPN Server running with `OpenVPN` using `AWS EC2` and `Python`.
+Create your own VPN server on demand (fully automated) running with `OpenVPN` using `AWS EC2` implemented using `python`.
+
+### How it works
+- Create an AWS EC2 instance using a pre-built OpenVPN AMI.
+- Create a security group with the necessary ports allowed.
+- Configure the vpn server.
+- Download the [OpenVPN client](https://openvpn.net/vpn-client/) and connect using public IP of the ec2 instance and login.
+> To take it a step further, if you have a registered domain in AWS,
+> vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance
+- All the above steps are performed automatically when creating a new VPN server.
+- This module can also be used to clean up all the AWS resources spun up for creating a vpn server.
 
 ### ENV Variables
 Environment variables are loaded from `.env` file if present.
@@ -28,9 +38,8 @@ Environment variables are loaded from `.env` file if present.
 
 Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
 
-- **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to `openvpn`
+- **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to login profile or `openvpn`
 - **VPN_PASSWORD** - Password to access `OpenVPN Connect` client. Defaults to `awsVPN2021`
-- **VPN_PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 - **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI for the US regions.
 - **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` when on free-tier.
 - **DOMAIN** - Domain name for the hosted zone.
@@ -50,16 +59,11 @@ Optionally `env vars` for AWS config (`AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_R
 
 ### Usage
 ```python
-from vpn import controller
+from vpn.controller import VPNServer
 
-# Store generated files in any location (Default: current working directory)
-# If a custom file path is set for creation, the same path has to be used for deletion
-controller.INFO_FILE = '/path/to/my_secret_repo/info.json'
-controller.PEM_FILE = '/path/to/my_secret_repo/key.pem'
+vpn_server = VPNServer()
 
-vpn_server = controller.VPNServer()  # Instantiates of the object
-
-vpn_server.create_vpn_server()  # Create a VPN Server
+vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file
 
 vpn_server.reconfigure_vpn()  # Re-configure an existing VPN Server
 
