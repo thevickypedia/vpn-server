@@ -74,6 +74,7 @@
 <li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
 <li><p><strong>VPN_PORT</strong> - Port number where the traffic has to be forwarded. Defaults to <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
 <li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI for the US regions.</p></li>
+<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> when on free-tier.</p></li>
 <li><p><strong>DOMAIN</strong> - Domain name for the hosted zone.</p></li>
 <li><p><strong>RECORD_NAME</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
 </ul>
@@ -111,12 +112,15 @@
 </pre></div>
 </div>
 <details>
-<summary><strong>Manual Configuration</strong></summary><ol class="simple">
+<summary><strong>Manual Configuration</strong></summary><p><em>Following are the prompts and response required to configure the VPN server.</em></p>
+<ul class="simple">
 <li><p>Are you sure you want to continue connecting (yes/no)? <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
+</ul>
+<ol class="simple">
 <li><p>Please enter ‘yes’ to indicate your agreement [no]: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
 <li><p>Will this be the primary Access Server node? Default: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
 <li><p>Please specify the network interface and IP address to be used by the Admin Web UI: <code class="docutils literal notranslate"><span class="pre">Default:</span> <span class="pre">all</span> <span class="pre">interfaces:</span> <span class="pre">0.0.0.0</span></code></p></li>
-<li><p>Please specify the port number for the Admin Web UI. Default: <code class="docutils literal notranslate"><span class="pre">{PORT}</span></code></p></li>
+<li><p>Please specify the port number for the Admin Web UI. Default: <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
 <li><p>Please specify the TCP port number for the OpenVPN Daemon. Default: <code class="docutils literal notranslate"><span class="pre">443</span></code></p></li>
 <li><p>Should client traffic be routed by default through the VPN? <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
 <li><p>Should client DNS traffic be routed by default through the VPN? Default: <code class="docutils literal notranslate"><span class="pre">No</span></code></p></li>
@@ -127,8 +131,10 @@
 <li><p>Type the password for the ‘vicky’ account: <code class="docutils literal notranslate"><span class="pre">{PASSWORD}</span></code></p></li>
 <li><p>Confirm the password for the ‘vicky’ account: <code class="docutils literal notranslate"><span class="pre">{PASSWORD}</span></code></p></li>
 <li><p>Please specify your Activation key (or leave blank to specify later): <code class="docutils literal notranslate"><span class="pre">{ENTER/RETURN}</span></code></p></li>
-<li><p>Download the <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> application and get connected to the VPN server.</p></li>
 </ol>
+<ul class="simple">
+<li><p>Download the <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> application and get connected to the VPN server.</p></li>
+</ul>
 </details></section>
 <section id="aws-resources-used">
 <h2>AWS Resources Used<a class="headerlink" href="#aws-resources-used" title="Permalink to this headline">¶</a></h2>

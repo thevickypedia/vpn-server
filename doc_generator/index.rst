@@ -29,6 +29,22 @@ VPN Server - SSH Configuration
    :private-members:
    :undoc-members:
 
+VPN Server - SSH Prompt and Response
+====================================
+
+.. automodule:: vpn.config
+   :members:
+   :private-members:
+   :undoc-members:
+
+VPN Server - Models
+===================
+
+.. automodule:: vpn.models
+   :members:
+   :private-members:
+   :undoc-members:
+
 VPN Server - Helper Functions
 =============================
 
@@ -43,7 +59,7 @@ VPN Server - AWS Defaults
 .. automodule:: vpn.defaults
    :members:
    :undoc-members:
-   :exclude-members: AMI_NAME, IMAGE_MAP, REGIONS
+   :exclude-members: AMI_NAME, IMAGE_MAP
 
 Indices and tables
 ==================

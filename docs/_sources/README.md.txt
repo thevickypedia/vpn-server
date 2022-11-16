@@ -32,6 +32,7 @@ Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from curr
 - **VPN_PASSWORD** - Password to access `OpenVPN Connect` client. Defaults to `awsVPN2021`
 - **VPN_PORT** - Port number where the traffic has to be forwarded. Defaults to `943`
 - **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI for the US regions.
+- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` when on free-tier.
 - **DOMAIN** - Domain name for the hosted zone.
 - **RECORD_NAME** - Alias record name using which the VPN server has to be accessed.
 
@@ -70,22 +71,25 @@ vpn_server.delete_vpn_server()  # Delete the VPN Server
 <details>
 <summary><strong>Manual Configuration</strong></summary>
 
-1. Are you sure you want to continue connecting (yes/no)? `yes` 
-2. Please enter 'yes' to indicate your agreement [no]: `yes`
-3. Will this be the primary Access Server node? Default: `yes`
-4. Please specify the network interface and IP address to be used by the Admin Web UI: `Default: all interfaces: 0.0.0.0`
-5. Please specify the port number for the Admin Web UI. Default: `{PORT}`
-6. Please specify the TCP port number for the OpenVPN Daemon. Default: `443`
-7. Should client traffic be routed by default through the VPN? `yes`
-8. Should client DNS traffic be routed by default through the VPN? Default: `No`
-9. Use local authentication via internal DB? Default: `yes`
-10. Should private subnets be accessible to clients by default? Default: `yes`
-11. Do you wish to login to the Admin UI as "openvpn"? Default: `yes`
-12. Specify the username for an existing user or for the new user account: `{USERNAME}`
-13. Type the password for the 'vicky' account: `{PASSWORD}`
-14. Confirm the password for the 'vicky' account: `{PASSWORD}`
-15. Please specify your Activation key (or leave blank to specify later): `{ENTER/RETURN}`
-16. Download the `OpenVPN` application and get connected to the VPN server.
+*Following are the prompts and response required to configure the VPN server.*
+
+- Are you sure you want to continue connecting (yes/no)? `yes` 
+1. Please enter 'yes' to indicate your agreement [no]: `yes`
+2. Will this be the primary Access Server node? Default: `yes`
+3. Please specify the network interface and IP address to be used by the Admin Web UI: `Default: all interfaces: 0.0.0.0`
+4. Please specify the port number for the Admin Web UI. Default: `943`
+5. Please specify the TCP port number for the OpenVPN Daemon. Default: `443`
+6. Should client traffic be routed by default through the VPN? `yes`
+7. Should client DNS traffic be routed by default through the VPN? Default: `No`
+8. Use local authentication via internal DB? Default: `yes`
+9. Should private subnets be accessible to clients by default? Default: `yes`
+10. Do you wish to login to the Admin UI as "openvpn"? Default: `yes`
+11. Specify the username for an existing user or for the new user account: `{USERNAME}`
+12. Type the password for the 'vicky' account: `{PASSWORD}`
+13. Confirm the password for the 'vicky' account: `{PASSWORD}`
+14. Please specify your Activation key (or leave blank to specify later): `{ENTER/RETURN}`
+
+- Download the `OpenVPN` application and get connected to the VPN server.
 
 </details>
 

@@ -17,6 +17,7 @@ from gmailconnector.send_email import SendEmail
 from gmailconnector.send_sms import Messenger
 from urllib3.exceptions import InsecureRequestWarning
 
+from .config import SSHConfig
 from .defaults import AWSDefaults
 from .helper import logging_wrapper, time_converter
 from .models import Settings
@@ -46,6 +47,7 @@ class VPNServer:
                  vpn_username: str = settings.vpn_username, vpn_password: str = settings.vpn_password,
                  gmail_user: str = settings.gmail_user, gmail_pass: str = settings.gmail_pass,
                  phone: str = settings.phone, recipient: str = settings.recipient,
+                 instance_type: str = settings.instance_type,
                  log: str = 'CONSOLE'):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
@@ -82,17 +84,7 @@ class VPNServer:
             raise NotADirectoryError(f"{os.path.dirname(INFO_FILE)!r} does not exist!")
 
         # AWS region setup
-        test_client = boto3.client('ec2')
-        default_region = test_client.meta.region_name
-        self.AVAILABLE_REGIONS = [region['RegionName'] for region in test_client.describe_regions()['Regions']]
-        if aws_region_name and aws_region_name.lower() in self.AVAILABLE_REGIONS:
-            self.region = aws_region_name.lower()
-        elif aws_region_name:
-            raise ValueError(
-                f'Incorrect region name. {aws_region_name!r} does not exist.'
-            )
-        else:
-            self.region = default_region
+        self.region = aws_region_name
 
         self.SESSION = boto3.session.Session(aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key,
                                              region_name=self.region)
@@ -102,6 +94,7 @@ class VPNServer:
         self.port = vpn_port
         self.domain = domain
         self.record_name = record_name
+        self.instance_type = instance_type
 
         # Load boto3 clients
         self.ec2_client = self.SESSION.client(service_name='ec2')
@@ -130,6 +123,9 @@ class VPNServer:
         self.recipient = recipient
         self.phone = phone
 
+        self.configuration = SSHConfig(vpn_username=self.vpn_username, vpn_password=self.vpn_password,
+                                       port=self.port)
+
     def __del__(self):
         """Destructor to print the run time at the end."""
         if time and hasattr(self, 'logger'):  # Hit or miss, since this is not the actual purpose of a destructor
@@ -143,6 +139,7 @@ class VPNServer:
             AMI ID.
         """
         if self.region.startswith('us'):
+            self.logger.info(f"Getting AMI ID from image map for {self.region}")
             return AWSDefaults.IMAGE_MAP[self.region]
 
         try:
@@ -156,12 +153,13 @@ class VPNServer:
             self.logger.error(f'API call to retrieve AMI ID has failed.\n{error}')
             raise
 
-        if not (retrieved := (images.get('Images') or [{}])[0].get('ImageId')):
+        if not (image_id := (images.get('Images') or [{}])[0].get('ImageId')):
             raise LookupError(
                 f'Failed to retrieve AMI ID. Get AMI ID from {AWSDefaults.AMI_SOURCE} and set one manually for '
                 f'{self.region!r}.'
             )
-        return retrieved
+        self.logger.info("Retrieved AMI using image name.")
+        return image_id
 
     def _sleeper(self, sleep_time: int) -> NoReturn:
         """Sleeps for a particular duration.
@@ -331,7 +329,7 @@ class VPNServer:
             self.logger.error('Failed to created the SecurityGroup')
 
     def _create_ec2_instance(self) -> Union[Tuple[str, str], None]:
-        """Creates an EC2 instance of type ``t2.nano`` with the pre-configured AMI id.
+        """Creates an EC2 instance with the pre-configured AMI id.
 
         Returns:
             tuple:
@@ -355,7 +353,7 @@ class VPNServer:
 
         try:
             response = self.ec2_client.run_instances(
-                InstanceType="t2.nano",
+                InstanceType=self.instance_type,
                 MaxCount=1,
                 MinCount=1,
                 ImageId=self.image_id,
@@ -706,29 +704,11 @@ class VPNServer:
             A boolean flag to indicate whether the interactive ssh session succeeded.
         """
         self.logger.info('Configuring VPN server.')
-
-        configuration = {
-            "1|Please enter 'yes' to indicate your agreement \\[no\\]: ": ("yes", 10),
-            "2|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
-            "3|> Press Enter for default \\[1\\]: ": ("1", 2),
-            "4|> Press ENTER for default \\[943\\]: ": [str(self.port), 2],
-            "5|> Press ENTER for default \\[443\\]: ": ("443", 2),
-            "6|> Press ENTER for default \\[no\\]: ": ("yes", 2),
-            "7|> Press ENTER for default \\[no\\]: ": ("no", 2),
-            "8|> Press ENTER for default \\[yes\\]: ": ("yes", 2),
-            "9|> Press ENTER for EC2 default \\[yes\\]: ": ("yes", 2),
-            "10|> Press ENTER for default \\[yes\\]: ": ("no", 2),
-            "11|> Specify the username for an existing user or for the new user account: ": [self.vpn_username, 2],
-            f"12|Type the password for the '{self.vpn_username}' account:": [self.vpn_password, 2],
-            f"13|Confirm the password for the '{self.vpn_username}' account:": [self.vpn_password, 2],
-            "14|> Please specify your Activation key \\(or leave blank to specify later\\): ": ("\n", 2)
-        }
-
         ssh_configuration = Server(hostname=data.get('public_dns'),
                                    username='root',
                                    pem_file=self.PEM_FILE)
         return ssh_configuration.run_interactive_ssh(logger=self.logger, log_file=self.log_file,
-                                                     prompts_and_response=configuration)
+                                                     prompts_and_response=self.configuration.get_config())
 
     def _notify(self, message: str, attachment: Optional[str] = None) -> None:
         """Send login details via SMS and Email if the following env vars are present.

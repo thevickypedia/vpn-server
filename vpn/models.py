@@ -1,5 +1,19 @@
 import os
 
+import boto3
+
+
+def ec2_instance_types(region_name: str):
+    """Yield all available EC2 instance types in a particular region."""
+    ec2 = boto3.client('ec2', region_name=region_name)
+    describe_args = {}
+    while True:
+        describe_result = ec2.describe_instance_types(**describe_args)
+        yield from [i['InstanceType'] for i in describe_result['InstanceTypes']]
+        if 'NextToken' not in describe_result:
+            break
+        describe_args['NextToken'] = describe_result['NextToken']
+
 
 class Settings:
     """Initiate ``Settings`` object to access env vars acros modules.
@@ -9,7 +23,7 @@ class Settings:
     """
 
     def __init__(self):
-        """Instantiate the class and load all env variables."""
+        """Instantiate the class, load all env variables and perform custom validations."""
         self.aws_access_key: str = os.environ.get('AWS_ACCESS_KEY', os.environ.get('aws_access_key'))
         self.aws_secret_key: str = os.environ.get('AWS_SECRET_KEY', os.environ.get('aws_secret_key'))
         self.aws_region_name: str = os.environ.get('AWS_REGION_NAME', os.environ.get('aws_region_name'))
@@ -24,6 +38,7 @@ class Settings:
         self.gmail_pass: str = os.environ.get('GMAIL_PASS', os.environ.get('gmail_pass'))
         self.phone: str = os.environ.get('PHONE', os.environ.get('phone'))
         self.recipient: str = os.environ.get('RECIPIENT', os.environ.get('recipient'))
+        self.instance_type: str = os.environ.get('INSTANCE_TYPE', os.environ.get('instance_type'))
 
         if not isinstance(self.vpn_port, int):
             if str(self.vpn_port).isdigit():
@@ -32,3 +47,23 @@ class Settings:
                 raise ValueError(
                     "Port number should be an integer."
                 )
+
+        test_client = boto3.client('ec2')
+        if self.aws_region_name and self.aws_region_name.lower() in [region['RegionName'] for region in
+                                                                     test_client.describe_regions()['Regions']]:
+            self.aws_region_name = self.aws_region_name.lower()
+        elif self.aws_region_name:
+            raise ValueError(
+                f'Incorrect region name. {self.aws_region_name!r} does not exist.'
+            )
+        else:
+            self.aws_region_name = test_client.meta.region_name
+
+        if self.instance_type and self.instance_type in list(ec2_instance_types(region_name=self.aws_region_name)):
+            self.instance_type = self.instance_type
+        elif self.instance_type:
+            raise ValueError(
+                f'Incorrect instance type. {self.instance_type!r} does not exist.'
+            )
+        else:
+            self.instance_type = "t2.nano"
