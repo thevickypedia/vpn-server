@@ -18,15 +18,21 @@
 [![sourcerank](https://img.shields.io/librariesio/sourcerank/pypi/vpn-server)](https://libraries.io/pypi/vpn-server)
 
 # VPN Server
-Create your own VPN server on demand (fully automated) running with `OpenVPN` using `AWS EC2` implemented using `python`.
+- You need a VPN but don't want to pay for it?
+- [OpenVPN](https://openvpn.net/) is the solution, but configuring it manually can be a lengthy process.
+- Once configured, keeping the instance up all the time costs **$$**.
+- Scaling up/down a VPN server on demand can make that lengthy process an absolute nightmare.
+- This module allows you to create your own on demand VPN server in under 2 minutes.
+- The solution is fully automated and runs with `OpenVPN` using `AWS EC2`.
 
 ### How it works
 - Create an AWS EC2 instance using a pre-built OpenVPN AMI.
 - Create a security group with the necessary ports allowed.
-- Configure the vpn server.
-- Download the [OpenVPN client](https://openvpn.net/vpn-client/) and connect using public IP of the ec2 instance and login.
+- Configure the vpn server using SSH.
+- Download the [OpenVPN client](https://openvpn.net/vpn-client/) and connect using public IP of the ec2 instance.
+- All set! Now the internet traffic will be routed through the VPN. Verify it using an [IP Lookup](https://whatismyipaddress.com/)
 > To take it a step further, if you have a registered domain in AWS,
-> vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance
+> vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance.
 - All the above steps are performed automatically when creating a new VPN server.
 - This module can also be used to clean up all the AWS resources spun up for creating a vpn server.
 
@@ -36,12 +42,10 @@ Environment variables are loaded from `.env` file if present.
 <details>
 <summary><strong>More on Environment variables</strong></summary>
 
-Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from current location) available region.
-
-- **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to login profile or `openvpn`
+- **IMAGE_ID** **[REQUIRED]** - AMI ID to be used. Defaults to a pre-built AMI for the US regions. Refer [OpenVPN Access Server](https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931) for other regions.
+- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` if under [free-tier](https://aws.amazon.com/free).
+- **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to log in profile or `openvpn`
 - **VPN_PASSWORD** - Password to access `OpenVPN Connect` client. Defaults to `awsVPN2021`
-- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI for the US regions.
-- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` when on free-tier.
 - **DOMAIN** - Domain name for the hosted zone.
 - **RECORD_NAME** - Alias record name using which the VPN server has to be accessed.
 
@@ -49,9 +53,9 @@ Use [cloudping.info](https://www.cloudping.info/) to pick the fastest (from curr
 - **GMAIL_USER** - Username of the gmail account.
 - **GMAIL_PASS** - Password of the gmail account.
 - **RECIPIENT** - Email address to which the notification has to be sent.
-- **PHONE** - Phone number to which the notification has to be sent (Only works for `US` based cellular)
+- **PHONE** - Phone number to which the notification has to be sent (Works only for `US` based cellular)
 
-Optionally `env vars` for AWS config (`AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION_NAME`) can be setup.
+*Optionally `env vars` for AWS config (`AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION_NAME`) can be setup.*
 </details>
 
 ### Install
@@ -61,15 +65,18 @@ Optionally `env vars` for AWS config (`AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_R
 ```python
 from vpn.controller import VPNServer
 
-vpn_server = VPNServer()
+# Instantiates the object, takes the same args as env vars.
+vpn_server = VPNServer()  # Defaults to console logging. Pass 'log="file"' for file logging.
 
-vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file
+vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file.
 
-vpn_server.reconfigure_vpn()  # Re-configure an existing VPN Server
+# Re-configure an existing VPN Server (not required, unless the configuration steps have been interrupted)
+# vpn_server.reconfigure_vpn()
 
-vpn_server.test_vpn()  # Test an existing VPN Server
+# Test an existing VPN Server (not required, as a test is run right after creation anyway)
+# vpn_server.test_vpn()
 
-vpn_server.delete_vpn_server()  # Delete the VPN Server
+vpn_server.delete_vpn_server()  # Deletes the VPN Server removing the AWS resources acquired during creation.
 ```
 
 <details>
@@ -100,10 +107,7 @@ vpn_server.delete_vpn_server()  # Delete the VPN Server
 ### AWS Resources Used
 - EC2
   - Instances
-  - AMI
-  - KeyPairs
   - SecurityGroups
-- Network Interfaces
 - VPC [Default]
 - Subnet [Default]
 

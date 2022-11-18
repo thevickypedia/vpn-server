@@ -63,18 +63,41 @@
 </section>
 <section id="vpn-server">
 <h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
-<p>Create an on demand VPN Server running with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code> and <code class="docutils literal notranslate"><span class="pre">Python</span></code>.</p>
+<ul class="simple">
+<li><p>You need a VPN but don’t want to pay for it?</p></li>
+<li><p><a class="reference external" href="https://openvpn.net/">OpenVPN</a> is the solution, but configuring it manually can be a lengthy process.</p></li>
+<li><p>Once configured, keeping the instance up all the time costs <strong>$$</strong>.</p></li>
+<li><p>Scaling up/down a VPN server on demand can make that lengthy process an absolute nightmare.</p></li>
+<li><p>This module allows you to create your own on demand VPN server in under 2 minutes.</p></li>
+<li><p>The solution is fully automated and runs with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code>.</p></li>
+</ul>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Create an AWS EC2 instance using a pre-built OpenVPN AMI.</p></li>
+<li><p>Create a security group with the necessary ports allowed.</p></li>
+<li><p>Configure the vpn server using SSH.</p></li>
+<li><p>Download the <a class="reference external" href="https://openvpn.net/vpn-client/">OpenVPN client</a> and connect using public IP of the ec2 instance.</p></li>
+<li><p>All set! Now the internet traffic will be routed through the VPN. Verify it using an <a class="reference external" href="https://whatismyipaddress.com/">IP Lookup</a></p></li>
+</ul>
+<blockquote>
+<div><p>To take it a step further, if you have a registered domain in AWS,
+vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>All the above steps are performed automatically when creating a new VPN server.</p></li>
+<li><p>This module can also be used to clean up all the AWS resources spun up for creating a vpn server.</p></li>
+</ul>
+</section>
 <section id="env-variables">
 <h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this headline">¶</a></h2>
 <p>Environment variables are loaded from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file if present.</p>
 <details>
-<summary><strong>More on Environment variables</strong></summary><p>Use <a class="reference external" href="https://www.cloudping.info/">cloudping.info</a> to pick the fastest (from current location) available region.</p>
-<ul class="simple">
-<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
+<summary><strong>More on Environment variables</strong></summary><ul class="simple">
+<li><p><strong>IMAGE_ID</strong> <strong>[REQUIRED]</strong> - AMI ID to be used. Defaults to a pre-built AMI for the US regions. Refer <a class="reference external" href="https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931">OpenVPN Access Server</a> for other regions.</p></li>
+<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> if under <a class="reference external" href="https://aws.amazon.com/free">free-tier</a>.</p></li>
+<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to log in profile or <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
 <li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
-<li><p><strong>VPN_PORT</strong> - Port number where the traffic has to be forwarded. Defaults to <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
-<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI for the US regions.</p></li>
-<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> when on free-tier.</p></li>
 <li><p><strong>DOMAIN</strong> - Domain name for the hosted zone.</p></li>
 <li><p><strong>RECORD_NAME</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
 </ul>
@@ -83,9 +106,9 @@
 <li><p><strong>GMAIL_USER</strong> - Username of the gmail account.</p></li>
 <li><p><strong>GMAIL_PASS</strong> - Password of the gmail account.</p></li>
 <li><p><strong>RECIPIENT</strong> - Email address to which the notification has to be sent.</p></li>
-<li><p><strong>PHONE</strong> - Phone number to which the notification has to be sent (Only works for <code class="docutils literal notranslate"><span class="pre">US</span></code> based cellular)</p></li>
+<li><p><strong>PHONE</strong> - Phone number to which the notification has to be sent (Works only for <code class="docutils literal notranslate"><span class="pre">US</span></code> based cellular)</p></li>
 </ul>
-<p>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</p>
+<p><em>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</em></p>
 </details></section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
@@ -93,22 +116,20 @@
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vpn</span> <span class="kn">import</span> <span class="n">controller</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vpn.controller</span> <span class="kn">import</span> <span class="n">VPNServer</span>
 
-<span class="c1"># Store generated files in any location (Default: current working directory)</span>
-<span class="c1"># If a custom file path is set for creation, the same path has to be used for deletion</span>
-<span class="n">controller</span><span class="o">.</span><span class="n">INFO_FILE</span> <span class="o">=</span> <span class="s1">&#39;/path/to/my_secret_repo/info.json&#39;</span>
-<span class="n">controller</span><span class="o">.</span><span class="n">PEM_FILE</span> <span class="o">=</span> <span class="s1">&#39;/path/to/my_secret_repo/key.pem&#39;</span>
+<span class="c1"># Instantiates the object, takes the same args as env vars.</span>
+<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging. Pass &#39;log=&quot;file&quot;&#39; for file logging.</span>
 
-<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Instantiates of the object</span>
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server, login information will be saved to a JSON file.</span>
 
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server</span>
+<span class="c1"># Re-configure an existing VPN Server (not required, unless the configuration steps have been interrupted)</span>
+<span class="c1"># vpn_server.reconfigure_vpn()</span>
 
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">reconfigure_vpn</span><span class="p">()</span>  <span class="c1"># Re-configure an existing VPN Server</span>
+<span class="c1"># Test an existing VPN Server (not required, as a test is run right after creation anyway)</span>
+<span class="c1"># vpn_server.test_vpn()</span>
 
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">test_vpn</span><span class="p">()</span>  <span class="c1"># Test an existing VPN Server</span>
-
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>  <span class="c1"># Delete the VPN Server</span>
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>  <span class="c1"># Deletes the VPN Server removing the AWS resources acquired during creation.</span>
 </pre></div>
 </div>
 <details>
@@ -142,12 +163,9 @@
 <li><p>EC2</p>
 <ul>
 <li><p>Instances</p></li>
-<li><p>AMI</p></li>
-<li><p>KeyPairs</p></li>
 <li><p>SecurityGroups</p></li>
 </ul>
 </li>
-<li><p>Network Interfaces</p></li>
 <li><p>VPC [Default]</p></li>
 <li><p>Subnet [Default]</p></li>
 </ul>
@@ -188,6 +206,7 @@
 <li><a class="reference internal" href="#repo-stats">Repo Stats</a></li>
 <li><a class="reference internal" href="#deployments">Deployments</a></li>
 <li><a class="reference internal" href="#vpn-server">VPN Server</a><ul>
+<li><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li><a class="reference internal" href="#env-variables">ENV Variables</a></li>
 <li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
