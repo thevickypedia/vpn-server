@@ -1,7 +1,12 @@
 Release Notes
 =============
 
-0.6.3 (02/09/2022)
+0.6.4 (02/09/2023)
+------------------
+- Bug fix when using custom logger
+- Update gen_docs.sh and bump version
+
+0.6.3 (02/09/2023)
 ------------------
 - Add `bring your own logger`
 - Upgrade gmail-connector

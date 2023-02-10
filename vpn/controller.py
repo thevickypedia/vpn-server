@@ -99,7 +99,9 @@ class VPNServer:
         self.vpn_password = vpn_password or settings.vpn_password
 
         # Log config
-        if logger is None:
+        if logger and isinstance(logger, logging.Logger):
+            self.logger = logger
+        else:
             self.logger = logging.getLogger(__name__)
             log_handler = logging.StreamHandler()
             log_handler.setFormatter(fmt=logging.Formatter(
