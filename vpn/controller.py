@@ -602,7 +602,7 @@ class VPNServer:
             return
 
         if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
-            self.logger.info(f"{action.lower()}'ed {record_name} → {instance_ip} in the hosted zone: "
+            self.logger.info(f"{action.lower()}'ed {record_name} -> {instance_ip} in the hosted zone: "
                              f"{'.'.join(record_name.split('.')[-2:])}")
             return True
         else:

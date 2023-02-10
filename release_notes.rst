@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.6.6 (02/09/2023)
+------------------
+- Replace arrow sign to avoid unicode error
+
 0.6.5 (02/09/2023)
 ------------------
 - Bug fix on custom logger
