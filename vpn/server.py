@@ -57,13 +57,13 @@ class Server:
             replace_this = '\\'
             None if log_file else logger.info(f"Expecting {prompt.replace(replace_this, '')}")
             interact.expect(re_strings=prompt, timeout=response[1])
-            if not log_file:  # Log prompt and response only if it is console
+            if not log_file:  # Log 'prompt and response' only if it is console
                 if isinstance(response, list):  # Secure information that shouldn't be on the logs
                     logger.info(f"Sending {''.join(['*' for _ in range(len(response[0]))])}")
                 elif isinstance(response, tuple):
                     logger.info(f"Sending {response[0]}")
             interact.send(send_string=response[0])
-        if logger.name == 'FILE':
+        if log_file:
             interact.expect(timeout=timeout)
             sys.stdout.close()
             sys.stdout = sys.__stdout__

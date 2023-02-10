@@ -45,14 +45,6 @@ VPN Server - Models
    :private-members:
    :undoc-members:
 
-VPN Server - Helper Functions
-=============================
-
-.. automodule:: vpn.helper
-   :members:
-   :private-members:
-   :undoc-members:
-
 VPN Server - AWS Defaults
 =========================
 

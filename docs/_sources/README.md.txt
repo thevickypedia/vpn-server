@@ -59,14 +59,16 @@ Environment variables are loaded from `.env` file if present.
 </details>
 
 ### Install
-`pip install vpn-server`
+```shell
+python -m pip install vpn-server
+```
 
 ### Usage
 ```python
-from vpn.controller import VPNServer
+import vpn
 
 # Instantiates the object, takes the same args as env vars.
-vpn_server = VPNServer()  # Defaults to console logging. Pass 'log="file"' for file logging.
+vpn_server = vpn.VPNServer()  # Defaults to console logging. Pass 'log="file"' for file logging.
 
 vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file.
 
@@ -111,16 +113,29 @@ vpn_server.delete_vpn_server()  # Deletes the VPN Server removing the AWS resour
 - VPC [Default]
 - Subnet [Default]
 
+### [Release Notes](https://github.com/thevickypedia/vpn-server/blob/main/release_notes.rst)
+**Requirement**
+```shell
+python -m pip install changelog-generator
+```
+
+**Usage**
+```shell
+changelog reverse -f release_notes.rst -t 'Release Notes'
+```
+
 ### Linting
 `PreCommit` will ensure linting, and the doc creation are run on every commit.
 
-**Requirement:**
-<br>
-`pip install --no-cache --upgrade sphinx pre-commit recommonmark`
+**Requirement**
+```shell
+pip install sphinx==5.1.1 pre-commit recommonmark
+```
 
-**Usage:**
-<br>
-`pre-commit run --all-files`
+**Usage**
+```shell
+pre-commit run --all-files
+```
 
 ### Links
 [Repository](https://github.com/thevickypedia/vpn-server)

@@ -1,5 +1,13 @@
-Change Log
-==========
+Release Notes
+=============
+
+0.6.3 (02/09/2022)
+------------------
+- Add `bring your own logger`
+- Upgrade gmail-connector
+- Switch build to pyproject.toml
+- Update README.md
+- Switch changelog to release_notes.rst
 
 0.6.2 (11/18/2022)
 ------------------

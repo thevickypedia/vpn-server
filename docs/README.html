@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Platform Supported &#8212; VPN Server  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -43,18 +44,18 @@
             
   <p><img alt="Python" src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue" /></p>
 <section id="platform-supported">
-<h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this headline">¶</a></h1>
+<h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this heading">¶</a></h1>
 <p><img alt="Generic badge" src="https://img.shields.io/badge/Platform-MacOS%7CWindows-1f425f.svg" /></p>
 </section>
 <section id="repo-stats">
-<h1>Repo Stats<a class="headerlink" href="#repo-stats" title="Permalink to this headline">¶</a></h1>
+<h1>Repo Stats<a class="headerlink" href="#repo-stats" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/thevickypedia/vpn-server" /></a>
 <a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/thevickypedia/vpn-server" /></a>
 <a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server" /></a>
 <a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="LOC" src="https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server" /></a></p>
 </section>
 <section id="deployments">
-<h1>Deployments<a class="headerlink" href="#deployments" title="Permalink to this headline">¶</a></h1>
+<h1>Deployments<a class="headerlink" href="#deployments" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment"><img alt="pages-build-deployment" src="https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment/badge.svg" /></a>
 <a class="reference external" href="https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml"><img alt="pypi" src="https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml/badge.svg" /></a></p>
 <p><a class="reference external" href="https://pypi.org/project/vpn-server/#files"><img alt="Pypi-format" src="https://img.shields.io/pypi/format/vpn-server" /></a>
@@ -62,7 +63,7 @@
 <a class="reference external" href="https://libraries.io/pypi/vpn-server"><img alt="sourcerank" src="https://img.shields.io/librariesio/sourcerank/pypi/vpn-server" /></a></p>
 </section>
 <section id="vpn-server">
-<h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this headline">¶</a></h1>
+<h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p>You need a VPN but don’t want to pay for it?</p></li>
 <li><p><a class="reference external" href="https://openvpn.net/">OpenVPN</a> is the solution, but configuring it manually can be a lengthy process.</p></li>
@@ -72,7 +73,7 @@
 <li><p>The solution is fully automated and runs with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code>.</p></li>
 </ul>
 <section id="how-it-works">
-<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Create an AWS EC2 instance using a pre-built OpenVPN AMI.</p></li>
 <li><p>Create a security group with the necessary ports allowed.</p></li>
@@ -90,7 +91,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </ul>
 </section>
 <section id="env-variables">
-<h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this headline">¶</a></h2>
+<h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this heading">¶</a></h2>
 <p>Environment variables are loaded from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file if present.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><ul class="simple">
@@ -111,15 +112,17 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <p><em>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</em></p>
 </details></section>
 <section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">vpn-server</span></code></p>
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vpn-server
+</pre></div>
+</div>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vpn.controller</span> <span class="kn">import</span> <span class="n">VPNServer</span>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vpn</span>
 
 <span class="c1"># Instantiates the object, takes the same args as env vars.</span>
-<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging. Pass &#39;log=&quot;file&quot;&#39; for file logging.</span>
+<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging. Pass &#39;log=&quot;file&quot;&#39; for file logging.</span>
 
 <span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server, login information will be saved to a JSON file.</span>
 
@@ -158,7 +161,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </ul>
 </details></section>
 <section id="aws-resources-used">
-<h2>AWS Resources Used<a class="headerlink" href="#aws-resources-used" title="Permalink to this headline">¶</a></h2>
+<h2>AWS Resources Used<a class="headerlink" href="#aws-resources-used" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>EC2</p>
 <ul>
@@ -170,24 +173,37 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <li><p>Subnet [Default]</p></li>
 </ul>
 </section>
+<section id="release-notes">
+<h2><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/release_notes.rst">Release Notes</a><a class="headerlink" href="#release-notes" title="Permalink to this heading">¶</a></h2>
+<p><strong>Requirement</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>changelog-generator
+</pre></div>
+</div>
+<p><strong>Usage</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>changelog<span class="w"> </span>reverse<span class="w"> </span>-f<span class="w"> </span>release_notes.rst<span class="w"> </span>-t<span class="w"> </span><span class="s1">&#39;Release Notes&#39;</span>
+</pre></div>
+</div>
+</section>
 <section id="linting">
-<h2>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h2>
+<h2>Linting<a class="headerlink" href="#linting" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">PreCommit</span></code> will ensure linting, and the doc creation are run on every commit.</p>
-<p><strong>Requirement:</strong>
-<br>
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--no-cache</span> <span class="pre">--upgrade</span> <span class="pre">sphinx</span> <span class="pre">pre-commit</span> <span class="pre">recommonmark</span></code></p>
-<p><strong>Usage:</strong>
-<br>
-<code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code></p>
+<p><strong>Requirement</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">sphinx</span><span class="o">==</span><span class="m">5</span>.1.1<span class="w"> </span>pre-commit<span class="w"> </span>recommonmark
+</pre></div>
+</div>
+<p><strong>Usage</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
 </section>
 <section id="links">
-<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server">Repository</a></p>
 <p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/">Runbook</a></p>
 <p><a class="reference external" href="https://pypi.org/project/vpn-server/">Package</a></p>
 </section>
 <section id="license-copyright">
-<h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this headline">¶</a></h2>
+<h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this heading">¶</a></h2>
 <p>© Vignesh Sivanandha Rao</p>
 <p>Licensed under the <a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/LICENSE">MIT License</a></p>
 </section>
@@ -200,8 +216,9 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Platform Supported</a></li>
 <li><a class="reference internal" href="#repo-stats">Repo Stats</a></li>
 <li><a class="reference internal" href="#deployments">Deployments</a></li>
@@ -211,6 +228,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#aws-resources-used">AWS Resources Used</a></li>
+<li><a class="reference internal" href="#release-notes">Release Notes</a></li>
 <li><a class="reference internal" href="#linting">Linting</a></li>
 <li><a class="reference internal" href="#links">Links</a></li>
 <li><a class="reference internal" href="#license-copyright">License &amp; copyright</a></li>
@@ -218,9 +236,12 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to VPN Server’s documentation!</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to VPN Server’s documentation!</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -237,7 +258,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -260,7 +281,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Vignesh Sivanandha Rao.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

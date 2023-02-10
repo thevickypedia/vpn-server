@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 import time
@@ -12,14 +13,12 @@ import dotenv
 import requests
 import urllib3
 from botocore.exceptions import ClientError
+from gmailconnector import SendEmail, SendSMS
 from gmailconnector.responder import Response
-from gmailconnector.send_email import SendEmail
-from gmailconnector.send_sms import Messenger
 from urllib3.exceptions import InsecureRequestWarning
 
 from .config import SSHConfig
 from .defaults import AWSDefaults
-from .helper import logging_wrapper, time_converter
 from .models import Settings
 from .server import Server
 
@@ -43,7 +42,7 @@ class VPNServer:
     def __init__(self, aws_access_key: str = None, aws_secret_key: str = None,
                  image_id: str = None, aws_region_name: str = None, domain: str = None, record_name: str = None,
                  vpn_username: str = None, vpn_password: str = None, gmail_user: str = None, gmail_pass: str = None,
-                 phone: str = None, recipient: str = None, instance_type: str = None, log: str = 'CONSOLE'):
+                 phone: str = None, recipient: str = None, instance_type: str = None, logger: logging.Logger = None):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
@@ -59,7 +58,7 @@ class VPNServer:
             gmail_pass: Gmail password.
             phone: Phone number to which an SMS notification has to be sent.
             recipient: Email address to which an email notification has to be sent.
-            log: Determines whether to print the log in a console or send it to a file.
+            logger: Bring your own logger.
 
         See Also:
             - If no values (for aws authentication) are passed during object initialization, script checks for env vars.
@@ -99,17 +98,22 @@ class VPNServer:
         self.vpn_username = vpn_username or settings.vpn_username
         self.vpn_password = vpn_password or settings.vpn_password
 
-        # Logger setup
-        if log.upper() == 'CONSOLE':
-            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper()
-            self.logger = console_logger
-        elif log.upper() == 'FILE':
-            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper(file=True)
-            self.logger = file_logger
+        # Log config
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+            log_handler = logging.StreamHandler()
+            log_handler.setFormatter(fmt=logging.Formatter(
+                fmt='%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d] - %(funcName)s - %(message)s',
+                datefmt='%b-%d-%Y %I:%M:%S %p'
+            ))
+            self.logger.addHandler(hdlr=log_handler)
+            self.logger.setLevel(level=logging.DEBUG)
+        for handler in self.logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                self.log_file = handler.baseFilename
+                break
         else:
-            file_logger, console_logger, hybrid_logger, log_file = logging_wrapper(file=True)
-            self.logger = hybrid_logger
-        self.log_file = log_file
+            self.log_file = None
 
         # Notification information
         self.gmail_user = gmail_user or settings.gmail_user
@@ -118,11 +122,6 @@ class VPNServer:
         self.phone = phone or settings.phone
 
         self.configuration = SSHConfig(vpn_username=self.vpn_username, vpn_password=self.vpn_password)
-
-    def __del__(self):
-        """Destructor to print the run time at the end."""
-        if time and hasattr(self, 'logger'):  # Hit or miss, since this is not the actual purpose of a destructor
-            self.logger.info(f'Total runtime: {time_converter(time.perf_counter())}')
 
     def _get_image_id(self) -> str:
         """Looks for AMI ID in the default image map. Fetches AMI ID from public images if not present.
@@ -160,7 +159,7 @@ class VPNServer:
         Args:
             sleep_time: Takes the time script has to sleep, as an argument.
         """
-        if self.logger.name == 'FILE':
+        if self.log_file:
             self.logger.info(f'Waiting for {sleep_time} seconds.')
             time.sleep(sleep_time)
         else:
@@ -655,7 +654,7 @@ class VPNServer:
         with open(self.INFO_FILE, 'w') as file:
             json.dump(instance_info, file, indent=2)
 
-        self.logger.info(f'Restricting wide open permissions to {self.PEM_FILE!r}')
+        self.logger.info(f'Restricting wide open permissions on {self.PEM_FILE!r}')
         os.chmod(self.PEM_FILE, int('400', base=8) or 0o400)
 
         self.logger.info('Waiting for SSH origin to be active.')
@@ -665,7 +664,7 @@ class VPNServer:
             self.logger.warning('Unknown error occurred during configuration. Testing connecting to server.')
 
         if not self._tester(data=instance_info):
-            if self.logger.name == 'FILE':
+            if self.log_file:
                 self._notify(message='Failed to configure VPN server. Please check the logs for more information.',
                              attachment=self.log_file)
             return
@@ -724,9 +723,9 @@ class VPNServer:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
         if self.phone:
-            sms_response = Messenger(gmail_user=self.gmail_user,
-                                     gmail_pass=self.gmail_pass).send_sms(phone=self.phone, subject=subject,
-                                                                          message=message)
+            sms_response = SendSMS(gmail_user=self.gmail_user,
+                                   gmail_pass=self.gmail_pass).send_sms(phone=self.phone, subject=subject,
+                                                                        message=message)
             self._notification_response(response=sms_response)
         else:
             self.logger.warning('ENV vars are not configured for an SMS notification.')
