@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import string
 import sys
 import time
 from datetime import datetime
@@ -602,7 +603,7 @@ class VPNServer:
             return
 
         if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
-            self.logger.info(f"{action.lower()}'ed {record_name} -> {instance_ip} in the hosted zone: "
+            self.logger.info(f"{string.capwords(action)}ed {record_name} -> {instance_ip} in the hosted zone: "
                              f"{'.'.join(record_name.split('.')[-2:])}")
             return True
         else:
@@ -674,19 +675,24 @@ class VPNServer:
         if self._hosted_zone_record(instance_ip=public_ip, action='UPSERT'):
             instance_info['domain'] = self.domain
             instance_info['record_name'] = self.record_name
+            msg = f"SERVER: {public_ip}:943\n" \
+                  f"Alias: https://{self.record_name}\n\n" \
+                  f"Username: {self.vpn_username}\n" \
+                  f"Password: {self.vpn_password}"
+        else:
+            msg = f"SERVER: {public_ip}:943\n\n" \
+                  f"Username: {self.vpn_username}\n" \
+                  f"Password: {self.vpn_password}"
 
         self.logger.info('VPN server has been configured successfully. '
                          f'Details have been stored in {self.INFO_IDENTIFIER}.')
-        url = f"https://{instance_info.get('public_ip')}"
-        instance_info.update({'SERVER': f"{url}:943",
+        instance_info.update({'SERVER': f"https://{public_ip}:943",
                               'USERNAME': self.vpn_username,
                               'PASSWORD': self.vpn_password})
         with open(self.INFO_FILE, 'w') as file:
             json.dump(instance_info, file, indent=2)
 
-        self._notify(message=f"SERVER: {public_ip}:943\n\n"
-                             f"Username: {self.vpn_username}\n"
-                             f"Password: {self.vpn_password}")
+        self._notify(message=msg)
 
     def _configure_vpn(self, data: dict) -> bool:
         """Frames a dictionary of anticipated prompts and responses to initiate interactive SSH commands.

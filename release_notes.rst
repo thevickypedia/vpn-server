@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.6.7 (02/10/2023)
+------------------
+- Add alias record in notifications
+
 0.6.6 (02/09/2023)
 ------------------
 - Replace arrow sign to avoid unicode error
