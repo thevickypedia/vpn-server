@@ -99,7 +99,7 @@ class VPNServer:
         self.vpn_password = vpn_password or settings.vpn_password
 
         # Log config
-        if logger and isinstance(logger, logging.Logger):
+        if logger:
             self.logger = logger
         else:
             self.logger = logging.getLogger(__name__)

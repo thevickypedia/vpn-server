@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.6.5 (02/09/2023)
+------------------
+- Bug fix on custom logger
+
 0.6.4 (02/09/2023)
 ------------------
 - Bug fix when using custom logger
