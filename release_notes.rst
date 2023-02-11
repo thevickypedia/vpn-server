@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.7.0 (02/11/2023)
+------------------
+- Make `PEM_FILE` and `INFO_FILE` available at module level
+
 0.6.9 (02/11/2023)
 ------------------
 - Make available regions accessible at module level
