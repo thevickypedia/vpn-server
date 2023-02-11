@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.6.9 (02/11/2023)
+------------------
+- Make available regions accessible at module level
+
 0.6.8 (02/11/2023)
 ------------------
 - Add a feature to spin up `vpn-server` in any region

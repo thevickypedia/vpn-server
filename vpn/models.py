@@ -40,8 +40,8 @@ class Settings:
         self.instance_type: str = os.environ.get('INSTANCE_TYPE', os.environ.get('instance_type'))
 
         test_client = boto3.client('ec2')
-        if self.aws_region_name and self.aws_region_name.lower() in [region['RegionName'] for region in
-                                                                     test_client.describe_regions()['Regions']]:
+        self.available_regions = [region['RegionName'] for region in test_client.describe_regions()['Regions']]
+        if self.aws_region_name and self.aws_region_name.lower() in self.available_regions:
             self.aws_region_name = self.aws_region_name.lower()
         elif self.aws_region_name:
             raise ValueError(
