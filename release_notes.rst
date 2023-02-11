@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.6.8 (02/11/2023)
+------------------
+- Add a feature to spin up `vpn-server` in any region
+- Automate AMI ID retrieval for all regions
+- Remove vpn server from region spun up instead of the one instantiated in
+
 0.6.7 (02/10/2023)
 ------------------
 - Add alias record in notifications

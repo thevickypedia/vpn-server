@@ -4,10 +4,10 @@
 ![Generic badge](https://img.shields.io/badge/Platform-MacOS|Windows-1f425f.svg)
 
 ###### Repo Stats
-[![GitHub](https://img.shields.io/github/license/thevickypedia/vpn-server)](https://github.com/thevickypedia/vpn-server/blob/main/LICENSE)
-[![GitHub repo size](https://img.shields.io/github/repo-size/thevickypedia/vpn-server)](https://api.github.com/repos/thevickypedia/vpn-server)
-[![GitHub code size](https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server)](https://api.github.com/repos/thevickypedia/vpn-server)
-[![LOC](https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server)](https://api.github.com/repos/thevickypedia/vpn-server)
+[![GitHub](https://img.shields.io/github/license/thevickypedia/vpn-server)][LICENSE]
+[![GitHub repo size](https://img.shields.io/github/repo-size/thevickypedia/vpn-server)][API_REPO]
+[![GitHub code size](https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server)][API_REPO]
+[![LOC](https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server)][API_REPO]
 
 ###### Deployments
 [![pages-build-deployment](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment)
@@ -42,7 +42,7 @@ Environment variables are loaded from `.env` file if present.
 <details>
 <summary><strong>More on Environment variables</strong></summary>
 
-- **IMAGE_ID** **[REQUIRED]** - AMI ID to be used. Defaults to a pre-built AMI for the US regions. Refer [OpenVPN Access Server](https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931) for other regions.
+- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for [OpenVPN Access Server AMI Alias][AMI_ALIAS].
 - **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` if under [free-tier](https://aws.amazon.com/free).
 - **VPN_USERNAME** - Username to access `OpenVPN Connect` client. Defaults to log in profile or `openvpn`
 - **VPN_PASSWORD** - Password to access `OpenVPN Connect` client. Defaults to `awsVPN2021`
@@ -68,7 +68,7 @@ python -m pip install vpn-server
 import vpn
 
 # Instantiates the object, takes the same args as env vars.
-vpn_server = vpn.VPNServer()  # Defaults to console logging. Pass 'log="file"' for file logging.
+vpn_server = vpn.VPNServer()  # Defaults to console logging, but supports custom logger.
 
 vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file.
 
@@ -108,8 +108,10 @@ vpn_server.delete_vpn_server()  # Deletes the VPN Server removing the AWS resour
 
 ### AWS Resources Used
 - EC2
-  - Instances
-  - SecurityGroups
+  - Instance - _To redirect traffic through the instance's IP_
+  - SecurityGroup - _To allow traffic over specific TCP ports_
+  - Systems Manager - _To access [OpenVPN SSM parameter store][AMI_ALIAS] to retrieve the AMI ID_
+  - Route53 [Optional] - _To access VPN server using an `A` record in `Route 53`_
 - VPC [Default]
 - Subnet [Default]
 
@@ -148,4 +150,9 @@ pre-commit run --all-files
 
 &copy; Vignesh Sivanandha Rao
 
-Licensed under the [MIT License](https://github.com/thevickypedia/vpn-server/blob/main/LICENSE)
+Licensed under the [MIT License][LICENSE]
+
+[LICENSE]: https://github.com/thevickypedia/vpn-server/blob/main/LICENSE
+[API_REPO]: https://api.github.com/repos/thevickypedia/vpn-server
+[AMI_ALIAS]: https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias
+[PRODUCT_PAGE]: https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931

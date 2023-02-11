@@ -1,5 +1,6 @@
 import json
 import logging
+import operator
 import os
 import string
 import sys
@@ -31,6 +32,20 @@ settings = Settings()
 
 PEM_FILE = os.path.join(os.getcwd(), 'OpenVPN.pem')
 INFO_FILE = os.path.join(os.getcwd(), 'vpn_info.json')
+
+
+def validate_response(response: Dict) -> bool:
+    """Validates response from AWS.
+
+    Args:
+        response: Takes response from boto3 calls.
+
+    Returns:
+        bool:
+        Returns ``True`` if the ``HTTPStatusCode`` is 200.
+    """
+    if response.get('ResponseMetadata', {}).get('HTTPStatusCode', 400) == 200:
+        return True
 
 
 class VPNServer:
@@ -80,20 +95,13 @@ class VPNServer:
         # AWS region setup
         self.region = aws_region_name or settings.aws_region_name
 
-        self.SESSION = boto3.session.Session(aws_access_key_id=aws_access_key or settings.aws_access_key,
-                                             aws_secret_access_key=aws_secret_key or settings.aws_secret_key,
-                                             region_name=self.region)
-
         # AWS user inputs
+        self.aws_access_key = aws_access_key
+        self.aws_secret_key = aws_secret_key
         self.image_id = image_id or settings.image_id
         self.domain = domain or settings.domain
         self.record_name = record_name or settings.record_name
         self.instance_type = instance_type or settings.instance_type
-
-        # Load boto3 clients
-        self.ec2_client = self.SESSION.client(service_name='ec2')
-        self.ec2_resource = self.SESSION.resource(service_name='ec2')
-        self.route53_client = self.SESSION.client(service_name='route53')
 
         # Login credentials setup
         self.vpn_username = vpn_username or settings.vpn_username
@@ -125,18 +133,26 @@ class VPNServer:
         self.phone = phone or settings.phone
 
         self.configuration = SSHConfig(vpn_username=self.vpn_username, vpn_password=self.vpn_password)
+        self.instantiate_aws()
 
-    def _get_image_id(self) -> str:
+    # noinspection PyAttributeOutsideInit
+    def instantiate_aws(self):
+        """Create a boto3 session and load all boto3 clients."""
+        session = boto3.Session(aws_access_key_id=self.aws_access_key or settings.aws_access_key,
+                                aws_secret_access_key=self.aws_secret_key or settings.aws_secret_key,
+                                region_name=self.region)
+        self.ssm_client = session.client(service_name='ssm')
+        self.ec2_client = session.client(service_name='ec2')
+        self.ec2_resource = session.resource(service_name='ec2')
+        self.route53_client = session.client(service_name='route53')
+
+    def _get_image_id_by_name(self) -> str:
         """Looks for AMI ID in the default image map. Fetches AMI ID from public images if not present.
 
         Returns:
             str:
             AMI ID.
         """
-        if self.region.startswith('us'):
-            self.logger.info(f"Getting AMI ID from image map for {self.region}")
-            return AWSDefaults.IMAGE_MAP[self.region]
-
         try:
             images = self.ec2_client.describe_images(Filters=[
                 {
@@ -148,13 +164,32 @@ class VPNServer:
             self.logger.error(f'API call to retrieve AMI ID has failed.\n{error}')
             raise
 
-        if not (image_id := (images.get('Images') or [{}])[0].get('ImageId')):
-            raise LookupError(
-                f'Failed to retrieve AMI ID. Get AMI ID from {AWSDefaults.AMI_SOURCE} and set one manually for '
-                f'{self.region!r}.'
+        if image_id := (images.get('Images') or [{}])[0].get('ImageId'):
+            self.logger.info("Retrieved AMI using image name.")
+            return image_id
+
+    def _get_image_id_from_ssm(self) -> str:
+        """Gets the AMI ID from SSM parameter store, using the AMI alias provided in the marketplace configuration page.
+
+        Returns:
+            str:
+            AMI ID.
+        """
+        try:
+            response = self.ssm_client.get_parameters(
+                Names=[
+                    AWSDefaults.AMI_ALIAS
+                ],
+                WithDecryption=True
             )
-        self.logger.info("Retrieved AMI using image name.")
-        return image_id
+        except ClientError as error:
+            self.logger.error(f'API call to retrieve AMI ID has failed.\n{error}')
+            raise
+
+        if validate_response(response=response):
+            if params := response.get('Parameters'):
+                params.sort(key=operator.itemgetter('LastModifiedDate'))  # Sort by last modified date
+                return params[-1].get('Value')  # Get the most recent AMI ID
 
     def _sleeper(self, sleep_time: int) -> NoReturn:
         """Sleeps for a particular duration.
@@ -195,7 +230,7 @@ class VPNServer:
             self.logger.error(f'API call to create key pair has failed.\n{error!r}')
             return False
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             with open(self.PEM_FILE, 'w') as file:
                 file.write(response.get('KeyMaterial'))
             self.logger.info(f'Created a key pair named: {self.PEM_IDENTIFIER!r} and stored as {self.PEM_FILE}')
@@ -216,7 +251,7 @@ class VPNServer:
             self.logger.error(f'API call to get VPC id has failed.\n{error}')
             return
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             if vpc_id := response.get('Vpcs', [{}])[0].get('VpcId', ''):
                 self.logger.info(f'Got the default VPC: {vpc_id}')
                 return vpc_id
@@ -273,7 +308,7 @@ class VPNServer:
                 return True
             self.logger.error(f'API call to authorize the security group {security_group_id} has failed.\n{error}')
             return False
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             self.logger.info(f'Ingress Successfully Set for SecurityGroup {security_group_id}')
             for sg_rule in response['SecurityGroupRules']:
                 log = 'Allowed protocol: ' + sg_rule['IpProtocol'] + ' '
@@ -316,7 +351,7 @@ class VPNServer:
             self.logger.error(f'API call to create security group has failed.\n{error}')
             return
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             security_group_id = response['GroupId']
             self.logger.info(f'Security Group Created {security_group_id} in VPC {vpc_id}')
             return security_group_id
@@ -330,9 +365,12 @@ class VPNServer:
             tuple:
             A tuple of Instance ID and Security Group ID.
         """
-        self.image_id = self.image_id or self._get_image_id()
+        self.image_id = self.image_id or self._get_image_id_from_ssm() or self._get_image_id_by_name()
         if not self.image_id:
-            return
+            raise LookupError(
+                f'Failed to retrieve AMI ID. Get AMI ID from {AWSDefaults.AMI_SOURCE} and set one manually for '
+                f'{self.region!r}.'
+            )
 
         if not self._create_key_pair():
             return
@@ -361,7 +399,7 @@ class VPNServer:
             self.logger.error(f'API call to create instance has failed.\n{error}')
             return
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             instance_id = response.get('Instances')[0].get('InstanceId')
             self.logger.info(f'Created the EC2 instance: {instance_id}')
             return instance_id, security_group_id
@@ -385,7 +423,7 @@ class VPNServer:
             self.logger.error(f'API call to delete the key {self.PEM_IDENTIFIER!r} has failed.\n{error}')
             return False
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             if os.path.exists(self.PEM_FILE):
                 self.logger.info(f'{self.PEM_IDENTIFIER!r} has been deleted from KeyPairs.')
                 os.chmod(self.PEM_FILE, int('700', base=8) or 0o700)
@@ -414,7 +452,7 @@ class VPNServer:
                 return True
             return False
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             self.logger.info(f'{security_group_id} has been deleted from Security Groups.')
             return True
         else:
@@ -438,7 +476,7 @@ class VPNServer:
             self.logger.error(f'API call to terminate the instance has failed.\n{error}')
             return False
 
-        if response.get('ResponseMetadata').get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             self.logger.info(f'InstanceId {instance_id} has been set to terminate.')
             return True
         else:
@@ -466,7 +504,7 @@ class VPNServer:
                 self.logger.error(f'API call to describe instance has failed.\n{error}')
                 return
 
-            if response.get('ResponseMetadata').get('HTTPStatusCode') != 200:
+            if not validate_response(response=response):
                 continue
             if status := response.get('InstanceStatuses'):
                 if status[0].get('InstanceState').get('Name') == 'running':
@@ -602,7 +640,7 @@ class VPNServer:
             self.logger.error(f"API call to add A record has failed.\n{error}")
             return
 
-        if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
+        if validate_response(response=response):
             self.logger.info(f"{string.capwords(action)}ed {record_name} -> {instance_ip} in the hosted zone: "
                              f"{'.'.join(record_name.split('.')[-2:])}")
             return True
@@ -647,6 +685,7 @@ class VPNServer:
         public_dns, public_ip, private_ip = instance
 
         instance_info = {
+            'region_name': self.region,
             'instance_id': instance_id,
             'public_dns': public_dns,
             'public_ip': public_ip,
@@ -772,6 +811,13 @@ class VPNServer:
                 data = json.load(file)
         else:
             data = {}
+
+        if data.get('region_name') != self.region:
+            self.logger.warning(
+                f"VPNServer was instantiated with {self.region!r} but existing server is on {data.get('region_name')!r}"
+            )
+            self.region = data.get('region_name')
+            self.instantiate_aws()  # Re-instantiate VPNObject to update boto3 session and clients with region name
 
         if self._delete_key_pair() and self._terminate_ec2_instance(instance_id=instance_id or data.get('instance_id')):
             Thread(target=self._hosted_zone_record,

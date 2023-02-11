@@ -2,4 +2,4 @@
 
 from vpn.controller import VPNServer  # noqa
 
-version = "0.6.7"
+version = "0.6.8"

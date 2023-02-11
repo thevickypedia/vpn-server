@@ -95,7 +95,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <p>Environment variables are loaded from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file if present.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><ul class="simple">
-<li><p><strong>IMAGE_ID</strong> <strong>[REQUIRED]</strong> - AMI ID to be used. Defaults to a pre-built AMI for the US regions. Refer <a class="reference external" href="https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931">OpenVPN Access Server</a> for other regions.</p></li>
+<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN Access Server AMI Alias</a>.</p></li>
 <li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> if under <a class="reference external" href="https://aws.amazon.com/free">free-tier</a>.</p></li>
 <li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to log in profile or <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
 <li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
@@ -122,7 +122,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vpn</span>
 
 <span class="c1"># Instantiates the object, takes the same args as env vars.</span>
-<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging. Pass &#39;log=&quot;file&quot;&#39; for file logging.</span>
+<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging, but supports custom logger.</span>
 
 <span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server, login information will be saved to a JSON file.</span>
 
@@ -165,8 +165,10 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <ul class="simple">
 <li><p>EC2</p>
 <ul>
-<li><p>Instances</p></li>
-<li><p>SecurityGroups</p></li>
+<li><p>Instance - <em>To redirect traffic through the instance’s IP</em></p></li>
+<li><p>SecurityGroup - <em>To allow traffic over specific TCP ports</em></p></li>
+<li><p>Systems Manager - <em>To access <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN SSM parameter store</a> to retrieve the AMI ID</em></p></li>
+<li><p>Route53 [Optional] - <em>To access VPN server using an <code class="docutils literal notranslate"><span class="pre">A</span></code> record in <code class="docutils literal notranslate"><span class="pre">Route</span> <span class="pre">53</span></code></em></p></li>
 </ul>
 </li>
 <li><p>VPC [Default]</p></li>

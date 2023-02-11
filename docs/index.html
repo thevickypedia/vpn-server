@@ -239,9 +239,23 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vpn.controller.VPNServer._get_image_id">
-<span class="sig-name descname"><span class="pre">_get_image_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.controller.VPNServer._get_image_id" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="vpn.controller.VPNServer._get_image_id_by_name">
+<span class="sig-name descname"><span class="pre">_get_image_id_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.controller.VPNServer._get_image_id_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Looks for AMI ID in the default image map. Fetches AMI ID from public images if not present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>AMI ID.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.controller.VPNServer._get_image_id_from_ssm">
+<span class="sig-name descname"><span class="pre">_get_image_id_from_ssm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.controller.VPNServer._get_image_id_from_ssm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the AMI ID from SSM parameter store, using the AMI alias provided in the marketplace configuration page.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>AMI ID.</p>
@@ -424,6 +438,12 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="vpn.controller.VPNServer.instantiate_aws">
+<span class="sig-name descname"><span class="pre">instantiate_aws</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vpn.controller.VPNServer.instantiate_aws" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a boto3 session and load all boto3 clients.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vpn.controller.VPNServer.reconfigure_vpn">
 <span class="sig-name descname"><span class="pre">reconfigure_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NoReturn</span></span></span><a class="headerlink" href="#vpn.controller.VPNServer.reconfigure_vpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the configuration on an existing VPN server.</p>
@@ -435,6 +455,23 @@
 <dd><p>Tests the <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections to an existing VPN server.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vpn.controller.validate_response">
+<span class="sig-prename descclassname"><span class="pre">vpn.controller.</span></span><span class="sig-name descname"><span class="pre">validate_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.controller.validate_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates response from AWS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>response</strong> – Takes response from boto3 calls.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the <code class="docutils literal notranslate"><span class="pre">HTTPStatusCode</span></code> is 200.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -539,8 +576,13 @@
 </pre></div>
 </div>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="vpn.defaults.AWSDefaults.AMI_ALIAS">
+<span class="sig-name descname"><span class="pre">AMI_ALIAS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/aws/service/marketplace/prod-qqrkogtl46mpu/2.8.5'</span></em><a class="headerlink" href="#vpn.defaults.AWSDefaults.AMI_ALIAS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="vpn.defaults.AWSDefaults.AMI_SOURCE">
-<span class="sig-name descname"><span class="pre">AMI_SOURCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931'</span></em><a class="headerlink" href="#vpn.defaults.AWSDefaults.AMI_SOURCE" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">AMI_SOURCE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Url</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931'</span></em><a class="headerlink" href="#vpn.defaults.AWSDefaults.AMI_SOURCE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
