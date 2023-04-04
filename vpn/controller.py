@@ -12,11 +12,10 @@ from typing import Dict, NoReturn, Optional, Tuple, Union
 
 import boto3
 import dotenv
+import gmailconnector
 import requests
 import urllib3
 from botocore.exceptions import ClientError
-from gmailconnector import SendEmail, SendSMS
-from gmailconnector.responder import Response
 from urllib3.exceptions import InsecureRequestWarning
 
 from .config import SSHConfig
@@ -27,7 +26,7 @@ from .server import Server
 urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
 
 if os.path.isfile('.env'):
-    dotenv.load_dotenv(dotenv_path='.env', verbose=True, override=True)
+    dotenv.load_dotenv(dotenv_path='.env', verbose=False)
 settings = Settings()
 
 PEM_FILE = os.path.join(os.getcwd(), 'OpenVPN.pem')
@@ -761,23 +760,24 @@ class VPNServer:
         """
         subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
         if self.recipient:
-            email_response = SendEmail(gmail_user=self.gmail_user,
-                                       gmail_pass=self.gmail_pass).send_email(recipient=self.recipient,
-                                                                              subject=subject, body=message,
-                                                                              sender='VPNServer', attachment=attachment)
+            email_response = gmailconnector.SendEmail(
+                gmail_user=self.gmail_user, gmail_pass=self.gmail_pass
+            ).send_email(
+                recipient=self.recipient, subject=subject, body=message, sender='VPNServer', attachment=attachment
+            )
             self._notification_response(response=email_response)
         else:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
         if self.phone:
-            sms_response = SendSMS(gmail_user=self.gmail_user,
-                                   gmail_pass=self.gmail_pass).send_sms(phone=self.phone, subject=subject,
-                                                                        message=message)
+            sms_response = gmailconnector.SendSMS(
+                gmail_user=self.gmail_user, gmail_pass=self.gmail_pass
+            ).send_sms(phone=self.phone, subject=subject, message=message)
             self._notification_response(response=sms_response)
         else:
             self.logger.warning('ENV vars are not configured for an SMS notification.')
 
-    def _notification_response(self, response: Response) -> NoReturn:
+    def _notification_response(self, response: gmailconnector.Response) -> NoReturn:
         """Logs the response after sending notifications.
 
         Args:

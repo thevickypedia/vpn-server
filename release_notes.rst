@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.7.1 (02/11/2023)
+------------------
+- Upgrade `gmail-connector` and references
+- Un-hook package version dependencies
+
 0.7.0 (02/11/2023)
 ------------------
 - Make `PEM_FILE` and `INFO_FILE` available at module level
