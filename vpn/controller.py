@@ -3,16 +3,15 @@ import logging
 import operator
 import os
 import string
-import sys
 import time
 from datetime import datetime
 from ipaddress import IPv4Address
 from threading import Thread
-from typing import Dict, NoReturn, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import boto3
 import dotenv
-import gmailconnector
+import gmailconnector as gc
 import requests
 import urllib3
 from botocore.exceptions import ClientError
@@ -20,7 +19,7 @@ from urllib3.exceptions import InsecureRequestWarning
 
 from .config import SSHConfig
 from .defaults import AWSDefaults
-from .models import Settings
+from .models import Settings, flush_screen, write_screen
 from .server import Server
 
 urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
@@ -190,7 +189,7 @@ class VPNServer:
                 params.sort(key=operator.itemgetter('LastModifiedDate'))  # Sort by last modified date
                 return params[-1].get('Value')  # Get the most recent AMI ID
 
-    def _sleeper(self, sleep_time: int) -> NoReturn:
+    def _sleeper(self, sleep_time: int) -> None:
         """Sleeps for a particular duration.
 
         Args:
@@ -202,10 +201,9 @@ class VPNServer:
         else:
             time.sleep(1)
             for i in range(sleep_time):
-                sys.stdout.write(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
+                write_screen(f'\rRemaining: {sleep_time - i:0{len(str(sleep_time))}}s')
                 time.sleep(1)
-            sys.stdout.flush()
-            sys.stdout.write('\r')
+            flush_screen()
 
     def _create_key_pair(self) -> bool:
         """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
@@ -548,7 +546,7 @@ class VPNServer:
                               'Please check the logs for more information.')
             return False
 
-    def reconfigure_vpn(self) -> NoReturn:
+    def reconfigure_vpn(self) -> None:
         """Runs the configuration on an existing VPN server."""
         if os.path.isfile(self.INFO_FILE) and os.path.isfile(self.PEM_FILE):
             with open(self.INFO_FILE) as file:
@@ -558,7 +556,7 @@ class VPNServer:
         else:
             self.logger.error(f'Input file: {self.INFO_IDENTIFIER} is missing. CANNOT proceed.')
 
-    def test_vpn(self) -> NoReturn:
+    def test_vpn(self) -> None:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
         if os.path.isfile(self.INFO_FILE) and os.path.isfile(self.PEM_FILE):
             with open(self.INFO_FILE) as file:
@@ -760,7 +758,7 @@ class VPNServer:
         """
         subject = f"VPN Server::{datetime.now().strftime('%B %d, %Y %I:%M %p')}"
         if self.recipient:
-            email_response = gmailconnector.SendEmail(
+            email_response = gc.SendEmail(
                 gmail_user=self.gmail_user, gmail_pass=self.gmail_pass
             ).send_email(
                 recipient=self.recipient, subject=subject, body=message, sender='VPNServer', attachment=attachment
@@ -770,14 +768,14 @@ class VPNServer:
             self.logger.warning('ENV vars are not configured for an email notification.')
 
         if self.phone:
-            sms_response = gmailconnector.SendSMS(
+            sms_response = gc.SendSMS(
                 gmail_user=self.gmail_user, gmail_pass=self.gmail_pass
             ).send_sms(phone=self.phone, subject=subject, message=message)
             self._notification_response(response=sms_response)
         else:
             self.logger.warning('ENV vars are not configured for an SMS notification.')
 
-    def _notification_response(self, response: gmailconnector.Response) -> NoReturn:
+    def _notification_response(self, response: gc.Response) -> None:
         """Logs the response after sending notifications.
 
         Args:

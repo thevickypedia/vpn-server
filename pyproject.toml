@@ -1,6 +1,6 @@
 [project]
 name = "vpn-server"
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 description = "Create an on demand VPN Server running with OpenVPN using AWS EC2"
 readme = "README.md"
 authors = [{ name = "Vignesh Sivanandha Rao", email = "svignesh1793@gmail.com" }]
@@ -15,28 +15,24 @@ classifiers = [
 ]
 keywords = ["openvpn-server", "vpn-server", "aws-ec2"]
 requires-python = ">=3.8"
-dependencies = [
-    "paramiko-expect==0.3.4", "paramiko==2.11.0", "boto3>=1.20.26", "botocore>=1.23.26",
-    "psutil>=5.9.0", "python-dotenv>=0.19.2", "gmail-connector", "requests"
-]
 
 [tool.setuptools]
 packages = ["vpn"]
 
 [tool.setuptools.dynamic]
-version = {attr = "vpn.version"}
+version = { attr = "vpn.version" }
+dependencies = { file = ["vpn/requirements.txt"] }
 
 [build-system]
-requires = ["setuptools", "wheel", "paramiko-expect==0.3.4", "paramiko==2.11.0", "boto3>=1.20.26",
-            "botocore>=1.23.26", "psutil>=5.9.0", "python-dotenv>=0.19.2", "gmail-connector", "requests"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
-dev = ["pytest", "pre-commit"]
+dev = ["pre-commit"]
 
 [project.urls]
-Homepage        = "https://github.com/thevickypedia/vpn-server"
-Docs            = "https://thevickypedia.github.io/vpn-server"
-Source          = "https://github.com/thevickypedia/vpn-server"
-"Bug Tracker"   = "https://github.com/thevickypedia/vpn-server/issues"
+Homepage = "https://github.com/thevickypedia/vpn-server"
+Docs = "https://thevickypedia.github.io/vpn-server"
+Source = "https://github.com/thevickypedia/vpn-server"
+"Bug Tracker" = "https://github.com/thevickypedia/vpn-server/issues"
 "Release Notes" = "https://github.com/thevickypedia/vpn-server/blob/main/release_notes.rst"
