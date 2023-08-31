@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+0.9.1 (08/30/2023)
+------------------
+- Includes some minor modifications in type hinting and build process
+
 0.9 (04/03/2023)
 ----------------
 - Upgrade `gmail-connector` and references
