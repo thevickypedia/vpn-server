@@ -1,12 +1,38 @@
 Release Notes
 =============
 
-0.1.3 (09/24/2023)
+1.0.3 (09/25/2023)
 ------------------
 - Includes bug fixes and upgrades to latest OpenVPN Access Server version
 - Removes notification features and redundancies
 - Uses pydantic for validations
 - Cuts run time in half
+
+0.1.3 (09/24/2023)
+------------------
+- Upgrade OpenVPN Access Server version
+- Remove notification features
+- Use pydantic for validations
+- Add custom exceptions
+- Include image factory to retrieve AMI IDs
+- Disassociate security group before delete
+- Reduce redundancy by reusing boto3 clients
+- Convert interaction commands into objects
+- Add utility scripts to get instance types and regions
+- Update release_notes.rst and README.md
+
+v0.1.3 (09/24/2023)
+-------------------
+- Upgrade OpenVPN Access Server version
+- Remove notification features
+- Use pydantic for validations
+- Add custom exceptions
+- Include image factory to retrieve AMI IDs
+- Disassociate security group before delete
+- Reduce redundancy by reusing boto3 clients
+- Convert interaction commands into objects
+- Add utility scripts to get instance types and regions
+- Update release_notes.rst and README.md
 
 0.9.1 (08/30/2023)
 ------------------
