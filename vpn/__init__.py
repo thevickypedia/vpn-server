@@ -1,6 +1,6 @@
 """Place holder for package."""
 
-from vpn.controller import (INFO_FILE, PEM_FILE, VPNServer,  # noqa: F401
-                            settings)
+from vpn.main import VPNServer  # noqa: F401
+from vpn.models import util  # noqa: F401
 
-version = "0.9.1"
+version = "0.1.3"

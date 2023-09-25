@@ -1,9 +1,24 @@
 Release Notes
 =============
 
+0.1.3 (09/24/2023)
+------------------
+- Includes bug fixes and upgrades to latest OpenVPN Access Server version
+- Removes notification features and redundancies
+- Uses pydantic for validations
+- Cuts run time in half
+
 0.9.1 (08/30/2023)
 ------------------
 - Includes some minor modifications in type hinting and build process
+
+0.9.1a (08/30/2023)
+-------------------
+- Set return type to `None` from `NoReturn`
+- Add dependencies to requirements.txt
+- Use gitverse for generating release notes
+- Upgrade to latest flake8 and isort
+- Set to beta version
 
 0.9 (04/03/2023)
 ----------------

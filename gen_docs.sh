@@ -5,6 +5,6 @@ set -e
 gitverse-release reverse -f release_notes.rst -t 'Release Notes'
 rm -rf docs
 mkdir docs
-mkdir -p doc_generator/_static
-cp README.md doc_generator && cd doc_generator && make clean html && mv _build/html/* ../docs && rm README.md
+mkdir -p doc_gen/_static
+cp README.md doc_gen && cd doc_gen && make clean html && mv _build/html/* ../docs && rm README.md
 touch ../docs/.nojekyll

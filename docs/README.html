@@ -51,8 +51,7 @@
 <h1>Repo Stats<a class="headerlink" href="#repo-stats" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/thevickypedia/vpn-server" /></a>
 <a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/thevickypedia/vpn-server" /></a>
-<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server" /></a>
-<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="LOC" src="https://img.shields.io/tokei/lines/github/thevickypedia/vpn-server" /></a></p>
+<a class="reference external" href="https://api.github.com/repos/thevickypedia/vpn-server"><img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server" /></a></p>
 </section>
 <section id="deployments">
 <h1>Deployments<a class="headerlink" href="#deployments" title="Permalink to this heading">¶</a></h1>
@@ -78,7 +77,7 @@
 <li><p>Create an AWS EC2 instance using a pre-built OpenVPN AMI.</p></li>
 <li><p>Create a security group with the necessary ports allowed.</p></li>
 <li><p>Configure the vpn server using SSH.</p></li>
-<li><p>Download the <a class="reference external" href="https://openvpn.net/vpn-client/">OpenVPN client</a> and connect using public IP of the ec2 instance.</p></li>
+<li><p>Download the <a class="reference external" href="https://openvpn.net/vpn-client/">OpenVPN client</a> and connect using the public DNS of the ec2 instance.</p></li>
 <li><p>All set! Now the internet traffic will be routed through the VPN. Verify it using an <a class="reference external" href="https://whatismyipaddress.com/">IP Lookup</a></p></li>
 </ul>
 <blockquote>
@@ -92,24 +91,21 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </section>
 <section id="env-variables">
 <h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this heading">¶</a></h2>
-<p>Environment variables are loaded from <code class="docutils literal notranslate"><span class="pre">.env</span></code> file if present.</p>
+<p>Environment variables are loaded from any <code class="docutils literal notranslate"><span class="pre">env</span></code> file if present.</p>
 <details>
 <summary><strong>More on Environment variables</strong></summary><ul class="simple">
+<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
+<li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
+<li><p><strong>VPN_PORT</strong> - Port number for web interfaces.</p></li>
 <li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN Access Server AMI Alias</a>.</p></li>
 <li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> if under <a class="reference external" href="https://aws.amazon.com/free">free-tier</a>.</p></li>
-<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to log in profile or <code class="docutils literal notranslate"><span class="pre">openvpn</span></code></p></li>
-<li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client. Defaults to <code class="docutils literal notranslate"><span class="pre">awsVPN2021</span></code></p></li>
-<li><p><strong>DOMAIN</strong> - Domain name for the hosted zone.</p></li>
-<li><p><strong>RECORD_NAME</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
+<li><p><strong>KEY_PAIR</strong> - Name of the key pair file to connect to ec2.</p></li>
+<li><p><strong>SECURITY_GROUP</strong> - Name of the security group.</p></li>
+<li><p><strong>VPN_INFO</strong> - Name of the JSON file to dump the server information.</p></li>
+<li><p><strong>HOSTED_ZONE</strong> - Domain name for the hosted zone.</p></li>
+<li><p><strong>SUBDOMAIN</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
 </ul>
-<p><strong>To get notification about login information:</strong><br></p>
-<ul class="simple">
-<li><p><strong>GMAIL_USER</strong> - Username of the gmail account.</p></li>
-<li><p><strong>GMAIL_PASS</strong> - Password of the gmail account.</p></li>
-<li><p><strong>RECIPIENT</strong> - Email address to which the notification has to be sent.</p></li>
-<li><p><strong>PHONE</strong> - Phone number to which the notification has to be sent (Works only for <code class="docutils literal notranslate"><span class="pre">US</span></code> based cellular)</p></li>
-</ul>
-<p><em>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</em></p>
+<p><em>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_PROFILE_NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</em></p>
 </details></section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
@@ -119,15 +115,16 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vpn</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;env_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>  <span class="c1"># to load a custom .env file</span>
+
+<span class="kn">import</span> <span class="nn">vpn</span>
 
 <span class="c1"># Instantiates the object, takes the same args as env vars.</span>
 <span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging, but supports custom logger.</span>
 
 <span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server, login information will be saved to a JSON file.</span>
-
-<span class="c1"># Re-configure an existing VPN Server (not required, unless the configuration steps have been interrupted)</span>
-<span class="c1"># vpn_server.reconfigure_vpn()</span>
 
 <span class="c1"># Test an existing VPN Server (not required, as a test is run right after creation anyway)</span>
 <span class="c1"># vpn_server.test_vpn()</span>
@@ -135,48 +132,24 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>  <span class="c1"># Deletes the VPN Server removing the AWS resources acquired during creation.</span>
 </pre></div>
 </div>
-<details>
-<summary><strong>Manual Configuration</strong></summary><p><em>Following are the prompts and response required to configure the VPN server.</em></p>
-<ul class="simple">
-<li><p>Are you sure you want to continue connecting (yes/no)? <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-</ul>
-<ol class="simple">
-<li><p>Please enter ‘yes’ to indicate your agreement [no]: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Will this be the primary Access Server node? Default: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Please specify the network interface and IP address to be used by the Admin Web UI: <code class="docutils literal notranslate"><span class="pre">Default:</span> <span class="pre">all</span> <span class="pre">interfaces:</span> <span class="pre">0.0.0.0</span></code></p></li>
-<li><p>Please specify the port number for the Admin Web UI. Default: <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
-<li><p>Please specify the TCP port number for the OpenVPN Daemon. Default: <code class="docutils literal notranslate"><span class="pre">443</span></code></p></li>
-<li><p>Should client traffic be routed by default through the VPN? <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Should client DNS traffic be routed by default through the VPN? Default: <code class="docutils literal notranslate"><span class="pre">No</span></code></p></li>
-<li><p>Use local authentication via internal DB? Default: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Should private subnets be accessible to clients by default? Default: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Do you wish to login to the Admin UI as “openvpn”? Default: <code class="docutils literal notranslate"><span class="pre">yes</span></code></p></li>
-<li><p>Specify the username for an existing user or for the new user account: <code class="docutils literal notranslate"><span class="pre">{USERNAME}</span></code></p></li>
-<li><p>Type the password for the ‘vicky’ account: <code class="docutils literal notranslate"><span class="pre">{PASSWORD}</span></code></p></li>
-<li><p>Confirm the password for the ‘vicky’ account: <code class="docutils literal notranslate"><span class="pre">{PASSWORD}</span></code></p></li>
-<li><p>Please specify your Activation key (or leave blank to specify later): <code class="docutils literal notranslate"><span class="pre">{ENTER/RETURN}</span></code></p></li>
-</ol>
-<ul class="simple">
-<li><p>Download the <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> application and get connected to the VPN server.</p></li>
-</ul>
+<br><details>
+<summary><strong>Limitations</strong></summary><p>Currently <code class="docutils literal notranslate"><span class="pre">expose</span></code> cannot handle, tunneling multiple port numbers without modifying the following env vars in the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>KEY_PAIR<span class="w">        </span><span class="c1"># SSH connection to AWS ec2</span>
+KEY_FILE<span class="w">        </span><span class="c1"># Private key filename for self signed SSL</span>
+CERT_FILE<span class="w">       </span><span class="c1"># Public certificate filename for self signed SSL</span>
+SERVER_INFO<span class="w">     </span><span class="c1"># Filename to dump JSON data with server configuration information</span>
+SECURITY_GROUP<span class="w">  </span><span class="c1"># Ingress and egress firewall rules to control traffic allowed via VPC</span>
+</pre></div>
+</div>
 </details></section>
-<section id="aws-resources-used">
-<h2>AWS Resources Used<a class="headerlink" href="#aws-resources-used" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>EC2</p>
-<ul>
-<li><p>Instance - <em>To redirect traffic through the instance’s IP</em></p></li>
-<li><p>SecurityGroup - <em>To allow traffic over specific TCP ports</em></p></li>
-<li><p>Systems Manager - <em>To access <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN SSM parameter store</a> to retrieve the AMI ID</em></p></li>
-<li><p>Route53 [Optional] - <em>To access VPN server using an <code class="docutils literal notranslate"><span class="pre">A</span></code> record in <code class="docutils literal notranslate"><span class="pre">Route</span> <span class="pre">53</span></code></em></p></li>
-</ul>
-</li>
-<li><p>VPC [Default]</p></li>
-<li><p>Subnet [Default]</p></li>
-</ul>
-</section>
+<section id="coding-standards">
+<h2>Coding Standards<a class="headerlink" href="#coding-standards" title="Permalink to this heading">¶</a></h2>
+<p>Docstring format: <a class="reference external" href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings"><code class="docutils literal notranslate"><span class="pre">Google</span></code></a> <br>
+Styling conventions: <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/"><code class="docutils literal notranslate"><span class="pre">PEP</span> <span class="pre">8</span></code></a> <br>
+Clean code with pre-commit hooks: <a class="reference external" href="https://flake8.pycqa.org/en/latest/"><code class="docutils literal notranslate"><span class="pre">flake8</span></code></a> and
+<a class="reference external" href="https://pycqa.github.io/isort/"><code class="docutils literal notranslate"><span class="pre">isort</span></code></a></p>
 <section id="release-notes">
-<h2><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/release_notes.rst">Release Notes</a><a class="headerlink" href="#release-notes" title="Permalink to this heading">¶</a></h2>
+<h3><a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/release_notes.rst">Release Notes</a><a class="headerlink" href="#release-notes" title="Permalink to this heading">¶</a></h3>
 <p><strong>Requirement</strong></p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>gitverse
 </pre></div>
@@ -187,7 +160,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </div>
 </section>
 <section id="linting">
-<h2>Linting<a class="headerlink" href="#linting" title="Permalink to this heading">¶</a></h2>
+<h3>Linting<a class="headerlink" href="#linting" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">PreCommit</span></code> will ensure linting, and the doc creation are run on every commit.</p>
 <p><strong>Requirement</strong></p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">sphinx</span><span class="o">==</span><span class="m">5</span>.1.1<span class="w"> </span>pre-commit<span class="w"> </span>recommonmark
@@ -199,14 +172,15 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </div>
 </section>
 <section id="links">
-<h2>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h2>
+<h3>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server">Repository</a></p>
 <p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/">Runbook</a></p>
 <p><a class="reference external" href="https://pypi.org/project/vpn-server/">Package</a></p>
 </section>
+</section>
 <section id="license-copyright">
 <h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this heading">¶</a></h2>
-<p>© Vignesh Sivanandha Rao</p>
+<p>© Vignesh Rao</p>
 <p>Licensed under the <a class="reference external" href="https://github.com/thevickypedia/vpn-server/blob/main/LICENSE">MIT License</a></p>
 </section>
 </section>
@@ -229,10 +203,12 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <li><a class="reference internal" href="#env-variables">ENV Variables</a></li>
 <li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
-<li><a class="reference internal" href="#aws-resources-used">AWS Resources Used</a></li>
+<li><a class="reference internal" href="#coding-standards">Coding Standards</a><ul>
 <li><a class="reference internal" href="#release-notes">Release Notes</a></li>
 <li><a class="reference internal" href="#linting">Linting</a></li>
 <li><a class="reference internal" href="#links">Links</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#license-copyright">License &amp; copyright</a></li>
 </ul>
 </li>
@@ -282,7 +258,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Vignesh Sivanandha Rao.
+        &#169; Copyright 2021, Vignesh Rao.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>

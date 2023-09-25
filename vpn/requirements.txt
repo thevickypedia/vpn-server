@@ -1,7 +1,8 @@
+boto3
+inflect
+botocore
+requests
 paramiko==3.3.1
 paramiko-expect==0.3.5
-boto3~=1.28.38
-botocore~=1.31.38
-python-dotenv~=1.0.0
-requests
-gmail-connector
+pydantic==2.3.0
+pydantic-settings==2.0.3

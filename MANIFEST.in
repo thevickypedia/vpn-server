@@ -1,5 +1,0 @@
-global-exclude .env
-global-exclude *.json
-global-exclude .DS_Store
-include vpn/*
-recursive-include vpn *
