@@ -17,7 +17,7 @@ keywords = ["openvpn-server", "vpn-server", "aws-ec2"]
 requires-python = ">=3.8"
 
 [tool.setuptools]
-packages = ["vpn"]
+packages = ["vpn", "vpn.models"]
 
 [tool.setuptools.dynamic]
 version = { attr = "vpn.version" }
