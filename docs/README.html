@@ -96,12 +96,12 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 <summary><strong>More on Environment variables</strong></summary><ul class="simple">
 <li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
 <li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
-<li><p><strong>VPN_PORT</strong> - Port number for web interfaces.</p></li>
-<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN Access Server AMI Alias</a>.</p></li>
-<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.nano</span></code>, use <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> if under <a class="reference external" href="https://aws.amazon.com/free">free-tier</a>.</p></li>
-<li><p><strong>KEY_PAIR</strong> - Name of the key pair file to connect to ec2.</p></li>
-<li><p><strong>SECURITY_GROUP</strong> - Name of the security group.</p></li>
-<li><p><strong>VPN_INFO</strong> - Name of the JSON file to dump the server information.</p></li>
+<li><p><strong>VPN_PORT</strong> - Port number for web interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
+<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN Access Server AMI Alias</a></p></li>
+<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> <em>(minimum memory requirement is 1 GiB)</em></p></li>
+<li><p><strong>KEY_PAIR</strong> - Name of the key pair file to connect to ec2. Defaults to <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code></p></li>
+<li><p><strong>SECURITY_GROUP</strong> - Name of the security group. Defaults to <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span></code></p></li>
+<li><p><strong>VPN_INFO</strong> - Name of the JSON file to dump the server information. Defaults to <code class="docutils literal notranslate"><span class="pre">vpn_info.json</span></code></p></li>
 <li><p><strong>HOSTED_ZONE</strong> - Domain name for the hosted zone.</p></li>
 <li><p><strong>SUBDOMAIN</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
 </ul>

@@ -43,13 +43,13 @@ Environment variables are loaded from any `env` file if present.
 
 - **VPN_USERNAME** - Username to access `OpenVPN Connect` client.
 - **VPN_PASSWORD** - Password to access `OpenVPN Connect` client.
-- **VPN_PORT** - Port number for web interfaces.
+- **VPN_PORT** - Port number for web interfaces. Defaults to `943`
 
-- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for [OpenVPN Access Server AMI Alias][AMI_ALIAS].
-- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.nano`, use `t2.micro` if under [free-tier](https://aws.amazon.com/free).
-- **KEY_PAIR** - Name of the key pair file to connect to ec2.
-- **SECURITY_GROUP** - Name of the security group.
-- **VPN_INFO** - Name of the JSON file to dump the server information.
+- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for [OpenVPN Access Server AMI Alias][AMI_ALIAS]
+- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.micro` _(minimum memory requirement is 1 GiB)_
+- **KEY_PAIR** - Name of the key pair file to connect to ec2. Defaults to `OpenVPN`
+- **SECURITY_GROUP** - Name of the security group. Defaults to `OpenVPN Access Server`
+- **VPN_INFO** - Name of the JSON file to dump the server information. Defaults to `vpn_info.json`
 - **HOSTED_ZONE** - Domain name for the hosted zone.
 - **SUBDOMAIN** - Alias record name using which the VPN server has to be accessed.
 

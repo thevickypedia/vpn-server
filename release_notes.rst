@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+1.3.2 (09/26/2023)
+------------------
+- Includes minor improvements for increased compatibility
+
 1.3 (09/25/2023)
 ----------------
 - Includes bug fixes and upgrades to latest OpenVPN Access Server version
