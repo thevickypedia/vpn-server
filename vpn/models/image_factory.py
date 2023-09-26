@@ -7,7 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 from dateutil import parser
 
-from vpn.models.config import ami_base, settings
+from vpn.models.config import ami_base
 from vpn.models.exceptions import AWSResourceError
 
 
@@ -16,7 +16,7 @@ def deprecation_warning(image_id: str,
     """Raises a deprecation warning if the chosen AMI is nearing (value is set in config) its DeprecationTime."""
     expired_utc = parser.parse(deprecation_time)
     current_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
-    if (expired_utc - current_utc).days < settings.ami_deprecation:
+    if (expired_utc - current_utc).days < 30:  # Start sending warnings 30 days in advance
         warnings.simplefilter('always', DeprecationWarning)
         warnings.warn(
             f"\nThe AMI ID {image_id} is set to be deprecated on {deprecation_time}"

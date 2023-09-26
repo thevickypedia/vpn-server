@@ -1,4 +1,4 @@
-![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
+~~![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
 
 ###### Platform Supported
 ![Generic badge](https://img.shields.io/badge/Platform-MacOS|Windows-1f425f.svg)
@@ -63,37 +63,22 @@ python -m pip install vpn-server
 
 ### Usage
 ```python
-import os
-
-os.environ['env_file'] = 'custom'  # to load a custom .env file
-
 import vpn
 
-# Instantiates the object, takes the same args as env vars.
-vpn_server = vpn.VPNServer()  # Defaults to console logging, but supports custom logger.
+# Instantiates the object
+vpn_server = vpn.VPNServer()
 
-vpn_server.create_vpn_server()  # Create a VPN Server, login information will be saved to a JSON file.
+# Create a VPN Server
+vpn_server.create_vpn_server()
 
-# Test an existing VPN Server (not required, as a test is run right after creation anyway)
+# Test an existing VPN Server
 # vpn_server.test_vpn()
 
-vpn_server.delete_vpn_server()  # Deletes the VPN Server removing the AWS resources acquired during creation.
+# Deletes the VPN Server
+vpn_server.delete_vpn_server()
 ```
 
-<br>
-
-<details>
-<summary><strong>Limitations</strong></summary>
-
-Currently `expose` cannot handle, tunneling multiple port numbers without modifying the following env vars in the `.env` file.
-```shell
-KEY_PAIR        # SSH connection to AWS ec2
-KEY_FILE        # Private key filename for self signed SSL
-CERT_FILE       # Public certificate filename for self signed SSL
-SERVER_INFO     # Filename to dump JSON data with server configuration information
-SECURITY_GROUP  # Ingress and egress firewall rules to control traffic allowed via VPC
-```
-</details>
+> :bulb: &nbsp; Please refer to the [wiki](https://github.com/thevickypedia/vpn-server/wiki) page for more usage instructions.
 
 ## Coding Standards
 Docstring format: [`Google`](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) <br>
@@ -126,6 +111,8 @@ pre-commit run --all-files
 ```
 
 ### Links
+[Wiki](https://github.com/thevickypedia/vpn-server/wiki)
+
 [Repository](https://github.com/thevickypedia/vpn-server)
 
 [Runbook](https://thevickypedia.github.io/vpn-server/)

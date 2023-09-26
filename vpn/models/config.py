@@ -93,9 +93,6 @@ class EnvConfig(BaseSettings):
         return v
 
 
-env = EnvConfig()
-
-
 class Settings(BaseModel):
     """Wrapper for configuration settings.
 
@@ -103,76 +100,40 @@ class Settings(BaseModel):
 
     """
 
-    key_pair_file: FilePath = f"{env.key_pair}.pem"
+    key_pair_file: FilePath = None
     entrypoint: str = None
-    if any((env.hosted_zone, env.subdomain)):
-        assert all((env.hosted_zone, env.subdomain)), "'subdomain' and 'hosted_zone' must co-exist"
-        entrypoint: str = f'{env.subdomain}.{env.hosted_zone}'
-    ami_deprecation: int = 30
-    # todo: Try and use a config file instead of interactive ssh
-    openvpn_config_commands: List[ConfigurationSettings] = [
-        ConfigurationSettings(
-            **{'request': "Please enter 'yes' to indicate your agreement \\[no\\]: ", 'response': 'yes', 'timeout': 5,
-               'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press Enter for default \\[1\\]: ', 'response': '1', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
-               'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
-               'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[943\\]: ', 'response': env.vpn_port, 'timeout': 1,
-               'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[443\\]: ', 'response': '443', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for EC2 default \\[yes\\]: ', 'response': 'yes', 'timeout': 1,
-               'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'no', 'timeout': 1, 'critical': False}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Specify the username for an existing user or for the new user account: ',
-               'response': env.vpn_username, 'timeout': 1, 'critical': True}
-        ),
-        ConfigurationSettings(
-            **{
-                'request': f"Type a password for the '{env.vpn_username}' account (if left blank, a random password will be generated):",  # noqa: E501
-                'response': env.vpn_password, 'timeout': 1, 'critical': True}
-        ),
-        ConfigurationSettings(
-            **{'request': f"Confirm the password for the '{env.vpn_username}' account:", 'response': env.vpn_password,
-               'timeout': 1, 'critical': True}
-        ),
-        ConfigurationSettings(
-            **{'request': '> Please specify your Activation key (or leave blank to specify later): ', 'response': '\n',
-               'timeout': 1, 'critical': False}
-        )
-    ]
+    openvpn_config_commands: List[ConfigurationSettings] = []
 
 
-settings = Settings()
+def configuration_dict(env: EnvConfig) -> List[ConfigurationSettings]:
+    """Get configuration interaction as a list of dictionaries."""
+    for config_dict in [
+        {'request': "Please enter 'yes' to indicate your agreement \\[no\\]: ", 'response': 'yes', 'timeout': 5,
+         'critical': False},
+        {'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
+        {'request': '> Press Enter for default \\[1\\]: ', 'response': '1', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
+         'critical': False},
+        {'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
+         'critical': False},
+        {'request': '> Press ENTER for default \\[943\\]: ', 'response': env.vpn_port, 'timeout': 1,
+         'critical': False},
+        {'request': '> Press ENTER for default \\[443\\]: ', 'response': '443', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
+        {'request': '> Press ENTER for EC2 default \\[yes\\]: ', 'response': 'yes', 'timeout': 1,
+         'critical': False},
+        {'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'no', 'timeout': 1, 'critical': False},
+        {'request': '> Specify the username for an existing user or for the new user account: ',
+         'response': env.vpn_username, 'timeout': 1, 'critical': True},
+        {'request': f"Type a password for the '{env.vpn_username}' account "
+                    "(if left blank, a random password will be generated):",
+         'response': env.vpn_password, 'timeout': 1, 'critical': True},
+        {'request': f"Confirm the password for the '{env.vpn_username}' account:", 'response': env.vpn_password,
+         'timeout': 1, 'critical': True},
+        {'request': '> Please specify your Activation key (or leave blank to specify later): ', 'response': '\n',
+         'timeout': 1, 'critical': False}
+    ]:
+        yield ConfigurationSettings(**config_dict)

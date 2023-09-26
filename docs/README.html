@@ -42,7 +42,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p><img alt="Python" src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue" /></p>
+  <p>~~<img alt="Python" src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue" /></p>
 <section id="platform-supported">
 <h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this heading">¶</a></h1>
 <p><img alt="Generic badge" src="https://img.shields.io/badge/Platform-MacOS%7CWindows-1f425f.svg" /></p>
@@ -115,33 +115,25 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vpn</span>
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;env_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom&#39;</span>  <span class="c1"># to load a custom .env file</span>
+<span class="c1"># Instantiates the object</span>
+<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>
 
-<span class="kn">import</span> <span class="nn">vpn</span>
+<span class="c1"># Create a VPN Server</span>
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>
 
-<span class="c1"># Instantiates the object, takes the same args as env vars.</span>
-<span class="n">vpn_server</span> <span class="o">=</span> <span class="n">vpn</span><span class="o">.</span><span class="n">VPNServer</span><span class="p">()</span>  <span class="c1"># Defaults to console logging, but supports custom logger.</span>
-
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">create_vpn_server</span><span class="p">()</span>  <span class="c1"># Create a VPN Server, login information will be saved to a JSON file.</span>
-
-<span class="c1"># Test an existing VPN Server (not required, as a test is run right after creation anyway)</span>
+<span class="c1"># Test an existing VPN Server</span>
 <span class="c1"># vpn_server.test_vpn()</span>
 
-<span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>  <span class="c1"># Deletes the VPN Server removing the AWS resources acquired during creation.</span>
+<span class="c1"># Deletes the VPN Server</span>
+<span class="n">vpn_server</span><span class="o">.</span><span class="n">delete_vpn_server</span><span class="p">()</span>
 </pre></div>
 </div>
-<br><details>
-<summary><strong>Limitations</strong></summary><p>Currently <code class="docutils literal notranslate"><span class="pre">expose</span></code> cannot handle, tunneling multiple port numbers without modifying the following env vars in the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>KEY_PAIR<span class="w">        </span><span class="c1"># SSH connection to AWS ec2</span>
-KEY_FILE<span class="w">        </span><span class="c1"># Private key filename for self signed SSL</span>
-CERT_FILE<span class="w">       </span><span class="c1"># Public certificate filename for self signed SSL</span>
-SERVER_INFO<span class="w">     </span><span class="c1"># Filename to dump JSON data with server configuration information</span>
-SECURITY_GROUP<span class="w">  </span><span class="c1"># Ingress and egress firewall rules to control traffic allowed via VPC</span>
-</pre></div>
-</div>
-</details></section>
+<blockquote>
+<div><p>:bulb:   Please refer to the <a class="reference external" href="https://github.com/thevickypedia/vpn-server/wiki">wiki</a> page for more usage instructions.</p>
+</div></blockquote>
+</section>
 <section id="coding-standards">
 <h2>Coding Standards<a class="headerlink" href="#coding-standards" title="Permalink to this heading">¶</a></h2>
 <p>Docstring format: <a class="reference external" href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings"><code class="docutils literal notranslate"><span class="pre">Google</span></code></a> <br>
@@ -173,6 +165,7 @@ Clean code with pre-commit hooks: <a class="reference external" href="https://fl
 </section>
 <section id="links">
 <h3>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h3>
+<p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/wiki">Wiki</a></p>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server">Repository</a></p>
 <p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/">Runbook</a></p>
 <p><a class="reference external" href="https://pypi.org/project/vpn-server/">Package</a></p>

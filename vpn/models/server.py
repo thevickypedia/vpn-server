@@ -7,7 +7,7 @@ from paramiko import AutoAddPolicy, RSAKey, SSHClient
 from paramiko.ssh_exception import AuthenticationException
 from paramiko_expect import SSHClientInteraction
 
-from vpn.models.config import env, settings
+from vpn.models.config import EnvConfig, Settings
 
 
 class Server:
@@ -17,21 +17,24 @@ class Server:
 
     """
 
-    def __init__(self, hostname: str, username: str, logger: logging.Logger):
+    def __init__(self, hostname: str, username: str, logger: logging.Logger, env: EnvConfig, settings: Settings):
         """Instantiates the session using RSAKey generated from a ``***.pem`` file.
 
         Args:
             hostname: Hostname of the server.
         """
         self.logger = logger
+        self.env = env
+        self.settings = settings
         pem_key = RSAKey.from_private_key_file(filename=settings.key_pair_file)
         self.ssh_client = SSHClient()
         self.ssh_client.load_system_host_keys()
         self.ssh_client.set_missing_host_key_policy(policy=AutoAddPolicy())
-        if username == env.vpn_username:
+        if username == self.env.vpn_username:
             try:
                 # todo: Manual config accepts username and password, but unable to get authentication pass via paramiko
-                self.ssh_client.connect(hostname=hostname, username=username, pkey=pem_key, password=env.vpn_password)
+                self.ssh_client.connect(hostname=hostname, username=username,
+                                        pkey=pem_key, password=self.env.vpn_password)
             except AuthenticationException as error:
                 self.logger.warning(error)
                 self.ssh_client.connect(hostname=hostname, username='openvpnas', pkey=pem_key)
@@ -104,7 +107,7 @@ class Server:
                                   timeout=timeout,
                                   display=display,
                                   output_callback=lambda msg: self.logger.info(msg)) as interact:
-            for setting in settings.openvpn_config_commands:
+            for setting in self.settings.openvpn_config_commands:
                 interact.expect(re_strings=setting.request, timeout=setting.timeout)
                 interact.send(send_string=str(setting.response))
             # Blank to await final steps of configuration

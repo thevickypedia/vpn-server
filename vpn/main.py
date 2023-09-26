@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import time
 import warnings
@@ -13,7 +12,7 @@ from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError, WaiterError
 from urllib3.exceptions import InsecureRequestWarning
 
-from vpn.models.config import env, settings
+from vpn.models.config import EnvConfig, Settings, configuration_dict
 from vpn.models.exceptions import NotImplementedWarning
 from vpn.models.image_factory import ImageFactory
 from vpn.models.logger import LOGGER
@@ -28,20 +27,27 @@ class VPNServer:
 
     """
 
-    def __init__(self,
-                 logger: logging.Logger = None):
+    def __init__(self, **kwargs):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
             logger: Bring your own logger.
         """
-        self.logger = logger or LOGGER
-        self.session = boto3.Session(region_name=env.aws_region_name,
-                                     profile_name=env.aws_profile_name,
-                                     aws_access_key_id=env.aws_access_key,
-                                     aws_secret_access_key=env.aws_secret_key)
+        self.env = EnvConfig(**kwargs)
+        self.settings = Settings()
+        self.settings.key_pair_file = f"{self.env.key_pair}.pem"
+        if any((self.env.hosted_zone, self.env.subdomain)):
+            assert all((self.env.hosted_zone, self.env.subdomain)), "'subdomain' and 'hosted_zone' must co-exist"
+            self.settings.entrypoint = f'{self.env.subdomain}.{self.env.hosted_zone}'
+        self.settings.openvpn_config_commands = configuration_dict(self.env)
+
+        self.logger = kwargs.get('logger') or LOGGER
+        self.session = boto3.Session(region_name=self.env.aws_region_name,
+                                     profile_name=self.env.aws_profile_name,
+                                     aws_access_key_id=self.env.aws_access_key,
+                                     aws_secret_access_key=self.env.aws_secret_key)
         self.logger.info("Session instantiated for region: '%s' with '%s' instance",
-                         self.session.region_name, env.instance_type)
+                         self.session.region_name, self.env.instance_type)
         self.ec2_resource = self.session.resource(service_name='ec2')
         self.route53_client = self.session.client(service_name='route53')
 
@@ -57,17 +63,20 @@ class VPNServer:
         """
         if start:  # Not required during shutdown, since image_id is only used to create an ec2 instance
             variable = "created in"  # var for logging if entrypoint is present
-            if env.image_id:
-                self.image_id = env.image_id
+            if self.env.image_id:
+                self.image_id = self.env.image_id
             else:
                 self.image_id = ImageFactory(self.session, self.logger).get_image_id()
         else:
             variable = "removed from"  # var for logging if entrypoint is present
-        if env.hosted_zone:
-            self.zone_id = get_zone_id(client=self.route53_client, logger=self.logger, dns=env.hosted_zone, init=True)
-        if settings.entrypoint:
+        if self.env.hosted_zone:
+            self.zone_id = get_zone_id(client=self.route53_client,
+                                       logger=self.logger,
+                                       dns=self.env.hosted_zone,
+                                       init=True)
+        if self.settings.entrypoint:
             self.logger.info("Entrypoint: '%s' will be %s the hosted zone [%s] '%s'",
-                             settings.entrypoint, variable, self.zone_id, env.hosted_zone)
+                             self.settings.entrypoint, variable, self.zone_id, self.env.hosted_zone)
 
     def _create_key_pair(self) -> bool:
         """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
@@ -78,24 +87,24 @@ class VPNServer:
         """
         try:
             key_pair = self.ec2_resource.create_key_pair(
-                KeyName=env.key_pair,
+                KeyName=self.env.key_pair,
                 KeyType='rsa'
             )
         except ClientError as error:
             error = str(error)
             if '(InvalidKeyPair.Duplicate)' in error:
                 self.logger.warning('Found an existing KeyPair named: %s. Re-creating it.',
-                                    env.key_pair)
+                                    self.env.key_pair)
                 self._delete_key_pair()
                 return self._create_key_pair()
             self.logger.warning('API call to create key pair has failed.')
             self.logger.error(error)
             return False
 
-        with open(settings.key_pair_file, 'w') as file:
+        with open(self.settings.key_pair_file, 'w') as file:
             file.write(key_pair.key_material)
             file.flush()
-        self.logger.info('Stored KeyPair as %s', settings.key_pair_file)
+        self.logger.info('Stored KeyPair as %s', self.settings.key_pair_file)
         return True
 
     def _get_vpc_id(self) -> Union[str, None]:
@@ -155,8 +164,8 @@ class VPNServer:
                      'ToPort': 443,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
-                     'FromPort': env.vpn_port,
-                     'ToPort': env.vpn_port,
+                     'FromPort': self.env.vpn_port,
+                     'ToPort': self.env.vpn_port,
                      'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
                      'FromPort': 945,
@@ -201,16 +210,16 @@ class VPNServer:
 
         try:
             security_group = self.ec2_resource.create_security_group(
-                GroupName=env.security_group,
+                GroupName=self.env.security_group,
                 Description='Security Group to allow certain port ranges for exposing localhost to public internet.',
                 VpcId=vpc_id
             )
         except ClientError as error:
             error = str(error)
-            if '(InvalidGroup.Duplicate)' in error and env.security_group in error:
+            if '(InvalidGroup.Duplicate)' in error and self.env.security_group in error:
                 security_groups = list(self.ec2_resource.security_groups.all())
                 for security_group in security_groups:
-                    if security_group.group_name == env.security_group:
+                    if security_group.group_name == self.env.security_group:
                         self.logger.info("Re-using existing SecurityGroup '%s'", security_group.group_id)
                         return security_group.group_id
                 raise RuntimeError('Duplicate raised, but no such SG found.')
@@ -240,8 +249,8 @@ class VPNServer:
                 ImageId=self.image_id,
                 MinCount=1,
                 MaxCount=1,
-                InstanceType=env.instance_type,
-                KeyName=env.key_pair,
+                InstanceType=self.env.instance_type,
+                KeyName=self.env.key_pair,
                 SecurityGroupIds=[security_group_id]
             )
             instance = instances[0]  # Get the first (and only) instance
@@ -264,20 +273,20 @@ class VPNServer:
             Boolean flag to indicate the calling function if the KeyPair was deleted successfully.
         """
         try:
-            key_pair = self.ec2_resource.KeyPair(env.key_pair)
+            key_pair = self.ec2_resource.KeyPair(self.env.key_pair)
             key_pair.delete()
         except ClientError as error:
-            self.logger.warning("API call to delete the key '%s' has failed.", env.key_pair)
+            self.logger.warning("API call to delete the key '%s' has failed.", self.env.key_pair)
             self.logger.error(error)
             return False
 
-        self.logger.info('%s has been deleted from KeyPairs.', env.key_pair)
+        self.logger.info('%s has been deleted from KeyPairs.', self.env.key_pair)
 
         # Delete the associated .pem file if it exists
-        if os.path.exists(settings.key_pair_file):
-            os.chmod(settings.key_pair_file, int('700', base=8) or 0o700)
-            os.remove(settings.key_pair_file)
-            self.logger.info(f'Removed {settings.key_pair_file}.')
+        if os.path.exists(self.settings.key_pair_file):
+            os.chmod(self.settings.key_pair_file, int('700', base=8) or 0o700)
+            os.remove(self.settings.key_pair_file)
+            self.logger.info(f'Removed {self.settings.key_pair_file}.')
             return True
 
     def _disassociate_security_group(self,
@@ -379,9 +388,9 @@ class VPNServer:
             - ``False`` if the connection fails or unable to ``ssh`` to the origin.
         """
         urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
-        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{env.vpn_port}")
+        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.env.vpn_port}")
         try:
-            url_check = requests.get(url=f"https://{data.get('public_ip')}:{env.vpn_port}",
+            url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.env.vpn_port}",
                                      verify=False, timeout=timeout)
             self.logger.debug(url_check)
         except requests.RequestException as error:
@@ -390,9 +399,10 @@ class VPNServer:
             return False
 
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
-        test_ssh = Server(username=env.vpn_username, hostname=data.get('public_dns'), logger=self.logger)
+        test_ssh = Server(username=self.env.vpn_username, hostname=data.get('public_dns'), logger=self.logger,
+                          env=self.env, settings=self.settings)
         if url_check.ok and test_ssh.test_service(display=False, timeout=5):
-            self.logger.info(f"Connection to https://{data.get('public_ip')}:{env.vpn_port} and "
+            self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.env.vpn_port} and "
                              f"SSH to {data.get('public_dns')} was successful.")
             return True
         else:
@@ -402,12 +412,12 @@ class VPNServer:
 
     def test_vpn(self) -> None:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
-        if os.path.isfile(env.vpn_info) and os.path.isfile(settings.key_pair_file):
-            with open(env.vpn_info) as file:
+        if os.path.isfile(self.env.vpn_info) and os.path.isfile(self.settings.key_pair_file):
+            with open(self.env.vpn_info) as file:
                 data_exist = json.load(file)
             self._tester(data=data_exist)
         else:
-            self.logger.error(f'Input file: {env.vpn_info} is missing. CANNOT proceed.')
+            self.logger.error(f'Input file: {self.env.vpn_info} is missing. CANNOT proceed.')
 
     def create_vpn_server(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
@@ -418,12 +428,12 @@ class VPNServer:
             - If connects, notifies user with details and adds key-value pair ``Retry: True`` to info file.
             - If another request is sent to start the vpn, creates a new instance regardless of existing info.
         """
-        if os.path.isfile(env.vpn_info) and os.path.isfile(settings.key_pair_file):
+        if os.path.isfile(self.env.vpn_info) and os.path.isfile(self.settings.key_pair_file):
             self.logger.warning('Received request to start VM, but looks like a session is up and running already.')
             self.logger.warning('Initiating re-configuration.')
-            with open(env.vpn_info) as file:
+            with open(self.env.vpn_info) as file:
                 data = json.load(file)
-            env.image_id = 'ami-0000000000'  # placeholder value since this won't be used in re-configuration
+            self.env.image_id = 'ami-0000000000'  # placeholder value since this won't be used in re-configuration
             self._init(True)
             if not self._tester(data):
                 self._configure_vpn(data['public_dns'])
@@ -476,26 +486,29 @@ class VPNServer:
             return
 
         instance_info = {
-            'port': env.vpn_port,
+            'port': self.env.vpn_port,
             'instance_id': instance_id,
             'public_dns': instance.public_dns_name,
             'public_ip': instance.public_ip_address,
             'security_group_id': security_group_id,
-            'ssh_endpoint': f'ssh -i {settings.key_pair_file} openvpnas@{instance.public_dns_name}'
+            'ssh_endpoint': f'ssh -i {self.settings.key_pair_file} openvpnas@{instance.public_dns_name}'
         }
 
-        os.chmod(settings.key_pair_file, int('400', base=8) or 0o400)
+        os.chmod(self.settings.key_pair_file, int('400', base=8) or 0o400)
 
-        with open(env.vpn_info, 'w') as file:
+        with open(self.env.vpn_info, 'w') as file:
             json.dump(instance_info, file, indent=2)
             file.flush()
 
         self._configure_vpn(instance.public_dns_name)
-        if settings.entrypoint:
-            change_record_set(source=settings.entrypoint, destination=instance.public_ip_address, logger=self.logger,
-                              client=self.route53_client, zone_id=self.zone_id, action='UPSERT')
-            instance_info['entrypoint'] = settings.entrypoint
-            with open(env.vpn_info, 'w') as file:
+        if self.settings.entrypoint:
+            change_record_set(source=self.settings.entrypoint,
+                              destination=instance.public_ip_address,
+                              logger=self.logger,
+                              client=self.route53_client,
+                              zone_id=self.zone_id, action='UPSERT')
+            instance_info['entrypoint'] = self.settings.entrypoint
+            with open(self.env.vpn_info, 'w') as file:
                 json.dump(instance_info, file, indent=2)
                 file.flush()
 
@@ -504,7 +517,7 @@ class VPNServer:
             return
 
         self.logger.info('VPN server has been configured successfully. Details have been stored in %s.',
-                         env.vpn_info)
+                         self.env.vpn_info)
 
     def _configure_vpn(self, public_dns: str) -> None:
         """Configures the ec2 instance to take traffic from localhost and initiates tunneling.
@@ -517,7 +530,8 @@ class VPNServer:
         # Max of 10 iterations with 5 second interval between each iteration with default timeout
         for i in range(10):
             try:
-                server = Server(hostname=public_dns, username='openvpnas', logger=self.logger)
+                server = Server(hostname=public_dns, username='openvpnas', logger=self.logger,
+                                env=self.env, settings=self.settings)
                 self.logger.info("Connection established on %s attempt", inflect.engine().ordinal(i + 1))
                 break
             except Exception as error:
@@ -549,11 +563,11 @@ class VPNServer:
               | wait_until_terminated.html
         """
         try:
-            with open(env.vpn_info) as file:
+            with open(self.env.vpn_info) as file:
                 data = json.load(file)
         except FileNotFoundError:
             assert instance_id and security_group_id, \
-                (f"\n\nInput file: {env.vpn_info!r} is missing. "
+                (f"\n\nInput file: {self.env.vpn_info!r} is missing. "
                  "Arguments 'instance_id' and 'security_group_id' are required to proceed.")
             data = {}
         self._init(False)
@@ -564,8 +578,8 @@ class VPNServer:
         self._delete_key_pair()
         sg_association = self._disassociate_security_group(instance_id=instance_id, security_group_id=security_group_id)
         instance = self._terminate_ec2_instance(instance_id=instance_id)
-        if env.hosted_zone and env.subdomain and public_ip:
-            change_record_set(source=settings.entrypoint, destination=public_ip,
+        if self.env.hosted_zone and self.env.subdomain and public_ip:
+            change_record_set(source=self.settings.entrypoint, destination=public_ip,
                               logger=self.logger, client=self.route53_client, zone_id=self.zone_id, action='DELETE')
         if not sg_association and instance:
             try:
@@ -575,4 +589,4 @@ class VPNServer:
             except WaiterError as error:
                 self.logger.error(error)
         self._delete_security_group(security_group_id)
-        os.remove(env.vpn_info) if os.path.isfile(env.vpn_info) else None
+        os.remove(self.env.vpn_info) if os.path.isfile(self.env.vpn_info) else None
