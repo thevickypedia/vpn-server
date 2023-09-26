@@ -3,4 +3,4 @@
 from vpn.main import VPNServer  # noqa: F401
 from vpn.models import util  # noqa: F401
 
-version = "1.0.4b"
+version = "1.0.5a"

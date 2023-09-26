@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+1.0.4b (09/25/2023)
+-------------------
+- Store entrypoint in JSON dump
+- Use it during cleanup
+- Release beta version
+
 1.0.4a (09/25/2023)
 -------------------
 - Release `v1.0.4a`

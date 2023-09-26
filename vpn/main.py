@@ -28,7 +28,8 @@ class VPNServer:
 
     """
 
-    def __init__(self, logger: logging.Logger = None):
+    def __init__(self,
+                 logger: logging.Logger = None):
         """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
 
         Args:
@@ -47,7 +48,8 @@ class VPNServer:
         self.image_id = None
         self.zone_id = None
 
-    def _init(self, start: Union[bool, int]) -> None:
+    def _init(self,
+              start: Union[bool, int]) -> None:
         """Initializer function.
 
         Args:
@@ -120,7 +122,8 @@ class VPNServer:
         else:
             self.logger.error('Unable to get the default VPC ID')
 
-    def _authorize_security_group(self, security_group_id: str) -> bool:
+    def _authorize_security_group(self,
+                                  security_group_id: str) -> bool:
         """Authorizes the security group for certain ingress list.
 
         Args:
@@ -356,7 +359,9 @@ class VPNServer:
         self.logger.info('InstanceId %s has been set to terminate.', instance_id)
         return instance
 
-    def _tester(self, data: Dict, timeout: int = 3) -> bool:
+    def _tester(self,
+                data: Dict[str, Union[str, int]],
+                timeout: int = 3) -> bool:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
 
         Args:
@@ -524,8 +529,10 @@ class VPNServer:
             )
         server.run_interactive_ssh()
 
-    def delete_vpn_server(self, instance_id: str = None, security_group_id: str = None,
-                          entrypoint: str = None, public_ip: str = None) -> None:
+    def delete_vpn_server(self,
+                          instance_id: str = None,
+                          security_group_id: str = None,
+                          public_ip: str = None) -> None:
         """Disables tunnelling by removing all AWS resources acquired.
 
         Args:
@@ -553,13 +560,12 @@ class VPNServer:
         security_group_id = security_group_id or data.get('security_group_id')
         instance_id = instance_id or data.get('instance_id')
         public_ip = public_ip or data.get('public_ip')
-        entrypoint = entrypoint or data.get('entrypoint')
 
         self._delete_key_pair()
         sg_association = self._disassociate_security_group(instance_id=instance_id, security_group_id=security_group_id)
         instance = self._terminate_ec2_instance(instance_id=instance_id)
-        if (env.hosted_zone and env.subdomain and public_ip) or (entrypoint and public_ip):
-            change_record_set(source=settings.entrypoint or entrypoint, destination=public_ip,
+        if env.hosted_zone and env.subdomain and public_ip:
+            change_record_set(source=settings.entrypoint, destination=public_ip,
                               logger=self.logger, client=self.route53_client, zone_id=self.zone_id, action='DELETE')
         if not sg_association and instance:
             try:
