@@ -421,7 +421,7 @@ class VPNServer:
             env.image_id = 'ami-0000000000'  # placeholder value since this won't be used in re-configuration
             self._init(True)
             if not self._tester(data):
-                self._configure_vpn(data['public_dns'], data['public_ip'])
+                self._configure_vpn(data['public_dns'])
             return
         self._init(True)
         if ec2_info := self._create_ec2_instance():
@@ -484,7 +484,14 @@ class VPNServer:
             json.dump(instance_info, file, indent=2)
             file.flush()
 
-        self._configure_vpn(instance.public_dns_name, instance.public_ip_address)
+        self._configure_vpn(instance.public_dns_name)
+        if settings.entrypoint:
+            change_record_set(source=settings.entrypoint, destination=instance.public_ip_address, logger=self.logger,
+                              client=self.route53_client, zone_id=self.zone_id, action='UPSERT')
+            instance_info['entrypoint'] = settings.entrypoint
+            with open(env.vpn_info, 'w') as file:
+                json.dump(instance_info, file, indent=2)
+                file.flush()
 
         if not self._tester(data=instance_info):
             self.logger.error('Failed to configure VPN server. Please check the logs for more information.')
@@ -493,12 +500,11 @@ class VPNServer:
         self.logger.info('VPN server has been configured successfully. Details have been stored in %s.',
                          env.vpn_info)
 
-    def _configure_vpn(self, public_dns: str, public_ip: str) -> None:
+    def _configure_vpn(self, public_dns: str) -> None:
         """Configures the ec2 instance to take traffic from localhost and initiates tunneling.
 
         Args:
             public_dns: Public DNS name of the ec2 that was created.
-            public_ip: IP address of the ec2 instance.
         """
         self.logger.info('Connecting to server via SSH')
 
@@ -517,15 +523,15 @@ class VPNServer:
                 "Unable to connect SSH server, please call the 'start' function once again if instance looks healthy"
             )
         server.run_interactive_ssh()
-        change_record_set(source=settings.entrypoint, destination=public_ip, logger=self.logger,
-                          client=self.route53_client, zone_id=self.zone_id, action='UPSERT')
 
-    def delete_vpn_server(self, instance_id: str = None, security_group_id: str = None, public_ip: str = None) -> None:
+    def delete_vpn_server(self, instance_id: str = None, security_group_id: str = None,
+                          entrypoint: str = None, public_ip: str = None) -> None:
         """Disables tunnelling by removing all AWS resources acquired.
 
         Args:
             instance_id: Instance that has to be terminated.
             security_group_id: Security group that has to be removed.
+            entrypoint: A record that has to be deleted from route53.
             public_ip: Public IP address to delete the A record from route53.
 
         See Also:
@@ -547,13 +553,14 @@ class VPNServer:
         security_group_id = security_group_id or data.get('security_group_id')
         instance_id = instance_id or data.get('instance_id')
         public_ip = public_ip or data.get('public_ip')
+        entrypoint = entrypoint or data.get('entrypoint')
 
         self._delete_key_pair()
         sg_association = self._disassociate_security_group(instance_id=instance_id, security_group_id=security_group_id)
         instance = self._terminate_ec2_instance(instance_id=instance_id)
-        if env.hosted_zone and env.subdomain and public_ip:
-            change_record_set(source=settings.entrypoint, destination=public_ip, logger=self.logger,
-                              client=self.route53_client, zone_id=self.zone_id, action='DELETE')
+        if (env.hosted_zone and env.subdomain and public_ip) or (entrypoint and public_ip):
+            change_record_set(source=settings.entrypoint or entrypoint, destination=public_ip,
+                              logger=self.logger, client=self.route53_client, zone_id=self.zone_id, action='DELETE')
         if not sg_association and instance:
             try:
                 instance.wait_until_terminated(
