@@ -1,6 +1,19 @@
 Release Notes
 =============
 
+1.3 (09/25/2023)
+----------------
+- Includes bug fixes and upgrades to latest OpenVPN Access Server version
+- Removes notification features and redundancies
+- Increases security, reliability, performance and overall stability
+- Uses pydantic for validations
+- Improves run-time by 2x
+
+1.0.5b (09/25/2023)
+-------------------
+- Remove unreferenced secondary attributes
+- Release beta version v1.0.5b
+
 1.0.5a (09/25/2023)
 -------------------
 - Remove entrypoint arg for deletion
