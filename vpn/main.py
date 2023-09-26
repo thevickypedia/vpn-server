@@ -444,10 +444,11 @@ class VPNServer:
             self.logger.error(error)
             warnings.warn(
                 "Failed on waiting for instance to enter 'running' state, please raise an issue at:\n"
-                "https://github.com/thevickypedia/expose/issues",
+                "https://github.com/thevickypedia/vpn-server/issues",
                 NotImplementedWarning
             )
             self._delete_key_pair()
+            # No need to wait for SG disassociation since this is a handler for a WaiterError already
             self._disassociate_security_group(instance=instance, security_group_id=security_group_id)
             self._terminate_ec2_instance(instance=instance)
             self._delete_security_group(security_group_id)
@@ -468,7 +469,7 @@ class VPNServer:
                     self.logger.error(error)
                     warnings.warn(
                         "Failed on waiting for instance to enter 'running' state, please raise an issue at:\n"
-                        "https://github.com/thevickypedia/expose/issues",
+                        "https://github.com/thevickypedia/vpn-server/issues",
                         NotImplementedWarning
                     )
             self._delete_security_group(security_group_id)
@@ -538,7 +539,6 @@ class VPNServer:
         Args:
             instance_id: Instance that has to be terminated.
             security_group_id: Security group that has to be removed.
-            entrypoint: A record that has to be deleted from route53.
             public_ip: Public IP address to delete the A record from route53.
 
         See Also:

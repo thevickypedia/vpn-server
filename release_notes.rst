@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+1.0.5a (09/25/2023)
+-------------------
+- Remove entrypoint arg for deletion
+- Release alpha version v1.0.5a
+
 1.0.4b (09/25/2023)
 -------------------
 - Store entrypoint in JSON dump

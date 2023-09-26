@@ -11,7 +11,8 @@ from vpn.models.config import ami_base, settings
 from vpn.models.exceptions import AWSResourceError
 
 
-def deprecation_warning(image_id: str, deprecation_time: str) -> None:
+def deprecation_warning(image_id: str,
+                        deprecation_time: str) -> None:
     """Raises a deprecation warning if the chosen AMI is nearing (value is set in config) its DeprecationTime."""
     expired_utc = parser.parse(deprecation_time)
     current_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -19,7 +20,7 @@ def deprecation_warning(image_id: str, deprecation_time: str) -> None:
         warnings.simplefilter('always', DeprecationWarning)
         warnings.warn(
             f"\nThe AMI ID {image_id} is set to be deprecated on {deprecation_time}"
-            "\nPlease raise an issue at https://github.com/thevickypedia/expose/issues/new "
+            "\nPlease raise an issue at https://github.com/thevickypedia/vpn-server/issues/new "
             "to update the AMI base",
             DeprecationWarning
         )
@@ -32,7 +33,9 @@ class ImageFactory:
 
     """
 
-    def __init__(self, session: boto3.Session, logger: logging.Logger):
+    def __init__(self,
+                 session: boto3.Session,
+                 logger: logging.Logger):
         """Instantiates the ``ImageFactory`` object.
 
         Args:
@@ -42,17 +45,12 @@ class ImageFactory:
         self.session = session
         self.logger = logger
 
-        self.name = ami_base.NAME
-        self.alias = ami_base.ALIAS
-        self.product_page = ami_base.PRODUCT_PAGE
-        self.product_code = ami_base.PRODUCT_CODE
-
         self.ssm_client = self.session.client('ssm')
         self.ec2_client = self.session.client('ec2')
 
     def get_ami_id_ssm(self) -> str:
         """Retrieve AMI ID using Ami Alias."""
-        response = self.ssm_client.get_parameters(Names=[self.alias], WithDecryption=True)
+        response = self.ssm_client.get_parameters(Names=[ami_base.ALIAS], WithDecryption=True)
         if response.get('ResponseMetadata', {}).get('HTTPStatusCode', 400) == 200:
             if params := response.get('Parameters'):
                 self.logger.info("Images fetched using AMI alias: %d", len(params))
@@ -66,7 +64,7 @@ class ImageFactory:
 
     def get_ami_id_product_code(self) -> str:
         """Retrieve AMI ID using Product Code."""
-        filters = [{'Name': 'product-code', 'Values': [self.product_code]}]
+        filters = [{'Name': 'product-code', 'Values': [ami_base.PRODUCT_CODE]}]
         response = self.ec2_client.describe_images(Filters=filters, Owners=['aws-marketplace'])
         if images := response.get('Images'):
             self.logger.info("Images fetched using product code: %d", len(images))
@@ -79,7 +77,7 @@ class ImageFactory:
 
     def get_ami_id_name(self) -> str:
         """Retrieve AMI ID using Ami Name."""
-        response = self.ec2_client.describe_images(Filters=[{'Name': 'name', 'Values': [self.name]}])
+        response = self.ec2_client.describe_images(Filters=[{'Name': 'name', 'Values': [ami_base.NAME]}])
         if images := response.get('Images'):
             self.logger.info("Images fetched using AMI name: %d", len(images))
             self.logger.debug(images)
@@ -110,32 +108,29 @@ class ImageFactory:
             if image_id := self.get_ami_id_ssm():
                 return image_id
         except ClientError as error:
+            if 'UnrecognizedClientException' in str(error) or 'InvalidSignatureException' in str(error):
+                raise
             self.logger.error(error)
 
         try:
             if image_id := self.get_ami_id_name():
                 return image_id
         except ClientError as error:
+            if 'AuthFailure' in str(error):
+                raise
             self.logger.error(error)
 
         try:
             if image_id := self.get_ami_id_product_code():
                 return image_id
         except ClientError as error:
+            if 'AuthFailure' in str(error):
+                raise
             self.logger.error(error)
 
-        if self.name == ami_base.S_NAME:
-            raise AWSResourceError(
-                status_code=404,
-                error_msg=f'Failed to retrieve AMI ID.\n\t'
-                          f'Get AMI ID from {self.product_page} and set manually for {self.session.region_name!r}.\n\t'
-                          'Please raise an issue at https://github.com/thevickypedia/expose/issues/new'
-            )
-        else:
-            # Retry mechanism to fall back to secondary AMI settings in marketplace before raising an error
-            self.logger.critical("Failed to fetch AMI ID via primary source, using secondary resources.")
-            self.name = ami_base.S_NAME
-            self.alias = ami_base.S_ALIAS
-            self.product_page = ami_base.S_PRODUCT_PAGE
-            self.product_code = ami_base.S_PRODUCT_CODE
-            return self.get_image_id()
+        raise AWSResourceError(
+            status_code=404,
+            error_msg=f'Failed to retrieve AMI ID.\n\t'
+                      f'Get AMI ID from {ami_base.PRODUCT_PAGE} and set manually for {self.session.region_name!r}.\n\t'
+                      'Please raise an issue at https://github.com/thevickypedia/vpn-server/issues/new'
+        )
