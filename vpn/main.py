@@ -10,6 +10,7 @@ import requests
 import urllib3
 from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError, WaiterError
+from requests.models import Response
 from urllib3.exceptions import InsecureRequestWarning
 
 from vpn.models.config import EnvConfig, Settings, configuration_dict
@@ -368,14 +369,30 @@ class VPNServer:
         self.logger.info('InstanceId %s has been set to terminate.', instance_id)
         return instance
 
-    def _tester(self,
-                data: Dict[str, Union[str, int]],
-                timeout: int = 3) -> bool:
+    def _test_get(self, server_hostname: str, timeout: Tuple = (3, 3)) -> Response:
+        """Test GET connection with multiple hostnames.
+
+        Args:
+            server_hostname: Public IP address or DNS name or alias record (entrypoint)
+            timeout: Tuple of connection timeout and read timeout.
+
+        Returns:
+            Response:
+            Response object.
+        """
+        try:
+            response = requests.get(url=f"https://{server_hostname}:{self.env.vpn_port}",
+                                    verify=False, timeout=timeout)
+            self.logger.debug(response)
+            return response
+        except requests.RequestException as error:
+            self.logger.error(error)
+
+    def _tester(self, data: Dict[str, Union[str, int]]) -> bool:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
 
         Args:
             data: Takes the instance information in a dictionary format as an argument.
-            timeout: Timeout to make the test call.
 
         See Also:
             - Called when a startup request is made but info file and pem file are present already.
@@ -389,19 +406,18 @@ class VPNServer:
         """
         urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
         self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.env.vpn_port}")
-        try:
-            url_check = requests.get(url=f"https://{data.get('public_ip')}:{self.env.vpn_port}",
-                                     verify=False, timeout=timeout)
-            self.logger.debug(url_check)
-        except requests.RequestException as error:
-            self.logger.error(error)
-            self.logger.error('Unable to connect the VPN server.')
-            return False
-
+        ip_check = self._test_get(data.get('public_ip'))
+        host_check = self._test_get(data.get('public_dns'))
+        alias_check = Response()
+        alias_check.status_code = 200
+        if self.settings.entrypoint:
+            alias_check = self._test_get(self.settings.entrypoint)
+        assert all((ip_check, host_check, alias_check)) and all((ip_check.ok, host_check.ok, alias_check.ok)), \
+            "One or more tests for GET connection has failed. Please check the logs for more information."
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         test_ssh = Server(username=self.env.vpn_username, hostname=data.get('public_dns'), logger=self.logger,
                           env=self.env, settings=self.settings)
-        if url_check.ok and test_ssh.test_service(display=False, timeout=5):
+        if test_ssh.test_service(display=False, timeout=5):
             self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.env.vpn_port} and "
                              f"SSH to {data.get('public_dns')} was successful.")
             return True

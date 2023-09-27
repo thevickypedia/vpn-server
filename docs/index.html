@@ -51,11 +51,10 @@
 <li class="toctree-l1"><a class="reference internal" href="README.html#repo-stats">Repo Stats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#deployments">Deployments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="README.html#vpn-server">VPN Server</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="README.html#how-it-works">How it works</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#env-variables">ENV Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#usage">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#coding-standards">Coding Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#project-links">Project Links</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#license-copyright">License &amp; copyright</a></li>
 </ul>
 </li>
@@ -262,15 +261,32 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vpn.main.VPNServer._tester">
-<span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections on the existing server.</p>
+<dt class="sig sig-object py" id="vpn.main.VPNServer._test_get">
+<span class="sig-name descname"><span class="pre">_test_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._test_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test GET connection with multiple hostnames.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – Takes the instance information in a dictionary format as an argument.</p></li>
-<li><p><strong>timeout</strong> – Timeout to make the test call.</p></li>
+<li><p><strong>server_hostname</strong> – Public IP address or DNS name or alias record (entrypoint)</p></li>
+<li><p><strong>timeout</strong> – Tuple of connection timeout and read timeout.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vpn.main.VPNServer._tester">
+<span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections on the existing server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – Takes the instance information in a dictionary format as an argument.</p>
 </dd>
 </dl>
 <div class="admonition seealso">

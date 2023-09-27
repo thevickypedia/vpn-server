@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+1.4a (09/26/2023)
+-----------------
+- Allow ``kwargs`` during object instantiation
+- Update README.md
+- Release alpha version
+
 1.3.2 (09/26/2023)
 ------------------
 - Includes minor improvements for increased compatibility

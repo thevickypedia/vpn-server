@@ -1,4 +1,4 @@
-~~![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
+![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
 
 ###### Platform Supported
 ![Generic badge](https://img.shields.io/badge/Platform-MacOS|Windows-1f425f.svg)
@@ -17,44 +17,7 @@
 [![sourcerank](https://img.shields.io/librariesio/sourcerank/pypi/vpn-server)](https://libraries.io/pypi/vpn-server)
 
 # VPN Server
-- You need a VPN but don't want to pay for it?
-- [OpenVPN](https://openvpn.net/) is the solution, but configuring it manually can be a lengthy process.
-- Once configured, keeping the instance up all the time costs **$$**.
-- Scaling up/down a VPN server on demand can make that lengthy process an absolute nightmare.
-- This module allows you to create your own on demand VPN server in under 2 minutes.
-- The solution is fully automated and runs with `OpenVPN` using `AWS EC2`.
-
-### How it works
-- Create an AWS EC2 instance using a pre-built OpenVPN AMI.
-- Create a security group with the necessary ports allowed.
-- Configure the vpn server using SSH.
-- Download the [OpenVPN client](https://openvpn.net/vpn-client/) and connect using the public DNS of the ec2 instance.
-- All set! Now the internet traffic will be routed through the VPN. Verify it using an [IP Lookup](https://whatismyipaddress.com/)
-> To take it a step further, if you have a registered domain in AWS,
-> vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance.
-- All the above steps are performed automatically when creating a new VPN server.
-- This module can also be used to clean up all the AWS resources spun up for creating a vpn server.
-
-### ENV Variables
-Environment variables are loaded from any `env` file if present.
-
-<details>
-<summary><strong>More on Environment variables</strong></summary>
-
-- **VPN_USERNAME** - Username to access `OpenVPN Connect` client.
-- **VPN_PASSWORD** - Password to access `OpenVPN Connect` client.
-- **VPN_PORT** - Port number for web interfaces. Defaults to `943`
-
-- **IMAGE_ID** - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for [OpenVPN Access Server AMI Alias][AMI_ALIAS]
-- **INSTANCE_TYPE** - Instance type to use for the VPN server. Defaults to `t2.micro` _(minimum memory requirement is 1 GiB)_
-- **KEY_PAIR** - Name of the key pair file to connect to ec2. Defaults to `OpenVPN`
-- **SECURITY_GROUP** - Name of the security group. Defaults to `OpenVPN Access Server`
-- **VPN_INFO** - Name of the JSON file to dump the server information. Defaults to `vpn_info.json`
-- **HOSTED_ZONE** - Domain name for the hosted zone.
-- **SUBDOMAIN** - Alias record name using which the VPN server has to be accessed.
-
-*Optionally `env vars` for AWS config (`AWS_PROFILE_NAME`, `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION_NAME`) can be setup.*
-</details>
+Establish a scalable, on-demand VPN Server powered by OpenVPN on AWS EC2.
 
 ### Install
 ```shell
@@ -78,7 +41,7 @@ vpn_server.create_vpn_server()
 vpn_server.delete_vpn_server()
 ```
 
-> :bulb: &nbsp; Please refer to the [wiki](https://github.com/thevickypedia/vpn-server/wiki) page for more usage instructions.
+> :bulb: &nbsp; Please refer to the [wiki page](https://github.com/thevickypedia/vpn-server/wiki) for more usage instructions and payload requirements.
 
 ## Coding Standards
 Docstring format: [`Google`](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) <br>
@@ -110,7 +73,7 @@ pip install sphinx==5.1.1 pre-commit recommonmark
 pre-commit run --all-files
 ```
 
-### Links
+## Project Links
 [Wiki](https://github.com/thevickypedia/vpn-server/wiki)
 
 [Repository](https://github.com/thevickypedia/vpn-server)
@@ -127,5 +90,3 @@ Licensed under the [MIT License][LICENSE]
 
 [LICENSE]: https://github.com/thevickypedia/vpn-server/blob/main/LICENSE
 [API_REPO]: https://api.github.com/repos/thevickypedia/vpn-server
-[AMI_ALIAS]: https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias
-[PRODUCT_PAGE]: https://aws.amazon.com/marketplace/server/procurement?productId=fe8020db-5343-4c43-9e65-5ed4a825c931

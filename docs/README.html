@@ -42,7 +42,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p>~~<img alt="Python" src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue" /></p>
+  <p><img alt="Python" src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue" /></p>
 <section id="platform-supported">
 <h1>Platform Supported<a class="headerlink" href="#platform-supported" title="Permalink to this heading">¶</a></h1>
 <p><img alt="Generic badge" src="https://img.shields.io/badge/Platform-MacOS%7CWindows-1f425f.svg" /></p>
@@ -63,50 +63,7 @@
 </section>
 <section id="vpn-server">
 <h1>VPN Server<a class="headerlink" href="#vpn-server" title="Permalink to this heading">¶</a></h1>
-<ul class="simple">
-<li><p>You need a VPN but don’t want to pay for it?</p></li>
-<li><p><a class="reference external" href="https://openvpn.net/">OpenVPN</a> is the solution, but configuring it manually can be a lengthy process.</p></li>
-<li><p>Once configured, keeping the instance up all the time costs <strong>$$</strong>.</p></li>
-<li><p>Scaling up/down a VPN server on demand can make that lengthy process an absolute nightmare.</p></li>
-<li><p>This module allows you to create your own on demand VPN server in under 2 minutes.</p></li>
-<li><p>The solution is fully automated and runs with <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code> using <code class="docutils literal notranslate"><span class="pre">AWS</span> <span class="pre">EC2</span></code>.</p></li>
-</ul>
-<section id="how-it-works">
-<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>Create an AWS EC2 instance using a pre-built OpenVPN AMI.</p></li>
-<li><p>Create a security group with the necessary ports allowed.</p></li>
-<li><p>Configure the vpn server using SSH.</p></li>
-<li><p>Download the <a class="reference external" href="https://openvpn.net/vpn-client/">OpenVPN client</a> and connect using the public DNS of the ec2 instance.</p></li>
-<li><p>All set! Now the internet traffic will be routed through the VPN. Verify it using an <a class="reference external" href="https://whatismyipaddress.com/">IP Lookup</a></p></li>
-</ul>
-<blockquote>
-<div><p>To take it a step further, if you have a registered domain in AWS,
-vpn-server can be accessed with an alias record in route53 pointing to the public IP of the ec2 instance.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>All the above steps are performed automatically when creating a new VPN server.</p></li>
-<li><p>This module can also be used to clean up all the AWS resources spun up for creating a vpn server.</p></li>
-</ul>
-</section>
-<section id="env-variables">
-<h2>ENV Variables<a class="headerlink" href="#env-variables" title="Permalink to this heading">¶</a></h2>
-<p>Environment variables are loaded from any <code class="docutils literal notranslate"><span class="pre">env</span></code> file if present.</p>
-<details>
-<summary><strong>More on Environment variables</strong></summary><ul class="simple">
-<li><p><strong>VPN_USERNAME</strong> - Username to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
-<li><p><strong>VPN_PASSWORD</strong> - Password to access <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Connect</span></code> client.</p></li>
-<li><p><strong>VPN_PORT</strong> - Port number for web interfaces. Defaults to <code class="docutils literal notranslate"><span class="pre">943</span></code></p></li>
-<li><p><strong>IMAGE_ID</strong> - AMI ID to be used. Defaults to a pre-built AMI from SSM parameter for <a class="reference external" href="https://aws.amazon.com/marketplace/server/configuration?productId=fe8020db-5343-4c43-9e65-5ed4a825c931#:~:text=Ami%20Alias">OpenVPN Access Server AMI Alias</a></p></li>
-<li><p><strong>INSTANCE_TYPE</strong> - Instance type to use for the VPN server. Defaults to <code class="docutils literal notranslate"><span class="pre">t2.micro</span></code> <em>(minimum memory requirement is 1 GiB)</em></p></li>
-<li><p><strong>KEY_PAIR</strong> - Name of the key pair file to connect to ec2. Defaults to <code class="docutils literal notranslate"><span class="pre">OpenVPN</span></code></p></li>
-<li><p><strong>SECURITY_GROUP</strong> - Name of the security group. Defaults to <code class="docutils literal notranslate"><span class="pre">OpenVPN</span> <span class="pre">Access</span> <span class="pre">Server</span></code></p></li>
-<li><p><strong>VPN_INFO</strong> - Name of the JSON file to dump the server information. Defaults to <code class="docutils literal notranslate"><span class="pre">vpn_info.json</span></code></p></li>
-<li><p><strong>HOSTED_ZONE</strong> - Domain name for the hosted zone.</p></li>
-<li><p><strong>SUBDOMAIN</strong> - Alias record name using which the VPN server has to be accessed.</p></li>
-</ul>
-<p><em>Optionally <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">vars</span></code> for AWS config (<code class="docutils literal notranslate"><span class="pre">AWS_PROFILE_NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_ACCESS_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_SECRET_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">AWS_REGION_NAME</span></code>) can be setup.</em></p>
-</details></section>
+<p>Establish a scalable, on-demand VPN Server powered by OpenVPN on AWS EC2.</p>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vpn-server
@@ -131,7 +88,7 @@ vpn-server can be accessed with an alias record in route53 pointing to the publi
 </pre></div>
 </div>
 <blockquote>
-<div><p>:bulb:   Please refer to the <a class="reference external" href="https://github.com/thevickypedia/vpn-server/wiki">wiki</a> page for more usage instructions.</p>
+<div><p>:bulb:   Please refer to the <a class="reference external" href="https://github.com/thevickypedia/vpn-server/wiki">wiki page</a> for more usage instructions and payload requirements.</p>
 </div></blockquote>
 </section>
 <section id="coding-standards">
@@ -163,13 +120,13 @@ Clean code with pre-commit hooks: <a class="reference external" href="https://fl
 </pre></div>
 </div>
 </section>
-<section id="links">
-<h3>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h3>
+</section>
+<section id="project-links">
+<h2>Project Links<a class="headerlink" href="#project-links" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server/wiki">Wiki</a></p>
 <p><a class="reference external" href="https://github.com/thevickypedia/vpn-server">Repository</a></p>
 <p><a class="reference external" href="https://thevickypedia.github.io/vpn-server/">Runbook</a></p>
 <p><a class="reference external" href="https://pypi.org/project/vpn-server/">Package</a></p>
-</section>
 </section>
 <section id="license-copyright">
 <h2>License &amp; copyright<a class="headerlink" href="#license-copyright" title="Permalink to this heading">¶</a></h2>
@@ -192,16 +149,14 @@ Clean code with pre-commit hooks: <a class="reference external" href="https://fl
 <li><a class="reference internal" href="#repo-stats">Repo Stats</a></li>
 <li><a class="reference internal" href="#deployments">Deployments</a></li>
 <li><a class="reference internal" href="#vpn-server">VPN Server</a><ul>
-<li><a class="reference internal" href="#how-it-works">How it works</a></li>
-<li><a class="reference internal" href="#env-variables">ENV Variables</a></li>
 <li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#coding-standards">Coding Standards</a><ul>
 <li><a class="reference internal" href="#release-notes">Release Notes</a></li>
 <li><a class="reference internal" href="#linting">Linting</a></li>
-<li><a class="reference internal" href="#links">Links</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#project-links">Project Links</a></li>
 <li><a class="reference internal" href="#license-copyright">License &amp; copyright</a></li>
 </ul>
 </li>
