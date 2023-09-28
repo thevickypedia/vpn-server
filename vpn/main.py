@@ -2,6 +2,7 @@ import json
 import os
 import time
 import warnings
+from logging import Logger
 from typing import Dict, Tuple, Union
 
 import boto3
@@ -11,6 +12,7 @@ import urllib3
 from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError, WaiterError
 from requests.models import Response
+from typing_extensions import Unpack
 from urllib3.exceptions import InsecureRequestWarning
 
 from vpn.models.config import EnvConfig, Settings, configuration_dict
@@ -28,11 +30,44 @@ class VPNServer:
 
     """
 
-    def __init__(self, **kwargs):
-        """Assigns a name to the PEM file, initiates the logger, client and resource for EC2 using ``boto3`` module.
+    def __init__(self, **kwargs: Unpack[Union[EnvConfig, Logger]]):
+        """Unpacks the kwargs and loads it as Envconfig, the subclass for BaseSettings validated using pydantic.
 
         Args:
-            logger: Bring your own logger.
+            kwargs: Dictionary of keyword arguments for the following key-value pairs.
+
+                - ``vpn_username`` - Username to access VPN client.
+                - ``vpn_password`` - Password to access VPN client.
+                - ``vpn_port`` - Port number for OpenVPN web interface access.
+                - ``aws_profile_name`` - Name of the AWS profile to initiate a session.
+                - ``aws_access_key`` - Access token for AWS account.
+                - ``aws_secret_key`` - Secret ID for AWS account.
+                - ``aws_region_name`` - Region where the instance should live. Defaults to AWS profile default.
+                - ``image_id`` - AMI ID using which the instance should be created.
+                - ``instance_type`` - Instance type to use in AWS to host the OpenVPN Access Server.
+                - ``key_pair`` - Name of the key pair for the ec2 and the file stored for SSH connection.
+                - ``security_group`` - Name of the security group to be created in AWS.
+                - ``vpn_info`` - Name of the JSON file to dump the instance and connection information.
+                - ``domain`` - Domain name for the hosted zone.
+                - ``hosted_zone`` - Name of the hosted zone in route53.
+                - ``subdomain`` - Name of the subdomain to be created in the hosted zone.
+                - ``logger`` - Bring your own logger.
+
+        See Also:
+            Access point to the VPN server will be the combination of subdomain and hosted_zone.
+
+            Examples:
+                - | If you have a hosted zone in AWS, named ``example.com`` and want the entrypoint to be
+                  | ``vpn.example.com`` then,
+
+                    - ``hosted_zone`` should be ``example.com``
+                    - ``subdomain`` should be ``vpn``
+
+            Notes:
+                - Please note that the hosted zone should also be a registered domain in AWS.
+                - You cannot simply create a hosted zone named google.com and expect it to work.
+                - | The alias record will fail as duplicate at DNS name resolution level unless a domain is
+                  | registered with the same name.
         """
         self.env = EnvConfig(**kwargs)
         self.settings = Settings()
@@ -60,7 +95,7 @@ class VPNServer:
         """Initializer function.
 
         Args:
-            start: Boolean flag to indicate if its startup or shutdown.
+            start: Flag to indicate if its startup or shutdown.
         """
         if start:  # Not required during shutdown, since image_id is only used to create an ec2 instance
             variable = "created in"  # var for logging if entrypoint is present
@@ -84,7 +119,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Boolean flag to indicate the calling function if a ``KeyPair`` was created.
+            Flag to indicate the calling function, if a ``KeyPair`` was created successfully.
         """
         try:
             key_pair = self.ec2_resource.create_key_pair(
@@ -150,7 +185,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Flag to indicate the calling function whether the security group was authorized.
+            Flag to indicate the calling function, whether the security group was authorized successfully.
         """
         try:
             security_group = self.ec2_resource.SecurityGroup(security_group_id)
@@ -271,7 +306,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Boolean flag to indicate the calling function if the KeyPair was deleted successfully.
+            Flag to indicate the calling function, if the KeyPair was deleted successfully.
         """
         try:
             key_pair = self.ec2_resource.KeyPair(self.env.key_pair)
@@ -292,7 +327,7 @@ class VPNServer:
 
     def _disassociate_security_group(self,
                                      security_group_id: str,
-                                     instance: object = None,
+                                     instance: ServiceResource or None = None,
                                      instance_id: str = None) -> bool:
         """Disassociates an SG from the ec2 instance by assigning it to the default security group.
 
@@ -303,7 +338,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Boolean flag to indicate the calling function whether the disassociation was successful.
+            Flag to indicate the calling function, whether the instance was disassociated from the SG successfully.
         """
         try:
             if not instance:
@@ -329,7 +364,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Boolean flag to indicate the calling function whether the SecurityGroup was deleted.
+            Flag to indicate the calling function, whether the SecurityGroup was deleted successfully.
         """
         try:
             security_group = self.ec2_resource.SecurityGroup(security_group_id)
@@ -345,7 +380,7 @@ class VPNServer:
 
     def _terminate_ec2_instance(self,
                                 instance_id: str = None,
-                                instance: object = None) -> ServiceResource or None:
+                                instance: ServiceResource or None = None) -> ServiceResource or None:
         """Terminates the requested instance.
 
         Args:
@@ -354,7 +389,7 @@ class VPNServer:
 
         Returns:
             bool:
-            Boolean flag to indicate the calling function whether the instance was terminated.
+            Flag to indicate the calling function, whether the instance was terminated successfully.
         """
         try:
             if not instance:
@@ -362,12 +397,11 @@ class VPNServer:
             if not instance_id:
                 instance_id = instance.id
             instance.terminate()
+            self.logger.info('InstanceId %s has been set to terminate.', instance_id)
+            return instance
         except ClientError as error:
             self.logger.warning('API call to terminate the instance has failed.')
             self.logger.error(error)
-            return
-        self.logger.info('InstanceId %s has been set to terminate.', instance_id)
-        return instance
 
     def _test_get(self, server_hostname: str, timeout: Tuple = (3, 3)) -> Response:
         """Test GET connection with multiple hostnames.
@@ -388,21 +422,21 @@ class VPNServer:
         except requests.RequestException as error:
             self.logger.error(error)
 
-    def _tester(self, data: Dict[str, Union[str, int]]) -> bool:
+    def _tester(self, data: Dict[str, Union[str, int]]) -> None:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
 
         Args:
             data: Takes the instance information in a dictionary format as an argument.
 
         See Also:
-            - Called when a startup request is made but info file and pem file are present already.
-            - Called when a manual test request is made.
-            - Testing SSH connection will also run updates on the VM.
+            - GET request against the public IP of the ec2 instance.
+            - GET request against the public DNS of the ec2 instance.
+            - SSH connection with the OpenVPN Access Server.
+            - Test ``openvpnas`` service availability on the server.
 
-        Returns:
-            bool:
-            - ``True`` if the existing connection is reachable and ``ssh`` to the origin succeeds.
-            - ``False`` if the connection fails or unable to ``ssh`` to the origin.
+        Raises:
+            AssertionError:
+            When any of the tests fail.
         """
         urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
         self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.env.vpn_port}")
@@ -417,23 +451,19 @@ class VPNServer:
         self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
         test_ssh = Server(username=self.env.vpn_username, hostname=data.get('public_dns'), logger=self.logger,
                           env=self.env, settings=self.settings)
-        if test_ssh.test_service(display=False, timeout=5):
-            self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.env.vpn_port} and "
-                             f"SSH to {data.get('public_dns')} was successful.")
-            return True
-        else:
-            self.logger.error('Unable to establish SSH connection with the VPN server. '
-                              'Please check the logs for more information.')
-            return False
+        test_ssh.test_service(display=False, timeout=5)
+        self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.env.vpn_port} and "
+                         f"SSH to {data.get('public_dns')} was successful.")
 
     def test_vpn(self) -> None:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
-        if os.path.isfile(self.env.vpn_info) and os.path.isfile(self.settings.key_pair_file):
+        try:
             with open(self.env.vpn_info) as file:
                 data_exist = json.load(file)
-            self._tester(data=data_exist)
-        else:
+        except FileNotFoundError:
             self.logger.error(f'Input file: {self.env.vpn_info} is missing. CANNOT proceed.')
+            return
+        self._tester(data=data_exist)
 
     def create_vpn_server(self) -> None:
         """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
@@ -451,7 +481,9 @@ class VPNServer:
                 data = json.load(file)
             self.env.image_id = 'ami-0000000000'  # placeholder value since this won't be used in re-configuration
             self._init(True)
-            if not self._tester(data):
+            try:
+                self._tester(data)
+            except AssertionError:
                 self._configure_vpn(data['public_dns'])
             return
         self._init(True)
@@ -528,12 +560,13 @@ class VPNServer:
                 json.dump(instance_info, file, indent=2)
                 file.flush()
 
-        if not self._tester(data=instance_info):
+        try:
+            self._tester(data=instance_info)
+        except AssertionError:
             self.logger.error('Failed to configure VPN server. Please check the logs for more information.')
-            return
-
-        self.logger.info('VPN server has been configured successfully. Details have been stored in %s.',
-                         self.env.vpn_info)
+        else:
+            self.logger.info('VPN server has been configured successfully. Details have been stored in %s.',
+                             self.env.vpn_info)
 
     def _configure_vpn(self, public_dns: str) -> None:
         """Configures the ec2 instance to take traffic from localhost and initiates tunneling.

@@ -36,7 +36,7 @@ class ImageFactory:
     def __init__(self,
                  session: boto3.Session,
                  logger: logging.Logger):
-        """Instantiates the ``ImageFactory`` object.
+        """Creates ec2 and ssm client using an existing boto3 session.
 
         Args:
             session: boto3 session instantiated in the origin class.

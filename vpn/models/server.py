@@ -68,16 +68,12 @@ class Server:
         self.ssh_client.exec_command("sudo service openvpnas start")
         time.sleep(3)
 
-    def test_service(self, timeout: int, display: bool) -> bool:
+    def test_service(self, timeout: int, display: bool) -> None:
         """Check status of the service running on remote server.
 
         Args:
             timeout: Default interaction session timeout.
             display: Boolean flag whether to display interaction data on screen.
-
-        Returns:
-            bool:
-            Returns a boolean flag if test was successful.
         """
         with SSHClientInteraction(client=self.ssh_client,
                                   timeout=timeout,
@@ -87,7 +83,6 @@ class Server:
             interact.send("systemctl status openvpnas", '\n')
             interact.expect(r".*Started OpenVPN Access Server\..*", timeout)
             self.add_formatter()
-            return True
 
     def run_interactive_ssh(self,
                             display: bool = True,
@@ -100,7 +95,7 @@ class Server:
 
         Returns:
             bool:
-            Flag to indicate whether the interactive session has completed successfully.
+            Flag to indicate the calling function, whether the interactive session has completed successfully.
         """
         self.remove_formatter()
         with SSHClientInteraction(client=self.ssh_client,

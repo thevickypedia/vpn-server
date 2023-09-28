@@ -1,6 +1,6 @@
 import logging
 from http.client import responses as http_response
-from typing import Dict, Union
+from typing import Union
 
 import boto3
 from botocore.exceptions import ClientError
@@ -51,7 +51,7 @@ def change_record_set(client: boto3.client,
                       destination: str,
                       logger: logging.Logger,
                       zone_id: str,
-                      action: str) -> Union[Dict, None]:
+                      action: str) -> bool:
     """Changes a record set within an existing hosted zone.
 
     Args:
@@ -63,8 +63,8 @@ def change_record_set(client: boto3.client,
         action: Action to perform. Example: UPSERT or DELETE
 
     Returns:
-        Union[Dict, None]:
-        ChangeSet response from AWS.
+        bool:
+        Flag to indicate the calling function, whether the record was modified successfully.
     """
     logger.info("%s `%s` record::%s -> %s", action, 'A', source, destination)
     try:
@@ -87,9 +87,9 @@ def change_record_set(client: boto3.client,
         )
     except ClientError as error:
         logger.error(error)
-        return
-    if response.get('ResponseMetadata', {}).get('HTTPStatusCode') != 200:
-        logger.error(response)
-        return
-    logger.info(response.get('ChangeInfo', {}).get('Comment'))
-    logger.debug(response.get('ChangeInfo'))
+        return False
+    if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
+        logger.info(response.get('ChangeInfo', {}).get('Comment'))
+        logger.debug(response.get('ChangeInfo'))
+        return True
+    logger.error(response)

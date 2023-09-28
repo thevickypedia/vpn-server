@@ -35,7 +35,7 @@ Configuration
 
 ====
 
-.. autoclass:: vpn.models.config.EnvConfig(pydantic.BaseSettings)
+.. autoclass:: vpn.models.config.EnvConfig(pydantic_settings.BaseSettings)
    :members:
    :exclude-members: _abc_impl, model_config, model_fields
 

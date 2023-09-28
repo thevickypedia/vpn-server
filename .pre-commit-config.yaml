@@ -24,7 +24,7 @@ repos:
       -
         id: docs
         name: docs
-        entry: /bin/bash gen_docs.sh
+        entry: /bin/bash pre_commit.sh
         language: system
         pass_filenames: false
         always_run: true
