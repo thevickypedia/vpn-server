@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+1.5 (09/28/2023)
+----------------
+- Includes an option to take ``kwargs`` during object instantiation
+- Allows users to run without the need for a ``.env`` file
+- Improved test scenarios with all possible server hostnames
+
 1.4a (09/26/2023)
 -----------------
 - Allow ``kwargs`` during object instantiation
