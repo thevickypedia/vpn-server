@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+1.5.2 (09/28/2023)
+------------------
+- Includes instance information in return statements during creation and deletion
+
 1.5 (09/28/2023)
 ----------------
 - Includes an option to take ``kwargs`` during object instantiation

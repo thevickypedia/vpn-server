@@ -115,7 +115,7 @@ class VPNServer:
                              self.settings.entrypoint, variable, self.zone_id, self.env.hosted_zone)
 
     def _create_key_pair(self) -> bool:
-        """Creates a ``KeyPair`` of type ``RSA`` stored as a ``PEM`` file to use with ``OpenSSH``.
+        """Creates a ``KeyPair`` of type ``RSA`` stores as a ``PEM`` file for SSH connection.
 
         Returns:
             bool:
@@ -194,7 +194,7 @@ class VPNServer:
                     {'IpProtocol': 'tcp',
                      'FromPort': 22,
                      'ToPort': 22,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},  # todo: restrict to current IP and instance IP address
+                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                     {'IpProtocol': 'tcp',
                      'FromPort': 443,
                      'ToPort': 443,
@@ -465,14 +465,12 @@ class VPNServer:
             return
         self._tester(data=data_exist)
 
-    def create_vpn_server(self) -> None:
-        """Calls the class methods ``_create_ec2_instance`` and ``_instance_info`` to configure the VPN server.
+    def create_vpn_server(self) -> Union[Dict[str, Union[str, int]], None]:
+        """Creates an OpenVPN Access Server hosted on AWS ec2.
 
-        See Also:
-            - Checks if info and pem files are present, before spinning up a new instance.
-            - If present, checks the connection to the existing origin and tears down the instance if connection fails.
-            - If connects, notifies user with details and adds key-value pair ``Retry: True`` to info file.
-            - If another request is sent to start the vpn, creates a new instance regardless of existing info.
+        Returns:
+            Dict[str, Union[str, int]] or None:
+            VPN access server information.
         """
         if os.path.isfile(self.env.vpn_info) and os.path.isfile(self.settings.key_pair_file):
             self.logger.warning('Received request to start VM, but looks like a session is up and running already.')
@@ -485,7 +483,7 @@ class VPNServer:
                 self._tester(data)
             except AssertionError:
                 self._configure_vpn(data['public_dns'])
-            return
+            return data
         self._init(True)
         if ec2_info := self._create_ec2_instance():
             instance_id, security_group_id = ec2_info
@@ -567,6 +565,7 @@ class VPNServer:
         else:
             self.logger.info('VPN server has been configured successfully. Details have been stored in %s.',
                              self.env.vpn_info)
+            return instance_info
 
     def _configure_vpn(self, public_dns: str) -> None:
         """Configures the ec2 instance to take traffic from localhost and initiates tunneling.
@@ -605,7 +604,7 @@ class VPNServer:
             public_ip: Public IP address to delete the A record from route53.
 
         See Also:
-            Doesn't require any argument, as long as the JSON dump is neither removed nor modified by hand.
+            Doesn't require any argument, as long as the JSON dump is neither removed nor modified manually.
 
         References:
             - | https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2/instance/

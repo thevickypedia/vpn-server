@@ -18,7 +18,7 @@ gen_docs() {
   cp README.md doc_gen  # Copy readme file to doc_gen
   cd doc_gen && make clean html  # cd into doc_gen and create the runbook
   mv _build/html/* ../docs && mv README.md ../docs  # Move the runbook, readme and cleanup
-  cp static.css ../docs/_static
+  cp -p static.css ../docs/_static
 }
 
 run_pytest() {
