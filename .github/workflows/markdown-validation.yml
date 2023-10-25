@@ -13,3 +13,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: thevickypedia/none-shall-pass@v2.0
+        with:
+          excludeHostnames: "whatismyipaddress"
