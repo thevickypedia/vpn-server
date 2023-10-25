@@ -1,7 +1,7 @@
 # This workflow checks out code and scans the hyperlinks in
 # markdown files for broken links
 
-name: Validate hyperlinks in markdown files
+name: none-shall-pass
 
 on:
   push:

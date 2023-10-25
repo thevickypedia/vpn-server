@@ -9,8 +9,9 @@
 [![GitHub code size](https://img.shields.io/github/languages/code-size/thevickypedia/vpn-server)][API_REPO]
 
 ###### Deployments
-[![pages-build-deployment](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment)
-[![pypi](https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml/badge.svg)](https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml)
+[![doc](https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment/badge.svg)][gha_pages]
+[![pypi](https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml/badge.svg)][gha_pypi]
+[![markdown](https://github.com/thevickypedia/vpn-server/actions/workflows/markdown-validation.yml/badge.svg)][gha_markdown]
 
 [![Pypi-format](https://img.shields.io/pypi/format/vpn-server)](https://pypi.org/project/vpn-server/#files)
 [![Pypi-status](https://img.shields.io/pypi/status/vpn-server)](https://pypi.org/project/vpn-server)
@@ -90,3 +91,6 @@ Licensed under the [MIT License][LICENSE]
 
 [LICENSE]: https://github.com/thevickypedia/vpn-server/blob/main/LICENSE
 [API_REPO]: https://api.github.com/repos/thevickypedia/vpn-server
+[gha_pages]: https://github.com/thevickypedia/vpn-server/actions/workflows/pages/pages-build-deployment
+[gha_pypi]: https://github.com/thevickypedia/vpn-server/actions/workflows/python-publish.yml
+[gha_markdown]: https://github.com/thevickypedia/vpn-server/actions/workflows/markdown-validation.yml
