@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+1.6 (01/29/2024)
+----------------
+- Includes speed and stability improvements for server validations
+
 1.5.2 (09/28/2023)
 ------------------
 - Includes instance information in return statements during creation and deletion

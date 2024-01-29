@@ -310,20 +310,27 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._test_get">
-<span class="sig-name descname"><span class="pre">_test_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._test_get" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_test_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._test_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test GET connection with multiple hostnames.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>server_hostname</strong> – Public IP address or DNS name or alias record (entrypoint)</p></li>
+<li><p><strong>host</strong> – Public IP address or DNS name or alias record (entrypoint)</p></li>
 <li><p><strong>timeout</strong> – Tuple of connection timeout and read timeout.</p></li>
+<li><p><strong>retries</strong> – Number of times to retry in case of connection errors.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response object.</p>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Retries with exponential intervals between each attempt in case of a failure.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response object.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Response</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response</p>
 </dd>
 </dl>
 </dd></dl>
@@ -339,11 +346,13 @@
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
+<p>All the tests run in parallel to improve runtime.</p>
 <ul class="simple">
 <li><p>GET request against the public IP of the ec2 instance.</p></li>
 <li><p>GET request against the public DNS of the ec2 instance.</p></li>
 <li><p>SSH connection with the OpenVPN Access Server.</p></li>
 <li><p>Test <code class="docutils literal notranslate"><span class="pre">openvpnas</span></code> service availability on the server.</p></li>
+<li><p>Test alias record if values for <code class="docutils literal notranslate"><span class="pre">hosted_zone</span></code> and <code class="docutils literal notranslate"><span class="pre">subdomain</span></code> were provided</p></li>
 </ul>
 </div>
 <dl class="field-list simple">

@@ -3,6 +3,7 @@ import os
 import time
 import warnings
 from logging import Logger
+from multiprocessing.pool import ThreadPool
 from typing import Dict, Tuple, Union
 
 import boto3
@@ -89,6 +90,8 @@ class VPNServer:
 
         self.image_id = None
         self.zone_id = None
+
+        self.engine = inflect.engine()
 
     def _init(self,
               start: Union[bool, int]) -> None:
@@ -403,24 +406,35 @@ class VPNServer:
             self.logger.warning('API call to terminate the instance has failed.')
             self.logger.error(error)
 
-    def _test_get(self, server_hostname: str, timeout: Tuple = (3, 3)) -> Response:
+    def _test_get(self, host: str, timeout: Tuple = (3, 3), retries: int = 5) -> Response:
         """Test GET connection with multiple hostnames.
 
         Args:
-            server_hostname: Public IP address or DNS name or alias record (entrypoint)
+            host: Public IP address or DNS name or alias record (entrypoint)
             timeout: Tuple of connection timeout and read timeout.
+            retries: Number of times to retry in case of connection errors.
+
+        See Also:
+            Retries with exponential intervals between each attempt in case of a failure.
 
         Returns:
             Response:
             Response object.
         """
-        try:
-            response = requests.get(url=f"https://{server_hostname}:{self.env.vpn_port}",
-                                    verify=False, timeout=timeout)
-            self.logger.debug(response)
-            return response
-        except requests.RequestException as error:
-            self.logger.error(error)
+        for i in range(1, retries + 1):
+            try:
+                response = requests.get(url=f"https://{host}:{self.env.vpn_port}",
+                                        verify=False, timeout=timeout)
+                self.logger.debug(response)
+                return response
+            except requests.RequestException as error:
+                if i < retries:
+                    exponent = 2 ** i
+                    self.logger.info("Failed to validate %s in %s attempt, next attempt in %d seconds",
+                                     host, self.engine.ordinal(i), exponent)
+                    time.sleep(exponent)
+                else:
+                    self.logger.error(error)
 
     def _tester(self, data: Dict[str, Union[str, int]]) -> None:
         """Tests ``GET`` and ``SSH`` connections on the existing server.
@@ -429,31 +443,44 @@ class VPNServer:
             data: Takes the instance information in a dictionary format as an argument.
 
         See Also:
+            All the tests run in parallel to improve runtime.
+
             - GET request against the public IP of the ec2 instance.
             - GET request against the public DNS of the ec2 instance.
             - SSH connection with the OpenVPN Access Server.
             - Test ``openvpnas`` service availability on the server.
+            - Test alias record if values for ``hosted_zone`` and ``subdomain`` were provided
 
         Raises:
             AssertionError:
             When any of the tests fail.
         """
         urllib3.disable_warnings(InsecureRequestWarning)  # Disable warnings for self-signed certificates
-        self.logger.info(f"Testing GET connection to https://{data.get('public_ip')}:{self.env.vpn_port}")
-        ip_check = self._test_get(data.get('public_ip'))
-        host_check = self._test_get(data.get('public_dns'))
-        alias_check = Response()
-        alias_check.status_code = 200
+        alias_thread = None
         if self.settings.entrypoint:
-            alias_check = self._test_get(self.settings.entrypoint)
-        assert all((ip_check, host_check, alias_check)) and all((ip_check.ok, host_check.ok, alias_check.ok)), \
+            alias_thread = ThreadPool(processes=1).apply_async(self._test_get,
+                                                               args=(self.settings.entrypoint,))
+        self.logger.info("Testing GET connections to VPN server, via hostname and IP address.")
+        ip_thread = ThreadPool(processes=1).apply_async(self._test_get,
+                                                        kwds=dict(host=data.get('public_ip'), retries=2))
+        host_thread = ThreadPool(processes=1).apply_async(self._test_get,
+                                                          kwds=dict(host=data.get('public_dns'), retries=2))
+        ip_check = ip_thread.get()
+        host_check = host_thread.get()
+        assert all((ip_check, host_check)) and all((ip_check.ok, host_check.ok)), \
             "One or more tests for GET connection has failed. Please check the logs for more information."
-        self.logger.info(f"Testing SSH connection to {data.get('public_dns')}")
+        self.logger.info("Connections to VPN server, via hostname and IP address were successful.")
+        self.logger.info("Testing SSH connection to %s", data.get('public_dns'))
         test_ssh = Server(username=self.env.vpn_username, hostname=data.get('public_dns'), logger=self.logger,
                           env=self.env, settings=self.settings)
         test_ssh.test_service(display=False, timeout=5)
-        self.logger.info(f"Connection to https://{data.get('public_ip')}:{self.env.vpn_port} and "
-                         f"SSH to {data.get('public_dns')} was successful.")
+        self.logger.info(f"SSH to {data.get('public_dns')} was successful.")
+        if alias_thread:
+            if (alias_response := alias_thread.get()) and alias_response.ok:
+                self.logger.info("Connection to VPN server, via alias record %s was successful.",
+                                 self.settings.entrypoint)
+            else:
+                self.logger.error("Failed to test A record, it may be DNS propagation delay. ")
 
     def test_vpn(self) -> None:
         """Tests the ``GET`` and ``SSH`` connections to an existing VPN server."""
@@ -548,15 +575,18 @@ class VPNServer:
 
         self._configure_vpn(instance.public_dns_name)
         if self.settings.entrypoint:
-            change_record_set(source=self.settings.entrypoint,
-                              destination=instance.public_ip_address,
-                              logger=self.logger,
-                              client=self.route53_client,
-                              zone_id=self.zone_id, action='UPSERT')
-            instance_info['entrypoint'] = self.settings.entrypoint
-            with open(self.env.vpn_info, 'w') as file:
-                json.dump(instance_info, file, indent=2)
-                file.flush()
+            if change_record_set(source=self.settings.entrypoint,
+                                 destination=instance.public_ip_address,
+                                 logger=self.logger,
+                                 client=self.route53_client,
+                                 zone_id=self.zone_id, action='UPSERT'):
+                instance_info['entrypoint'] = self.settings.entrypoint
+                with open(self.env.vpn_info, 'w') as file:
+                    json.dump(instance_info, file, indent=2)
+                    file.flush()
+            else:
+                self.logger.error("Failed to add entrypoint as alias")
+                self.settings.entrypoint = None
 
         try:
             self._tester(data=instance_info)
@@ -580,7 +610,7 @@ class VPNServer:
             try:
                 server = Server(hostname=public_dns, username='openvpnas', logger=self.logger,
                                 env=self.env, settings=self.settings)
-                self.logger.info("Connection established on %s attempt", inflect.engine().ordinal(i + 1))
+                self.logger.info("Connection established on %s attempt", self.engine.ordinal(i + 1))
                 break
             except Exception as error:
                 self.logger.error(error)
