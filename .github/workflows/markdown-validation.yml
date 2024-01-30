@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: thevickypedia/none-shall-pass@v2.0
+      - uses: thevickypedia/none-shall-pass@v3
         with:
           excludeHostnames: "whatismyipaddress"
