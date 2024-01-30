@@ -93,6 +93,9 @@ class EnvConfig(BaseSettings):
         return v
 
 
+env = EnvConfig
+
+
 class Settings(BaseModel):
     """Wrapper for configuration settings.
 
@@ -105,7 +108,10 @@ class Settings(BaseModel):
     openvpn_config_commands: List[ConfigurationSettings] = []
 
 
-def configuration_dict(env: EnvConfig) -> List[ConfigurationSettings]:
+settings = Settings()
+
+
+def configuration_dict(param: EnvConfig) -> List[ConfigurationSettings]:
     """Get configuration interaction as a list of dictionaries."""
     for config_dict in [
         {'request': "Please enter 'yes' to indicate your agreement \\[no\\]: ", 'response': 'yes', 'timeout': 5,
@@ -118,7 +124,7 @@ def configuration_dict(env: EnvConfig) -> List[ConfigurationSettings]:
         {'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False},
         {'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
          'critical': False},
-        {'request': '> Press ENTER for default \\[943\\]: ', 'response': env.vpn_port, 'timeout': 1,
+        {'request': '> Press ENTER for default \\[943\\]: ', 'response': param.vpn_port, 'timeout': 1,
          'critical': False},
         {'request': '> Press ENTER for default \\[443\\]: ', 'response': '443', 'timeout': 1, 'critical': False},
         {'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
@@ -127,11 +133,11 @@ def configuration_dict(env: EnvConfig) -> List[ConfigurationSettings]:
          'critical': False},
         {'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'no', 'timeout': 1, 'critical': False},
         {'request': '> Specify the username for an existing user or for the new user account: ',
-         'response': env.vpn_username, 'timeout': 1, 'critical': True},
-        {'request': f"Type a password for the '{env.vpn_username}' account "
+         'response': param.vpn_username, 'timeout': 1, 'critical': True},
+        {'request': f"Type a password for the '{param.vpn_username}' account "
                     "(if left blank, a random password will be generated):",
-         'response': env.vpn_password, 'timeout': 1, 'critical': True},
-        {'request': f"Confirm the password for the '{env.vpn_username}' account:", 'response': env.vpn_password,
+         'response': param.vpn_password, 'timeout': 1, 'critical': True},
+        {'request': f"Confirm the password for the '{param.vpn_username}' account:", 'response': param.vpn_password,
          'timeout': 1, 'critical': True},
         {'request': '> Please specify your Activation key (or leave blank to specify later): ', 'response': '\n',
          'timeout': 1, 'critical': False}

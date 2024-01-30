@@ -5,7 +5,7 @@ from typing import Union
 import boto3
 from botocore.exceptions import ClientError
 
-from vpn.models.exceptions import AWSResourceError
+from vpn.models import exceptions
 
 
 def get_zone_id(client: boto3.client,
@@ -34,7 +34,7 @@ def get_zone_id(client: boto3.client,
         logger.error(response)
         if init:
             status_code = response.get('ResponseMetadata', {}).get('HTTPStatusCode', 500)
-            raise AWSResourceError(status_code, http_response[status_code])
+            raise exceptions.AWSResourceError(status_code, http_response[status_code])
         return
 
     if hosted_zones := response.get('HostedZones'):
@@ -42,7 +42,7 @@ def get_zone_id(client: boto3.client,
             if hosted_zone['Name'] in (dns, f'{dns}.'):
                 return hosted_zone['Id'].split('/')[-1]
     if init:
-        raise AWSResourceError(404, f'No HostedZones found for the DNSName: {dns}')
+        raise exceptions.AWSResourceError(404, f'No HostedZones found for the DNSName: {dns}')
     logger.error(f'No HostedZones found for the DNSName: {dns}\n{response}')
 
 
