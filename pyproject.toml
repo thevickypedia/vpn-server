@@ -1,7 +1,7 @@
 [project]
 name = "vpn-server"
 dynamic = ["version", "dependencies"]
-description = "Create an on demand VPN Server running with OpenVPN using AWS EC2"
+description = "Create an on-demand VPN Server running OpenVPN using AWS EC2"
 readme = "README.md"
 authors = [{ name = "Vignesh Rao", email = "svignesh1793@gmail.com" }]
 license = { file = "LICENSE" }
