@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+1.7 (01/30/2024)
+----------------
+- Improved accuracy for validating alias record
+- Improves overall performance and reliability
+- Adds alias record before configuration to allow DNS propagation
+- Reduces redundancy and unwanted overhead
+
 1.6 (01/29/2024)
 ----------------
 - Includes speed and stability improvements for server validations
