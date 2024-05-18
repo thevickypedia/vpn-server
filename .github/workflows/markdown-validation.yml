@@ -4,14 +4,17 @@
 name: none-shall-pass
 
 on:
-  push:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   none-shall-pass:
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Ubuntu
     steps:
-      - uses: actions/checkout@v3
-      - uses: thevickypedia/none-shall-pass@v3
+      - uses: thevickypedia/none-shall-pass@v5
         with:
           excludeHostnames: "whatismyipaddress"
