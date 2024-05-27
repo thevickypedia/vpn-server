@@ -24,6 +24,12 @@ class AMIBase(BaseModel):
 
     >>> AMIBase
 
+    See Also:
+        - Subscription Home Page: https://{REGION}.console.aws.amazon.com/marketplace/home#/subscriptions/{_PRODUCT_ID}
+        - Product ID: Found in the home page URL under Summary as 'Product ID'
+        - Product Code: Offer ID in the home page URL
+        - AMI Alias: Found in configuration page (_BASE_URL) as 'Ami Alias'
+        - Product Code: Found in configuration page (_BASE_URL) as 'Product Code'
     """
 
     _BASE_URL: str = 'https://aws.amazon.com/marketplace/server/configuration?productId={productId}'
@@ -32,7 +38,7 @@ class AMIBase(BaseModel):
 
     PRODUCT_PAGE: HttpUrl = _BASE_URL.format(productId=_PRODUCT_ID)
     NAME: str = f'OpenVPN Access Server QA Image-{_PRODUCT_ID}'
-    ALIAS: str = _BASE_SSM.format(path='qqrkogtl46mpu/2.11.3')
+    ALIAS: str = _BASE_SSM.format(path='qqrkogtl46mpu/2.13.1')
     PRODUCT_CODE: str = 'f2ew2wrz425a1jagnifd02u5t'
 
 
@@ -114,32 +120,108 @@ settings = Settings()
 def configuration_dict(param: EnvConfig) -> List[ConfigurationSettings]:
     """Get configuration interaction as a list of dictionaries."""
     for config_dict in [
-        {'request': "Please enter 'yes' to indicate your agreement \\[no\\]: ", 'response': 'yes', 'timeout': 5,
-         'critical': False},
-        {'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
-        {'request': '> Press Enter for default \\[1\\]: ', 'response': '1', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
-         'critical': False},
-        {'request': '> Press ENTER for default \\[rsa\\]:', 'response': 'rsa', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for default \\[ 2048 \\]:', 'response': '2048', 'timeout': 1,
-         'critical': False},
-        {'request': '> Press ENTER for default \\[943\\]: ', 'response': param.vpn_port, 'timeout': 1,
-         'critical': False},
-        {'request': '> Press ENTER for default \\[443\\]: ', 'response': '443', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for default \\[no\\]: ', 'response': 'yes', 'timeout': 1, 'critical': False},
-        {'request': '> Press ENTER for EC2 default \\[yes\\]: ', 'response': 'yes', 'timeout': 1,
-         'critical': False},
-        {'request': '> Press ENTER for default \\[yes\\]: ', 'response': 'no', 'timeout': 1, 'critical': False},
-        {'request': '> Specify the username for an existing user or for the new user account: ',
-         'response': param.vpn_username, 'timeout': 1, 'critical': True},
-        {'request': f"Type a password for the '{param.vpn_username}' account "
-                    "(if left blank, a random password will be generated):",
-         'response': param.vpn_password, 'timeout': 1, 'critical': True},
-        {'request': f"Confirm the password for the '{param.vpn_username}' account:", 'response': param.vpn_password,
-         'timeout': 1, 'critical': True},
-        {'request': '> Please specify your Activation key (or leave blank to specify later): ', 'response': '\n',
-         'timeout': 1, 'critical': False}
+        {
+            "request": "Please enter 'yes' to indicate your agreement \\[no\\]: ",
+            "response": "yes",
+            "timeout": 5,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[yes\\]: ",
+            "response": "yes",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press Enter for default \\[1\\]: ",
+            "response": "1",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[rsa\\]:",
+            "response": "rsa",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[ 2048 \\]:",
+            "response": "2048",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[rsa\\]:",
+            "response": "rsa",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[ 2048 \\]:",
+            "response": "2048",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[943\\]: ",
+            "response": param.vpn_port,
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[443\\]: ",
+            "response": "443",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[no\\]: ",
+            "response": "yes",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[no\\]: ",
+            "response": "yes",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for EC2 default \\[yes\\]: ",
+            "response": "yes",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Press ENTER for default \\[yes\\]: ",
+            "response": "no",
+            "timeout": 1,
+            "critical": False,
+        },
+        {
+            "request": "> Specify the username for an existing user or for the new user account: ",
+            "response": param.vpn_username,
+            "timeout": 1,
+            "critical": True,
+        },
+        {
+            "request": f"Type a password for the '{param.vpn_username}' account "
+            "(if left blank, a random password will be generated):",
+            "response": param.vpn_password,
+            "timeout": 1,
+            "critical": True,
+        },
+        {
+            "request": f"Confirm the password for the '{param.vpn_username}' account:",
+            "response": param.vpn_password,
+            "timeout": 1,
+            "critical": True,
+        },
+        {
+            "request": "> Please specify your Activation key (or leave blank to specify later): ",
+            "response": "\n",
+            "timeout": 1,
+            "critical": False,
+        },
     ]:
         yield ConfigurationSettings(**config_dict)

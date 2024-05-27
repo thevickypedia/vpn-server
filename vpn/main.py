@@ -190,26 +190,36 @@ class VPNServer:
             security_group = self.ec2_resource.SecurityGroup(security_group_id)
             security_group.authorize_ingress(
                 IpPermissions=[
-                    {'IpProtocol': 'tcp',
-                     'FromPort': 22,
-                     'ToPort': 22,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'tcp',
-                     'FromPort': 443,
-                     'ToPort': 443,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'tcp',
-                     'FromPort': config.env.vpn_port,
-                     'ToPort': config.env.vpn_port,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'tcp',
-                     'FromPort': 945,
-                     'ToPort': 945,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'udp',
-                     'FromPort': 1194,
-                     'ToPort': 1194,
-                     'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+                    {
+                        'IpProtocol': 'tcp',
+                        'FromPort': 22,
+                        'ToPort': 22,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                    },
+                    {
+                        'IpProtocol': 'tcp',
+                        'FromPort': 443,
+                        'ToPort': 443,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                    },
+                    {
+                        'IpProtocol': 'tcp',
+                        'FromPort': config.env.vpn_port,
+                        'ToPort': config.env.vpn_port,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                    },
+                    {
+                        'IpProtocol': 'tcp',
+                        'FromPort': 945,
+                        'ToPort': 945,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                    },
+                    {
+                        'IpProtocol': 'udp',
+                        'FromPort': 1194,
+                        'ToPort': 1194,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                    }
                 ])
         except ClientError as error:
             error = str(error)

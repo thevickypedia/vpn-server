@@ -31,11 +31,17 @@ class Server:
         if username == config.env.vpn_username:
             try:
                 # todo: Manual config accepts username and password, but unable to get authentication pass via paramiko
-                self.ssh_client.connect(hostname=hostname, username=username,
-                                        pkey=pem_key, password=config.env.vpn_password)
+                self.ssh_client.connect(
+                    hostname=hostname,
+                    username=username,
+                    pkey=pem_key,
+                    password=config.env.vpn_password,
+                )
             except AuthenticationException as error:
                 self.logger.warning(error)
-                self.ssh_client.connect(hostname=hostname, username='openvpnas', pkey=pem_key)
+                self.ssh_client.connect(
+                    hostname=hostname, username="openvpnas", pkey=pem_key
+                )
         else:
             self.ssh_client.connect(hostname=hostname, username=username, pkey=pem_key)
         self.logger.info("Connected to %s as %s", hostname, username)
@@ -49,7 +55,7 @@ class Server:
             self._formatter.append(handler.formatter)
             handler.formatter = None
         self.logger.setLevel(level=logging.INFO)
-        sys.stdout = open(os.devnull, 'w')
+        sys.stdout = open(os.devnull, "w")
 
     def add_formatter(self) -> None:
         """Re-add any formatters that were removed during instantiation."""
@@ -73,18 +79,18 @@ class Server:
             timeout: Default interaction session timeout.
             display: Boolean flag whether to display interaction data on screen.
         """
-        with SSHClientInteraction(client=self.ssh_client,
-                                  timeout=timeout,
-                                  display=display,
-                                  output_callback=lambda msg: self.logger.info(msg)) as interact:
+        with SSHClientInteraction(
+            client=self.ssh_client,
+            timeout=timeout,
+            display=display,
+            output_callback=lambda msg: self.logger.info(msg),
+        ) as interact:
             self.remove_formatter()
-            interact.send("systemctl status openvpnas", '\n')
+            interact.send("systemctl status openvpnas", "\n")
             interact.expect(r".*Started OpenVPN Access Server\..*", timeout)
             self.add_formatter()
 
-    def run_interactive_ssh(self,
-                            display: bool = True,
-                            timeout: int = 30) -> None:
+    def run_interactive_ssh(self, display: bool = True, timeout: int = 30) -> None:
         """Runs interactive ssh commands to configure the VPN server.
 
         Args:
@@ -96,10 +102,12 @@ class Server:
             Flag to indicate the calling function, whether the interactive session has completed successfully.
         """
         self.remove_formatter()
-        with SSHClientInteraction(client=self.ssh_client,
-                                  timeout=timeout,
-                                  display=display,
-                                  output_callback=lambda msg: self.logger.info(msg)) as interact:
+        with SSHClientInteraction(
+            client=self.ssh_client,
+            timeout=timeout,
+            display=display,
+            output_callback=lambda msg: self.logger.info(msg),
+        ) as interact:
             for setting in config.settings.openvpn_config_commands:
                 interact.expect(re_strings=setting.request, timeout=setting.timeout)
                 interact.send(send_string=str(setting.response))

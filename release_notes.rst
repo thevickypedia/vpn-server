@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+1.7.1 (05/26/2024)
+------------------
+- Upgrades ``OpenVPN`` software version and dependencies
+- Improves linting and runbook UI
+
 1.7 (01/30/2024)
 ----------------
 - Improved accuracy for validating alias record
