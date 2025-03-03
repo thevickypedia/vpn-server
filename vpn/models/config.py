@@ -32,14 +32,16 @@ class AMIBase(BaseModel):
         - Product Code: Found in configuration page (_BASE_URL) as 'Product Code'
     """
 
-    _BASE_URL: str = 'https://aws.amazon.com/marketplace/server/configuration?productId={productId}'
-    _BASE_SSM: str = '/aws/service/marketplace/prod-{path}'
-    _PRODUCT_ID: str = 'fe8020db-5343-4c43-9e65-5ed4a825c931'
+    _BASE_URL: str = (
+        "https://aws.amazon.com/marketplace/server/configuration?productId={productId}"
+    )
+    _BASE_SSM: str = "/aws/service/marketplace/prod-{path}"
+    _PRODUCT_ID: str = "fe8020db-5343-4c43-9e65-5ed4a825c931"
 
     PRODUCT_PAGE: HttpUrl = _BASE_URL.format(productId=_PRODUCT_ID)
-    NAME: str = f'OpenVPN Access Server QA Image-{_PRODUCT_ID}'
-    ALIAS: str = _BASE_SSM.format(path='qqrkogtl46mpu/2.13.1')
-    PRODUCT_CODE: str = 'f2ew2wrz425a1jagnifd02u5t'
+    NAME: str = f"OpenVPN Access Server QA Image-{_PRODUCT_ID}"
+    ALIAS: str = _BASE_SSM.format(path="qqrkogtl46mpu/2.13.1")
+    PRODUCT_CODE: str = "f2ew2wrz425a1jagnifd02u5t"
 
 
 ami_base = AMIBase()
@@ -78,18 +80,21 @@ class EnvConfig(BaseSettings):
         """Extra config for .env file and extra."""
 
         extra = "allow"
-        env_file = os.environ.get('env_file', os.environ.get('ENV_FILE', '.env'))
+        env_file = os.environ.get("env_file", os.environ.get("ENV_FILE", ".env"))
 
-    @field_validator('vpn_password', mode='before', check_fields=True)
+    @field_validator("vpn_password", mode="before", check_fields=True)
     def validate_vpn_password(cls, v: str) -> str:
         """Validates vpn_password as per the required regex."""
-        if re.match(pattern=r"^(?=.*\d)(?=.*[A-Z])(?=.*[!@#$%&'()*+,-/[\]^_`{|}~<>]).+$", string=v):
+        if re.match(
+            pattern=r"^(?=.*\d)(?=.*[A-Z])(?=.*[!@#$%&'()*+,-/[\]^_`{|}~<>]).+$",
+            string=v,
+        ):
             return v
         raise ValueError(
             r"Password must contain a digit, an Uppercase letter, and a symbol from !@#$%&'()*+,-/[\]^_`{|}~<>"
         )
 
-    @field_validator('instance_type', mode='before', check_fields=True)
+    @field_validator("instance_type", mode="before", check_fields=True)
     def validate_instance_type(cls, v: str) -> str:
         """Validate instance type to make sure it is not a nano."""
         if re.match(pattern=r".+\.nano$", string=v):

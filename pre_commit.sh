@@ -9,6 +9,9 @@ clean_docs() {
 
 update_release_notes() {
   # Update release notes
+  if ! [ -x "$(command -v gitverse)" ]; then
+    pip install gitverse
+  fi
   gitverse-release reverse -f release_notes.rst -t 'Release Notes'
 }
 

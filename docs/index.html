@@ -1,26 +1,24 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Welcome to VPN Server’s documentation! &#8212; VPN Server  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=def86cc0" />
+    <link rel="stylesheet" type="text/css" href="_static/static.css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Platform Supported" href="README.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -43,7 +41,7 @@
           <div class="body" role="main">
             
   <section id="welcome-to-vpn-server-s-documentation">
-<h1>Welcome to VPN Server’s documentation!<a class="headerlink" href="#welcome-to-vpn-server-s-documentation" title="Permalink to this heading">¶</a></h1>
+<h1>Welcome to VPN Server’s documentation!<a class="headerlink" href="#welcome-to-vpn-server-s-documentation" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Read Me:</span></p>
 <ul>
@@ -62,10 +60,10 @@
 </div>
 </section>
 <section id="module-vpn.main">
-<span id="vpn-server"></span><h1>VPN Server<a class="headerlink" href="#module-vpn.main" title="Permalink to this heading">¶</a></h1>
+<span id="vpn-server"></span><h1>VPN Server<a class="headerlink" href="#module-vpn.main" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.main.VPNServer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.main.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Unpack</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.main.VPNServer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.main.</span></span><span class="sig-name descname"><span class="pre">VPNServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Unpack</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#vpn.models.config.EnvConfig" title="vpn.models.config.EnvConfig"><span class="pre">EnvConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Logger</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.main.VPNServer" title="Link to this definition">¶</a></dt>
 <dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">VPNServer</span></code> object to spin up an EC2 instance with a pre-configured AMI which serves as a VPN server.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">VPNServer</span>
 </pre></div>
@@ -126,7 +124,7 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._authorize_security_group">
-<span class="sig-name descname"><span class="pre">_authorize_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._authorize_security_group" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_authorize_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._authorize_security_group" title="Link to this definition">¶</a></dt>
 <dd><p>Authorizes the security group for certain ingress list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -156,7 +154,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._configure_vpn">
-<span class="sig-name descname"><span class="pre">_configure_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_dns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._configure_vpn" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_configure_vpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_dns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._configure_vpn" title="Link to this definition">¶</a></dt>
 <dd><p>Configures the ec2 instance to take traffic from localhost and initiates tunneling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -167,7 +165,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._create_ec2_instance">
-<span class="sig-name descname"><span class="pre">_create_ec2_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_ec2_instance" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_create_ec2_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_ec2_instance" title="Link to this definition">¶</a></dt>
 <dd><p>Creates an EC2 instance with a pre-configured AMI id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -181,7 +179,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._create_key_pair">
-<span class="sig-name descname"><span class="pre">_create_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_key_pair" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_create_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_key_pair" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> of type <code class="docutils literal notranslate"><span class="pre">RSA</span></code> stores as a <code class="docutils literal notranslate"><span class="pre">PEM</span></code> file for SSH connection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -195,7 +193,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._create_security_group">
-<span class="sig-name descname"><span class="pre">_create_security_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_security_group" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_create_security_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._create_security_group" title="Link to this definition">¶</a></dt>
 <dd><p>Gets VPC id and creates a security group for the ec2 instance.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -213,7 +211,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._delete_key_pair">
-<span class="sig-name descname"><span class="pre">_delete_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._delete_key_pair" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_delete_key_pair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._delete_key_pair" title="Link to this definition">¶</a></dt>
 <dd><p>Deletes the <code class="docutils literal notranslate"><span class="pre">KeyPair</span></code> created to access the ec2 instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -227,7 +225,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._delete_security_group">
-<span class="sig-name descname"><span class="pre">_delete_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._delete_security_group" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_delete_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._delete_security_group" title="Link to this definition">¶</a></dt>
 <dd><p>Deletes the security group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -244,7 +242,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._disassociate_security_group">
-<span class="sig-name descname"><span class="pre">_disassociate_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ServiceResource</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._disassociate_security_group" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_disassociate_security_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ServiceResource</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._disassociate_security_group" title="Link to this definition">¶</a></dt>
 <dd><p>Disassociates an SG from the ec2 instance by assigning it to the default security group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -265,7 +263,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._get_vpc_id">
-<span class="sig-name descname"><span class="pre">_get_vpc_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.main.VPNServer._get_vpc_id" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_get_vpc_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._get_vpc_id" title="Link to this definition">¶</a></dt>
 <dd><p>Fetches the default VPC id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -279,7 +277,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._init">
-<span class="sig-name descname"><span class="pre">_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._init" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._init" title="Link to this definition">¶</a></dt>
 <dd><p>Initializer function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -290,7 +288,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._terminate_ec2_instance">
-<span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ServiceResource</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ServiceResource</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._terminate_ec2_instance" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_terminate_ec2_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ServiceResource</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ServiceResource</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._terminate_ec2_instance" title="Link to this definition">¶</a></dt>
 <dd><p>Terminates the requested instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -310,7 +308,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._test_get">
-<span class="sig-name descname"><span class="pre">_test_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._test_get" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_test_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._test_get" title="Link to this definition">¶</a></dt>
 <dd><p>Test GET connection with multiple hostnames.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -337,7 +335,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer._tester">
-<span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._tester" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer._tester" title="Link to this definition">¶</a></dt>
 <dd><p>Tests <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections on the existing server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -359,7 +357,7 @@
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>AssertionError</strong> – </p></li>
-<li><p><strong>When any of the tests fail.</strong> – </p></li>
+<li><p><strong>When any</strong><strong> of </strong><strong>the tests fail.</strong> – </p></li>
 </ul>
 </dd>
 </dl>
@@ -367,7 +365,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer.create_vpn_server">
-<span class="sig-name descname"><span class="pre">create_vpn_server</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.main.VPNServer.create_vpn_server" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">create_vpn_server</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer.create_vpn_server" title="Link to this definition">¶</a></dt>
 <dd><p>Creates an OpenVPN Access Server hosted on AWS ec2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -381,7 +379,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer.delete_vpn_server">
-<span class="sig-name descname"><span class="pre">delete_vpn_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer.delete_vpn_server" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">delete_vpn_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">security_group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer.delete_vpn_server" title="Link to this definition">¶</a></dt>
 <dd><p>Disables tunnelling by removing all AWS resources acquired.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -408,7 +406,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.main.VPNServer.test_vpn">
-<span class="sig-name descname"><span class="pre">test_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer.test_vpn" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">test_vpn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.main.VPNServer.test_vpn" title="Link to this definition">¶</a></dt>
 <dd><p>Tests the <code class="docutils literal notranslate"><span class="pre">GET</span></code> and <code class="docutils literal notranslate"><span class="pre">SSH</span></code> connections to an existing VPN server.</p>
 </dd></dl>
 
@@ -416,10 +414,10 @@
 
 </section>
 <section id="configuration">
-<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h1>
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.config.ConfigurationSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">ConfigurationSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.ConfigurationSettings" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">ConfigurationSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.ConfigurationSettings" title="Link to this definition">¶</a></dt>
 <dd><p>OpenVPN’s configuration settings, for SSH interaction.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ConfigurationSettings</span>
 </pre></div>
@@ -427,14 +425,13 @@
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
-<p><cite>__init__</cite> uses <cite>__pydantic_self__</cite> instead of the more common <cite>self</cite> for the first arg to
-allow <cite>self</cite> as a field name.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
 </dd></dl>
 
 <hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.config.AMIBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">AMIBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.AMIBase" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">AMIBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.AMIBase" title="Link to this definition">¶</a></dt>
 <dd><p>Default values to fetch AMI image ID.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">AMIBase</span>
 </pre></div>
@@ -452,18 +449,17 @@ allow <cite>self</cite> as a field name.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
-<p><cite>__init__</cite> uses <cite>__pydantic_self__</cite> instead of the more common <cite>self</cite> for the first arg to
-allow <cite>self</cite> as a field name.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.config.AMIBase.model_post_init">
-<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.config.AMIBase.model_post_init" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.config.AMIBase.model_post_init" title="Link to this definition">¶</a></dt>
 <dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>self</strong> – The BaseModel instance.</p></li>
-<li><p><strong>__context</strong> – The context.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
 </ul>
 </dd>
 </dl>
@@ -474,7 +470,7 @@ allow <cite>self</cite> as a field name.</p>
 <hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.config.EnvConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">EnvConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic_settings.BaseSettings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.EnvConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">EnvConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic_settings.BaseSettings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.EnvConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Env configuration.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">EnvConfig</span>
 </pre></div>
@@ -484,23 +480,22 @@ allow <cite>self</cite> as a field name.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
-<p><cite>__init__</cite> uses <cite>__pydantic_self__</cite> instead of the more common <cite>self</cite> for the first arg to
-allow <cite>self</cite> as a field name.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.config.EnvConfig.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.Config" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.Config" title="Link to this definition">¶</a></dt>
 <dd><p>Extra config for .env file and extra.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.config.EnvConfig.validate_instance_type">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_instance_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.validate_instance_type" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_instance_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.validate_instance_type" title="Link to this definition">¶</a></dt>
 <dd><p>Validate instance type to make sure it is not a nano.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.config.EnvConfig.validate_vpn_password">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_vpn_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.validate_vpn_password" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_vpn_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.config.EnvConfig.validate_vpn_password" title="Link to this definition">¶</a></dt>
 <dd><p>Validates vpn_password as per the required regex.</p>
 </dd></dl>
 
@@ -509,7 +504,7 @@ allow <cite>self</cite> as a field name.</p>
 <hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.config.Settings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">Settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.Settings" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.config.</span></span><span class="sig-name descname"><span class="pre">Settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydantic.BaseModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.config.Settings" title="Link to this definition">¶</a></dt>
 <dd><p>Wrapper for configuration settings.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span>
 </pre></div>
@@ -517,31 +512,30 @@ allow <cite>self</cite> as a field name.</p>
 <p>Create a new model by parsing and validating input data from keyword arguments.</p>
 <p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
 validated to form a valid model.</p>
-<p><cite>__init__</cite> uses <cite>__pydantic_self__</cite> instead of the more common <cite>self</cite> for the first arg to
-allow <cite>self</cite> as a field name.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
 </dd></dl>
 
 </section>
 <section id="module-vpn.models.exceptions">
-<span id="exceptions"></span><h1>Exceptions<a class="headerlink" href="#module-vpn.models.exceptions" title="Permalink to this heading">¶</a></h1>
+<span id="exceptions"></span><h1>Exceptions<a class="headerlink" href="#module-vpn.models.exceptions" title="Link to this heading">¶</a></h1>
 <dl class="py exception">
 <dt class="sig sig-object py" id="vpn.models.exceptions.AWSResourceError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.exceptions.</span></span><span class="sig-name descname"><span class="pre">AWSResourceError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.exceptions.AWSResourceError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.exceptions.</span></span><span class="sig-name descname"><span class="pre">AWSResourceError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.exceptions.AWSResourceError" title="Link to this definition">¶</a></dt>
 <dd><p>Custom resource error for AWS resources.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="vpn.models.exceptions.NotImplementedWarning">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.exceptions.</span></span><span class="sig-name descname"><span class="pre">NotImplementedWarning</span></span><a class="headerlink" href="#vpn.models.exceptions.NotImplementedWarning" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.exceptions.</span></span><span class="sig-name descname"><span class="pre">NotImplementedWarning</span></span><a class="headerlink" href="#vpn.models.exceptions.NotImplementedWarning" title="Link to this definition">¶</a></dt>
 <dd><p>Custom implementation warning.</p>
 </dd></dl>
 
 </section>
 <section id="module-vpn.models.image_factory">
-<span id="imagefactory"></span><h1>ImageFactory<a class="headerlink" href="#module-vpn.models.image_factory" title="Permalink to this heading">¶</a></h1>
+<span id="imagefactory"></span><h1>ImageFactory<a class="headerlink" href="#module-vpn.models.image_factory" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.image_factory.ImageFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.image_factory.</span></span><span class="sig-name descname"><span class="pre">ImageFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.image_factory.</span></span><span class="sig-name descname"><span class="pre">ImageFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory" title="Link to this definition">¶</a></dt>
 <dd><p>Handles retrieving AMI ID from multiple sources.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ImageFactory</span>
 </pre></div>
@@ -557,25 +551,25 @@ allow <cite>self</cite> as a field name.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.image_factory.ImageFactory.get_ami_id_name">
-<span class="sig-name descname"><span class="pre">get_ami_id_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_name" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ami_id_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_name" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve AMI ID using Ami Name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.image_factory.ImageFactory.get_ami_id_product_code">
-<span class="sig-name descname"><span class="pre">get_ami_id_product_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_product_code" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ami_id_product_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_product_code" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve AMI ID using Product Code.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.image_factory.ImageFactory.get_ami_id_ssm">
-<span class="sig-name descname"><span class="pre">get_ami_id_ssm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_ssm" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ami_id_ssm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_ami_id_ssm" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve AMI ID using Ami Alias.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.image_factory.ImageFactory.get_image_id">
-<span class="sig-name descname"><span class="pre">get_image_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_image_id" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_image_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#vpn.models.image_factory.ImageFactory.get_image_id" title="Link to this definition">¶</a></dt>
 <dd><p>Tries to get image id from multiple sources, sequentially.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -604,23 +598,23 @@ allow <cite>self</cite> as a field name.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.models.image_factory.deprecation_warning">
-<span class="sig-prename descclassname"><span class="pre">vpn.models.image_factory.</span></span><span class="sig-name descname"><span class="pre">deprecation_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deprecation_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.image_factory.deprecation_warning" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">vpn.models.image_factory.</span></span><span class="sig-name descname"><span class="pre">deprecation_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deprecation_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.image_factory.deprecation_warning" title="Link to this definition">¶</a></dt>
 <dd><p>Raises a deprecation warning if the chosen AMI is nearing (value is set in config) its DeprecationTime.</p>
 </dd></dl>
 
 </section>
 <section id="module-vpn.models.logger">
-<span id="logger"></span><h1>LOGGER<a class="headerlink" href="#module-vpn.models.logger" title="Permalink to this heading">¶</a></h1>
+<span id="logger"></span><h1>LOGGER<a class="headerlink" href="#module-vpn.models.logger" title="Link to this heading">¶</a></h1>
 <p>Loads a default logger with StreamHandler set to DEBUG mode.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">LOGGER</span>
 </pre></div>
 </div>
 </section>
 <section id="module-vpn.models.route53">
-<span id="route53"></span><h1>Route53<a class="headerlink" href="#module-vpn.models.route53" title="Permalink to this heading">¶</a></h1>
+<span id="route53"></span><h1>Route53<a class="headerlink" href="#module-vpn.models.route53" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.models.route53.change_record_set">
-<span class="sig-prename descclassname"><span class="pre">vpn.models.route53.</span></span><span class="sig-name descname"><span class="pre">change_record_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.models.route53.change_record_set" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">vpn.models.route53.</span></span><span class="sig-name descname"><span class="pre">change_record_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#vpn.models.route53.change_record_set" title="Link to this definition">¶</a></dt>
 <dd><p>Changes a record set within an existing hosted zone.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -644,7 +638,7 @@ allow <cite>self</cite> as a field name.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.models.route53.get_zone_id">
-<span class="sig-prename descclassname"><span class="pre">vpn.models.route53.</span></span><span class="sig-name descname"><span class="pre">get_zone_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.models.route53.get_zone_id" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">vpn.models.route53.</span></span><span class="sig-name descname"><span class="pre">get_zone_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.route53.get_zone_id" title="Link to this definition">¶</a></dt>
 <dd><p>Gets the zone ID of a DNS name registered in route53.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -672,10 +666,10 @@ allow <cite>self</cite> as a field name.</p>
 
 </section>
 <section id="module-vpn.models.server">
-<span id="ssh-configuration"></span><h1>SSH Configuration<a class="headerlink" href="#module-vpn.models.server" title="Permalink to this heading">¶</a></h1>
+<span id="ssh-configuration"></span><h1>SSH Configuration<a class="headerlink" href="#module-vpn.models.server" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="vpn.models.server.Server">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.server.</span></span><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.server.Server" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vpn.models.server.</span></span><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vpn.models.server.Server" title="Link to this definition">¶</a></dt>
 <dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">Server</span></code> object to create an SSH session to configure the server.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Server</span>
 </pre></div>
@@ -688,25 +682,25 @@ allow <cite>self</cite> as a field name.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.server.Server.add_formatter">
-<span class="sig-name descname"><span class="pre">add_formatter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.add_formatter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_formatter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.add_formatter" title="Link to this definition">¶</a></dt>
 <dd><p>Re-add any formatters that were removed during instantiation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.server.Server.remove_formatter">
-<span class="sig-name descname"><span class="pre">remove_formatter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.remove_formatter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_formatter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.remove_formatter" title="Link to this definition">¶</a></dt>
 <dd><p>Remove any logging formatters to allow room for OpenVPN configuration interaction.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.server.Server.restart_service">
-<span class="sig-name descname"><span class="pre">restart_service</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.restart_service" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">restart_service</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.restart_service" title="Link to this definition">¶</a></dt>
 <dd><p>Restarts the openvpn service.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.server.Server.run_interactive_ssh">
-<span class="sig-name descname"><span class="pre">run_interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.run_interactive_ssh" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run_interactive_ssh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.run_interactive_ssh" title="Link to this definition">¶</a></dt>
 <dd><p>Runs interactive ssh commands to configure the VPN server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -726,7 +720,7 @@ allow <cite>self</cite> as a field name.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vpn.models.server.Server.test_service">
-<span class="sig-name descname"><span class="pre">test_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.test_service" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">test_service</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#vpn.models.server.Server.test_service" title="Link to this definition">¶</a></dt>
 <dd><p>Check status of the service running on remote server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -742,10 +736,10 @@ allow <cite>self</cite> as a field name.</p>
 
 </section>
 <section id="module-vpn.models.util">
-<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-vpn.models.util" title="Permalink to this heading">¶</a></h1>
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-vpn.models.util" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.models.util.available_instance_types">
-<span class="sig-prename descclassname"><span class="pre">vpn.models.util.</span></span><span class="sig-name descname"><span class="pre">available_instance_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.models.util.available_instance_types" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">vpn.models.util.</span></span><span class="sig-name descname"><span class="pre">available_instance_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.models.util.available_instance_types" title="Link to this definition">¶</a></dt>
 <dd><p>Get all available EC2 instance types looping through describe instances API call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Yields<span class="colon">:</span></dt>
@@ -756,7 +750,7 @@ allow <cite>self</cite> as a field name.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="vpn.models.util.available_regions">
-<span class="sig-prename descclassname"><span class="pre">vpn.models.util.</span></span><span class="sig-name descname"><span class="pre">available_regions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.models.util.available_regions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">vpn.models.util.</span></span><span class="sig-name descname"><span class="pre">available_regions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#vpn.models.util.available_regions" title="Link to this definition">¶</a></dt>
 <dd><p>Get all available regions with describe regions API call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Yields<span class="colon">:</span></dt>
@@ -767,7 +761,7 @@ allow <cite>self</cite> as a field name.</p>
 
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -780,20 +774,87 @@ allow <cite>self</cite> as a field name.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="#">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Welcome to VPN Server’s documentation!</a></li>
-<li><a class="reference internal" href="#module-vpn.main">VPN Server</a></li>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
-<li><a class="reference internal" href="#module-vpn.models.exceptions">Exceptions</a></li>
-<li><a class="reference internal" href="#module-vpn.models.image_factory">ImageFactory</a></li>
+<li><a class="reference internal" href="#module-vpn.main">VPN Server</a><ul>
+<li><a class="reference internal" href="#vpn.main.VPNServer"><code class="docutils literal notranslate"><span class="pre">VPNServer</span></code></a><ul>
+<li><a class="reference internal" href="#vpn.main.VPNServer._authorize_security_group"><code class="docutils literal notranslate"><span class="pre">VPNServer._authorize_security_group()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._configure_vpn"><code class="docutils literal notranslate"><span class="pre">VPNServer._configure_vpn()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._create_ec2_instance"><code class="docutils literal notranslate"><span class="pre">VPNServer._create_ec2_instance()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._create_key_pair"><code class="docutils literal notranslate"><span class="pre">VPNServer._create_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._create_security_group"><code class="docutils literal notranslate"><span class="pre">VPNServer._create_security_group()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._delete_key_pair"><code class="docutils literal notranslate"><span class="pre">VPNServer._delete_key_pair()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._delete_security_group"><code class="docutils literal notranslate"><span class="pre">VPNServer._delete_security_group()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._disassociate_security_group"><code class="docutils literal notranslate"><span class="pre">VPNServer._disassociate_security_group()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._get_vpc_id"><code class="docutils literal notranslate"><span class="pre">VPNServer._get_vpc_id()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._init"><code class="docutils literal notranslate"><span class="pre">VPNServer._init()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._terminate_ec2_instance"><code class="docutils literal notranslate"><span class="pre">VPNServer._terminate_ec2_instance()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._test_get"><code class="docutils literal notranslate"><span class="pre">VPNServer._test_get()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer._tester"><code class="docutils literal notranslate"><span class="pre">VPNServer._tester()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer.create_vpn_server"><code class="docutils literal notranslate"><span class="pre">VPNServer.create_vpn_server()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer.delete_vpn_server"><code class="docutils literal notranslate"><span class="pre">VPNServer.delete_vpn_server()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.main.VPNServer.test_vpn"><code class="docutils literal notranslate"><span class="pre">VPNServer.test_vpn()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#vpn.models.config.ConfigurationSettings"><code class="docutils literal notranslate"><span class="pre">ConfigurationSettings</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.config.AMIBase"><code class="docutils literal notranslate"><span class="pre">AMIBase</span></code></a><ul>
+<li><a class="reference internal" href="#vpn.models.config.AMIBase.model_post_init"><code class="docutils literal notranslate"><span class="pre">AMIBase.model_post_init()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vpn.models.config.EnvConfig"><code class="docutils literal notranslate"><span class="pre">EnvConfig</span></code></a><ul>
+<li><a class="reference internal" href="#vpn.models.config.EnvConfig.Config"><code class="docutils literal notranslate"><span class="pre">EnvConfig.Config</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.config.EnvConfig.validate_instance_type"><code class="docutils literal notranslate"><span class="pre">EnvConfig.validate_instance_type()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.config.EnvConfig.validate_vpn_password"><code class="docutils literal notranslate"><span class="pre">EnvConfig.validate_vpn_password()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vpn.models.config.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-vpn.models.exceptions">Exceptions</a><ul>
+<li><a class="reference internal" href="#vpn.models.exceptions.AWSResourceError"><code class="docutils literal notranslate"><span class="pre">AWSResourceError</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.exceptions.NotImplementedWarning"><code class="docutils literal notranslate"><span class="pre">NotImplementedWarning</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-vpn.models.image_factory">ImageFactory</a><ul>
+<li><a class="reference internal" href="#vpn.models.image_factory.ImageFactory"><code class="docutils literal notranslate"><span class="pre">ImageFactory</span></code></a><ul>
+<li><a class="reference internal" href="#vpn.models.image_factory.ImageFactory.get_ami_id_name"><code class="docutils literal notranslate"><span class="pre">ImageFactory.get_ami_id_name()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.image_factory.ImageFactory.get_ami_id_product_code"><code class="docutils literal notranslate"><span class="pre">ImageFactory.get_ami_id_product_code()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.image_factory.ImageFactory.get_ami_id_ssm"><code class="docutils literal notranslate"><span class="pre">ImageFactory.get_ami_id_ssm()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.image_factory.ImageFactory.get_image_id"><code class="docutils literal notranslate"><span class="pre">ImageFactory.get_image_id()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vpn.models.image_factory.deprecation_warning"><code class="docutils literal notranslate"><span class="pre">deprecation_warning()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-vpn.models.logger">LOGGER</a></li>
-<li><a class="reference internal" href="#module-vpn.models.route53">Route53</a></li>
-<li><a class="reference internal" href="#module-vpn.models.server">SSH Configuration</a></li>
-<li><a class="reference internal" href="#module-vpn.models.util">Utilities</a></li>
+<li><a class="reference internal" href="#module-vpn.models.route53">Route53</a><ul>
+<li><a class="reference internal" href="#vpn.models.route53.change_record_set"><code class="docutils literal notranslate"><span class="pre">change_record_set()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.route53.get_zone_id"><code class="docutils literal notranslate"><span class="pre">get_zone_id()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-vpn.models.server">SSH Configuration</a><ul>
+<li><a class="reference internal" href="#vpn.models.server.Server"><code class="docutils literal notranslate"><span class="pre">Server</span></code></a><ul>
+<li><a class="reference internal" href="#vpn.models.server.Server.add_formatter"><code class="docutils literal notranslate"><span class="pre">Server.add_formatter()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.server.Server.remove_formatter"><code class="docutils literal notranslate"><span class="pre">Server.remove_formatter()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.server.Server.restart_service"><code class="docutils literal notranslate"><span class="pre">Server.restart_service()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.server.Server.run_interactive_ssh"><code class="docutils literal notranslate"><span class="pre">Server.run_interactive_ssh()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.server.Server.test_service"><code class="docutils literal notranslate"><span class="pre">Server.test_service()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-vpn.models.util">Utilities</a><ul>
+<li><a class="reference internal" href="#vpn.models.util.available_instance_types"><code class="docutils literal notranslate"><span class="pre">available_instance_types()</span></code></a></li>
+<li><a class="reference internal" href="#vpn.models.util.available_regions"><code class="docutils literal notranslate"><span class="pre">available_regions()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
@@ -810,7 +871,7 @@ allow <cite>self</cite> as a field name.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -818,13 +879,13 @@ allow <cite>self</cite> as a field name.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -841,8 +902,8 @@ allow <cite>self</cite> as a field name.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Vignesh Rao.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+    &#169; Copyright 2021, Vignesh Rao.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>
 </html>
